@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "dfx": "0.8.4",
+  "canisters": {
+    "rust_hello": {
+      "type": "rust",
+      "package": "rust_hello",
+      "candid": "src/rust_hello/rust_hello.did"
+    },
+    "rust_hello_assets": {
+      "type": "assets",
+      "source": [
+        "src/rust_hello_assets/assets"
+      ],
+      "dependencies": [
+        "rust_hello"
+      ]
+    }
+  },
+  "defaults": {
+    "build": {
+      "packtool": "",
+      "args": ""
+    }
+  },
+  "networks": {
+    "local": {
+      "bind": "127.0.0.1:8000",
+      "type": "ephemeral"
+    }
+  }
+}
