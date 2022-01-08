@@ -12,3 +12,5 @@ crate-type = ["cdylib"]
 [dependencies]
 ic-cdk = "0.3"
 ic-cdk-macros = "0.3"
+indexmap = "1.7.0"
+nanoid = "0.4.0"
