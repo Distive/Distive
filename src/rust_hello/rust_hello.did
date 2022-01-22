@@ -1,3 +1,12 @@
+type comment_input = record {
+    channel_id: text;
+    message: text;
+    user_id: text;
+    comment_id: opt text;
+}
+
 service : {
     "greet": (text) -> (text) query;
+    "comment": (channel:text,message:text,userid:text, id:  text)-> (text);
+    "get_comment": (channel_id:text,comment_id: text) -> (text);
 }
