@@ -34,14 +34,14 @@ impl Channel {
                     let comments = self
                         .thread
                         .values()
-                        .skip(cursor_index)
+                        .skip(cursor_index + 1)
                         .take(limit)
                         .map(|comment| comment.clone())
                         .collect::<Vec<Comment>>();
                     let thread_length = self.thread.len();
-                    //remaining_count = len - ( len, min(len, limit) + cursor_index)
+                    //remaining_count = len - ( len, min(len, min(len, limit) + cursor_index))
                     let remaining_count = (thread_length
-                        - thread_length.min(thread_length.min(limit) + cursor_index))
+                        - thread_length.min(thread_length.min(limit) + (cursor_index + 1)))
                         as u32;
 
                     Ok(Page {
@@ -55,7 +55,6 @@ impl Channel {
                 let comments = self
                     .thread
                     .values()
-                    .skip(0)
                     .take(limit)
                     .map(|comment| comment.clone())
                     .collect::<Vec<Comment>>();

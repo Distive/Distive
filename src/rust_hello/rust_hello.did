@@ -5,8 +5,19 @@ type comment_input = record {
     comment_id: opt text;
 }
 
+type get_comment_param = record {
+    channel_id: text;
+    comment_id: text;
+}
+
+type get_thread_param = record {
+    limit: nat;
+    cursor: opt text;
+}
+
 service : {
     "greet": (text) -> (text) query;
-    "comment": (channel:text,message:text,userid:text, id:  text)-> (text);
-    "get_comment": (channel_id:text,comment_id: text) -> (text);
+    "upsert_comment": (input: comment_input) -> (text);
+    "get_comment": (param: get_comment_param) -> (text);
+    "get_thread": (param: get_thread_param);
 }
