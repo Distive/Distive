@@ -2,6 +2,9 @@
 use chat_engine::{Channel, CommentInput};
 
 #[test]
+/*
+This test ensures the correct behaviour of getting paginated comments (threads)
+*/
 fn comment_channel_get_comments() {
     let mut channel = Channel::new("channel_id".to_string());
 
@@ -14,18 +17,21 @@ fn comment_channel_get_comments() {
         created_at: 0,
         id: comment_id.clone(),
         user_id: "user_id".to_string(),
+        parent_id: None,
     });
     channel.upsert_comment(CommentInput {
         content: "hello".to_string(),
         created_at: 0,
         id: comment_id_2.clone(),
         user_id: "user_id".to_string(),
+        parent_id: None,
     });
     channel.upsert_comment(CommentInput {
         content: "hello".to_string(),
         created_at: 0,
         id: comment_id_3.clone(),
         user_id: "user_id".to_string(),
+        parent_id: None,
     });
 
     //when cursor is set to the first comment
@@ -69,4 +75,32 @@ fn comment_channel_get_comments() {
         Err(message) => assert_eq!(message, "CURSOR_NOT_FOUND"),
         _ => panic!("should not be able to get thread with wrong id"),
     };
+}
+
+#[test]
+/*
+This test ensures the correct behaviour of getting paginated replies (threads) of a comment
+*/
+fn comment_reply() {
+    let mut channel = Channel::new("channel_id".to_string());
+    let comment_id = "comment_id".to_string();
+    channel.upsert_comment(CommentInput {
+        content: "hello".to_string(),
+        created_at: 0,
+        id: comment_id.clone(),
+        user_id: "user_id".to_string(),
+        parent_id: None,
+    });
+
+    let reply_id = "reply_id".to_string();
+
+    channel.upsert_comment(CommentInput {
+        content: "hi".to_string(),
+        created_at: 0,
+        id: reply_id.clone(),
+        user_id: "user_id".to_string(),
+        parent_id: Some(comment_id.clone()),
+    });
+
+    let thread = channel.get_thread(&10, Some(&comment_id)).unwrap();
 }

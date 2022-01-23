@@ -1,4 +1,4 @@
-use chat_engine::{Channel, Comment, CommentInput};
+use chat_engine::{Channel, CommentInput, CommentOutput as Comment};
 use ic_cdk::api::time;
 use ic_cdk::export::candid;
 use ic_cdk_macros::{init, query, update};
@@ -17,6 +17,7 @@ fn comment(channel_id: String, message: String, user_id: String, comment_id: Str
         let comment_input = CommentInput {
             content: message.to_string(),
             id: comment_id.clone(),
+            parent_id: None,
             user_id: user_id.to_string(),
             created_at: time(),
         };

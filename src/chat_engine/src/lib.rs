@@ -4,7 +4,7 @@ use std::fmt;
 type Thread = IndexMap<String, Comment>;
 
 pub struct Page {
-    pub comments: Vec<Comment>,
+    pub comments: Vec<CommentOutput>,
     pub remaining_count: u32,
 }
 
@@ -36,8 +36,8 @@ impl Channel {
                         .values()
                         .skip(cursor_index + 1)
                         .take(limit)
-                        .map(|comment| comment.clone())
-                        .collect::<Vec<Comment>>();
+                        .map(|comment| CommentOutput::from(comment.clone()))
+                        .collect::<Vec<CommentOutput>>();
                     let thread_length = self.thread.len();
                     //remaining_count = len - ( len, min(len, min(len, limit) + cursor_index))
                     let remaining_count = (thread_length
@@ -56,8 +56,8 @@ impl Channel {
                     .thread
                     .values()
                     .take(limit)
-                    .map(|comment| comment.clone())
-                    .collect::<Vec<Comment>>();
+                    .map(|comment| CommentOutput::from(comment.clone()))
+                    .collect::<Vec<CommentOutput>>();
                 let thread_length = self.thread.len();
                 //remaining_count = len - ( len, min(len, limit) + cursor_index)
                 let remaining_count =
@@ -76,8 +76,10 @@ impl Channel {
             .insert(comment_input.id.clone(), Comment::new(comment_input));
     }
 
-    pub fn get_comment(&self, id: &str) -> Option<&Comment> {
-        self.thread.get(id)
+    pub fn get_comment(&self, id: &str) -> Option<CommentOutput> {
+        self.thread
+            .get(id)
+            .map(|comment| CommentOutput::from(comment.clone()))
     }
 
     pub fn delete_comment(&mut self, id: &str) {
@@ -92,11 +94,35 @@ impl Channel {
 }
 
 #[derive(Clone)]
-pub struct Comment {
+struct Comment {
+    id: String,
+    content: String,
+    user_id: String,
+
+    created_at: u64,
+}
+
+pub struct CommentOutput {
     pub id: String,
     pub content: String,
     pub user_id: String,
-    created_at: u64,
+    pub created_at: u64,
+    pub replies: Page,
+}
+
+impl From<Comment> for CommentOutput {
+    fn from(comment: Comment) -> Self {
+        CommentOutput {
+            id: comment.id,
+            content: comment.content,
+            user_id: comment.user_id,
+            created_at: comment.created_at,
+            replies: Page {
+                comments: Vec::new(),
+                remaining_count: 0,
+            },
+        }
+    }
 }
 
 #[derive(Clone)]
@@ -105,6 +131,7 @@ pub struct CommentInput {
     pub id: String,
     pub user_id: String,
     pub created_at: u64,
+    pub parent_id: Option<String>,
 }
 
 impl Comment {
@@ -142,6 +169,7 @@ mod tests {
             id: "comment_id".to_string(),
             user_id: "user_id".to_string(),
             created_at: 0,
+            parent_id: None,
         };
         let new_comment = Comment::new(comment);
         assert_eq!(new_comment.content, "hello");
@@ -157,6 +185,7 @@ mod tests {
             id: comment_id.clone(),
             user_id: "user_id".to_string(),
             created_at: 0,
+            parent_id: None,
         });
         let got_comment = channel.get_comment(&comment_id).unwrap();
         assert_eq!(got_comment.content, "hello");
@@ -171,18 +200,21 @@ mod tests {
             id: "comment_id".to_string(),
             user_id: "user_id".to_string(),
             created_at: 0,
+            parent_id: None,
         });
         channel.upsert_comment(CommentInput {
             content: "hello".to_string(),
             id: "comment_id_2".to_string(),
             user_id: "user_id".to_string(),
             created_at: 0,
+            parent_id: None,
         });
         channel.upsert_comment(CommentInput {
             content: "hello".to_string(),
             id: "comment_id_3".to_string(),
             user_id: "user_id".to_string(),
             created_at: 0,
+            parent_id: None,
         });
         assert_eq!(channel.thread.len(), 3);
     }
@@ -199,18 +231,21 @@ mod tests {
             id: comment_id.clone(),
             user_id: "user_id".to_string(),
             created_at: 0,
+            parent_id: None,
         });
         channel.upsert_comment(CommentInput {
             content: "hello".to_string(),
             id: comment_id_2.clone(),
             user_id: "user_id".to_string(),
             created_at: 0,
+            parent_id: None,
         });
         channel.upsert_comment(CommentInput {
             content: "hello".to_string(),
             id: comment_id_3.clone(),
             user_id: "user_id".to_string(),
             created_at: 0,
+            parent_id: None,
         });
         channel.delete_comment(&comment_id);
         assert_eq!(channel.thread.len(), 2);
@@ -234,18 +269,21 @@ mod tests {
             created_at: 0,
             id: comment_id.clone(),
             user_id: "user_id".to_string(),
+            parent_id: None,
         });
         channel.upsert_comment(CommentInput {
             content: "hello".to_string(),
             created_at: 0,
             id: comment_id_2.clone(),
             user_id: "user_id".to_string(),
+            parent_id: None,
         });
         channel.upsert_comment(CommentInput {
             content: "hello".to_string(),
             id: comment_id_3.clone(),
             user_id: "user_id".to_string(),
             created_at: 0,
+            parent_id: None,
         });
         channel.update_comment(&comment_id, "hello world");
         assert_eq!(channel.thread.len(), 3);
@@ -254,20 +292,20 @@ mod tests {
             "hello world"
         );
     }
-
     #[test]
     fn existing_comment_is_updated() {
         let mut channel = Channel::new("channel_id".to_string());
-
         let comment_id = "comment_id".to_string();
         let comment_input = CommentInput {
             content: "hello".to_string(),
+            parent_id: None,
             created_at: 0,
             id: comment_id.clone(),
             user_id: "user_id".to_string(),
         };
         channel.upsert_comment(comment_input.clone());
         channel.upsert_comment(CommentInput {
+            parent_id: None,
             content: "hello world".to_string(),
             ..comment_input
         });
