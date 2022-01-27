@@ -33,7 +33,7 @@ impl Channel {
                 Some(cursor_index) => {
                     let comments = thread
                         .values()
-                        .skip(cursor_index + 1)
+                        .skip(cursor_index)
                         .take(limit)
                         .map(|comment| comment.clone().into())
                         .collect::<Vec<CommentOutput>>();
@@ -69,7 +69,6 @@ impl Channel {
     }
 
     pub fn get_page(&mut self, limit: &usize, cursor: Option<&String>) -> Result<Page, String> {
-     
         let (thread, cursor) = match &cursor {
             Some(hierarchal_id) => {
                 let mut hierarchal_ids = Channel::split_comment_id(hierarchal_id);
@@ -89,7 +88,7 @@ impl Channel {
         };
 
         match thread {
-            Some(thread) => Channel::get_thread_as_page(thread, limit, cursor.as_ref() ),
+            Some(thread) => Channel::get_thread_as_page(thread, limit, cursor.as_ref()),
             None => Err(String::from("CURSOR_NOT_FOUND")),
         }
     }
