@@ -145,12 +145,40 @@ impl Channel {
         }
     }
 
-    pub fn get_comment(&self, id: &str) -> Option<CommentOutput> {
-        self.thread.get(id).map(|comment| comment.clone().into())
-    }
+    // pub fn get_comment(&self, comment_id: &str) -> Option<CommentOutput> {
+    //     match  self.get_page(&1,Some(&comment_id.to_string())){
+    //         Ok(thread) => {
+    //         thread.comments.get(0).map(|comment|comment.clone().into())
+              
+    //         }
+    //         Err(message)=> None
+    //     }
+    
+    //     // self.thread.get(comment_id).map(|comment| comment.clone().into())
+    // }
 
-    pub fn delete_comment(&mut self, id: &str) {
-        self.thread.remove(id);
+    pub fn delete_comment(&mut self, comment_id: String) {
+        let (thread, cursor) = {
+                let mut hierarchal_ids = Channel::split_comment_id(&comment_id);
+                match hierarchal_ids.len() {
+                    0 => (None, None),
+                    1 => (Some(&mut self.thread), Some(hierarchal_ids[0])),
+                    _ => {
+                        let cursor = hierarchal_ids.pop();
+                        (
+                            self.get_thread(&hierarchal_ids.join(DELIMITER)),
+                            cursor,
+                        )
+                    }
+                }
+        };
+
+        match (thread, cursor) {
+            (Some(thread),Some(cursor)) => {
+                thread.remove(cursor);
+            }
+            _ => (),
+        };
     }
 
     pub fn update_comment(&mut self, id: &str, content: &str) {
@@ -257,8 +285,9 @@ mod tests {
                 parent_id: None,
             })
             .unwrap();
-        let got_comment = channel.get_comment(&comment_id).unwrap();
-        assert_eq!(got_comment.content, "hello");
+        // let got_comment = channel.get_comment(&comment_id).unwrap();
+        let thread = channel.get_page(&1, Some(&comment_id)).unwrap();
+        assert_eq!(thread.comments[0].content, "hello");
     }
 
     #[test]
@@ -329,13 +358,13 @@ mod tests {
                 parent_id: None,
             })
             .unwrap();
-        channel.delete_comment(&comment_id);
+        channel.delete_comment(comment_id.clone());
         assert_eq!(channel.thread.len(), 2);
 
-        channel.delete_comment(&comment_id_2);
+        channel.delete_comment(comment_id_2.clone());
         assert_eq!(channel.thread.len(), 1);
 
-        channel.delete_comment(&comment_id_3);
+        channel.delete_comment(comment_id_3.clone());
         assert_eq!(channel.thread.len(), 0);
     }
 
@@ -376,7 +405,7 @@ mod tests {
         channel.update_comment(&comment_id, "hello world");
         assert_eq!(channel.thread.len(), 3);
         assert_eq!(
-            channel.get_comment(&comment_id).unwrap().content,
+            channel.get_page(&1,Some(&comment_id)).unwrap().comments[0].content,
             "hello world"
         );
     }
@@ -402,7 +431,7 @@ mod tests {
 
         assert_eq!(channel.thread.len(), 1);
         assert_eq!(
-            channel.get_comment(&comment_id).unwrap().content,
+            channel.get_page(&1,Some(&comment_id)).unwrap().comments[0].content,
             "hello world"
         );
     }

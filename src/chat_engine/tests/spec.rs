@@ -183,9 +183,12 @@ fn n_nested_comments() {
             let first_reply = &channel
                 .get_page(&10, comment_id.as_ref())
                 .unwrap()
-                .comments[0]
+                //first comment of thread
+                .comments[0] 
                 .replies
-                .comments[0];
+                //first reply of first comment of thread
+                .comments[0]; 
+                
             assert_eq!(first_reply.content, format!("comment {}", i+1));
             comment_id = Some(first_reply.id.clone());
         }
@@ -210,6 +213,14 @@ fn n_nested_comments() {
 
     let comment = &channel.get_page(&10, None).unwrap().comments[0];
     assert_eq!(check_full_thread_count(comment), 6);
+
+
+    //when a comment is deleted, its replies should also be removed
+    channel.delete_comment("comment_id_0.comment_id_1".to_string());
+    assert_eq!(check_full_thread_count(&channel.get_page(&10, None).unwrap().comments[0]), 1);
+
+
+
 
 }
 

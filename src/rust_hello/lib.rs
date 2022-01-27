@@ -28,18 +28,22 @@ fn comment(channel_id: String, message: String, user_id: String, comment_id: Str
     }
 }
 
-#[query]
-fn get_comment(channel_id: String, comment_id: String) -> String {
-    if let Some(channel) = unsafe { Channel.as_ref() } {
-        if let Some(comment) = channel.get_comment(&comment_id) {
-            comment.content.clone()
-        } else {
-            "NOT FOUND".to_string()
-        }
-    } else {
-        "CHANNEL NOT INITILIALIZED".to_string()
-    }
-}
+// #[query]
+// fn get_comment(channel_id: String, comment_id: String) -> String {
+//     if let Some(channel) = unsafe { Channel.as_ref() } {
+//         if let Ok(thread) = channel.get_page(&1,Some(&comment_id)) {
+//           match   thread.comments.get(0) {
+//               Some(comment) => comment.content.clone(),
+//               None => "NOT FOUND".to_string()
+//           }
+           
+//         } else {
+//             "NOT FOUND".to_string()
+//         }
+//     } else {
+//         "CHANNEL NOT INITILIALIZED".to_string()
+//     }
+// }
 
 #[ic_cdk_macros::query]
 fn greet(name: String) -> String {
