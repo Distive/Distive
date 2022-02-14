@@ -9,14 +9,14 @@ pub struct Page {
 }
 
 pub struct Channel {
-    id: String,
+    // id: String,
     thread: Thread,
 }
 
 impl Channel {
     pub fn new(id: String) -> Self {
         Channel {
-            id,
+            // id,
             thread: IndexMap::new(),
         }
     }
@@ -145,17 +145,33 @@ impl Channel {
         }
     }
 
-    // pub fn get_comment(&self, comment_id: &str) -> Option<CommentOutput> {
-    //     match  self.get_page(&1,Some(&comment_id.to_string())){
-    //         Ok(thread) => {
-    //         thread.comments.get(0).map(|comment|comment.clone().into())
-              
-    //         }
-    //         Err(message)=> None
-    //     }
-    
-    //     // self.thread.get(comment_id).map(|comment| comment.clone().into())
-    // }
+
+    pub fn get_comment(&mut self, comment_id: &String) -> Option<CommentOutput> {
+        let (thread, cursor) =  {
+                let mut hierarchal_ids = Channel::split_comment_id(comment_id);
+                match hierarchal_ids.len() {
+                    0 => (None, None),
+                    1 => (Some(&mut self.thread), Some(hierarchal_ids[0].to_string())),
+                    _ => {
+                        let cursor = hierarchal_ids.pop();
+                        (
+                            self.get_thread(&hierarchal_ids.join(DELIMITER)),
+                            cursor.map(|c| c.to_string()),
+                        )
+                    }
+                }
+            };
+            
+        match (thread, cursor) {
+            (Some(thread), Some(cursor)) => {
+                let comment = thread.get(&cursor);
+                comment.map(|comment| comment.clone().into())
+            }
+            _ => None,
+        }
+    }
+
+    // pub fn prune 
 
     pub fn delete_comment(&mut self, comment_id: String) {
         let (thread, cursor) = {

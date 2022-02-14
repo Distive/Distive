@@ -225,3 +225,50 @@ fn n_nested_comments() {
 }
 
 
+
+#[test]
+fn get_comment_test() {
+    let mut channel = Channel::new("channel_id".to_string());
+
+    let comment_id = "comment_id".to_string();
+    let reply_id = "reply_id".to_string();
+
+    //simple top level comment (with no parent)
+    let comment = channel
+        .upsert_comment(CommentInput {
+            content: "comment 1".to_string(),
+            created_at: 0,
+            id: comment_id.clone(),
+            user_id: "user_id".to_string(),
+            parent_id: None,
+        })
+        .unwrap();
+
+    //reply to first comment
+    let reply = channel
+        .upsert_comment(CommentInput {
+            content: "reply 1".to_string(),
+            created_at: 0,
+            id: reply_id.clone(),
+            user_id: "user_id".to_string(),
+            parent_id: Some(comment.id.clone()),
+        })
+        .unwrap();
+
+    //get the comment
+    let comment = channel.get_comment(&comment_id).unwrap();
+    assert_eq!(comment.content, "comment 1".to_string());
+
+    //get the reply
+    let reply = channel.get_comment(&reply.id).unwrap();
+    assert_eq!(reply.content, "reply 1".to_string());
+    
+
+    //get a comment that does not exist
+    let comment = channel.get_comment(&"wrong_id".to_string());
+
+    if let Some(_) = comment {
+        panic!("should have returned None");
+    }
+  
+}
