@@ -13,3 +13,4 @@ crate-type = ["cdylib"]
 ic-cdk = "0.3"
 ic-cdk-macros = "0.3"
 chat_engine = { path = "../chat_engine" }
+serde = "1.0"

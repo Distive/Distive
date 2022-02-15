@@ -696,6 +696,7 @@ dependencies = [
  "chat_engine",
  "ic-cdk",
  "ic-cdk-macros",
+ "serde",
 ]
 
 [[package]]

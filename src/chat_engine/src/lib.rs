@@ -14,7 +14,7 @@ pub struct Channel {
 }
 
 impl Channel {
-    pub fn new(id: String) -> Self {
+    pub fn new(_id: String) -> Self {
         Channel {
             // id,
             thread: IndexMap::new(),
