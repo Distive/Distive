@@ -1,7 +1,7 @@
 use chat_engine::{Channel, CommentInput, CommentOutput as Comment, Page};
 use ic_cdk::api::time;
 // use ic_cdk::export::candid;
-use ic_cdk::export::candid::{CandidType, Deserialize};
+use ic_cdk::export::candid::{CandidType, Deserialize,Nat,types::{number}};
 use ic_cdk_macros::{init, query, update};
 use std::collections::HashMap;
 
@@ -15,7 +15,7 @@ fn init_function() {
 }
 
 #[update]
-fn upsert_comment(param: UpsertCommentParam) -> bool {
+fn upsert_comment(param: UpsertCommentParam) -> String {
     let user_id = ic_cdk::caller().to_string();
     match authenticate_user_and_comment_action(
         &param.channel_id,
@@ -31,28 +31,33 @@ fn upsert_comment(param: UpsertCommentParam) -> bool {
             };
             channel
                 .upsert_comment(comment_input)
-                .map(|_| true)
-                .unwrap_or(false)
+                
+             
+            
         },
     ) {
-        Ok(result) => result,
-        Err(_) => false,
+        Ok(result) => match result {
+            Ok(output)=>output.id,
+            Err(message)=>message
+        },
+        Err(message) => message,
     }
 }
 
 #[update]
-fn delete_comment(param: DeleteCommentParam) -> bool {
+fn delete_comment(param: DeleteCommentParam) -> String {
     let user_id = ic_cdk::caller().to_string();
-    authenticate_user_and_comment_action(
+   let result = authenticate_user_and_comment_action(
         &param.channel_id,
         &param.comment_id,
         &user_id,
         |channel| {
             channel.delete_comment(param.comment_id.clone());
-            true
         },
-    )
-    .unwrap_or(false)
+    );
+   
+   "".to_string()
+    
 }
 
 #[query]
@@ -61,12 +66,13 @@ fn get_thread(param: GetThreadParam) -> IPage {
         let channel = channels
             .entry(param.channel_id.to_string())
             .or_insert_with(|| Channel::new(param.channel_id.to_string()));
-        let page = channel.get_page(&param.limit, param.cursor.as_ref());
+       
+        let page = channel.get_page(&10, param.cursor.as_ref());
         page.map(|p| p.into()).unwrap_or_default()
     } else {
         IPage {
             comments: vec![],
-            remaining_count: 0,
+            remaining_count: Nat::from(0),
         }
     }
 }
@@ -92,11 +98,11 @@ where
                     Ok(action(channel))
                 }
             }
-            None => Err("NOT FOUND".to_string()),
+            None => Ok(action(channel)),
         };
         message
     } else {
-        Err("ERR".to_string())
+        Err("NOT INITIALIZED".to_string())
     }
 }
 
@@ -116,7 +122,7 @@ struct DeleteCommentParam {
 
 #[derive(Clone, Debug, Default, CandidType, Deserialize)]
 struct GetThreadParam {
-    limit: usize,
+    limit: Nat,
     channel_id: String,
     cursor: Option<String>,
 }
@@ -125,7 +131,7 @@ struct GetThreadParam {
 struct ICommentOutput {
     id: String,
     content: String,
-    created_at: u64,
+    created_at: Nat,
     user_id: String,
     replies: IPage,
 }
@@ -133,7 +139,7 @@ struct ICommentOutput {
 #[derive(Clone, Debug, Default, CandidType, Deserialize)]
 struct IPage {
     comments: Vec<ICommentOutput>,
-    remaining_count: u32,
+    remaining_count: Nat,
 }
 
 impl From<Comment> for ICommentOutput {
@@ -141,7 +147,7 @@ impl From<Comment> for ICommentOutput {
         Self {
             id: comment.id,
             content: comment.content,
-            created_at: comment.created_at,
+            created_at: Nat::from(comment.created_at),
             user_id: comment.user_id.to_string(),
             replies: comment.replies.into(),
         }
@@ -156,7 +162,11 @@ impl From<Page> for IPage {
                 .into_iter()
                 .map(|comment| comment.into())
                 .collect(),
-            remaining_count: page.remaining_count,
+            remaining_count: Nat::from(page.remaining_count),
         }
     }
 }
+
+
+//dfx canister call rust_hello get_thread '(record {limit=10;channel_id="channel_1";cursor=null})'
+// dfx canister call rust_hello upsert_comment '(record {channel_id="channel_1";message="hello";comment_id="comment_id_1"})'

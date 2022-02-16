@@ -424,6 +424,35 @@ mod tests {
             channel.get_page(&1,Some(&comment_id)).unwrap().comments[0].content,
             "hello world"
         );
+
+          //upserts should not remove replies
+
+        //reply to first comment
+        channel.upsert_comment(
+            CommentInput {
+                content:"reply".to_string(),
+                id: "reply_id".to_string(),
+                user_id: "user_id".to_string(),
+                created_at: 0,
+                parent_id: Some(comment_id.clone()),
+            }
+        ).unwrap();
+        let first_comment =  channel.get_comment(&comment_id.clone()).unwrap();
+        assert_eq!(first_comment.replies.comments.len(), 1);
+        //upsert to first comment
+        channel.upsert_comment(
+            CommentInput {
+                content: "hello world".to_string(),
+                id: comment_id.clone(),
+                user_id: "user_id".to_string(),
+                created_at: 0,
+                parent_id: None,
+            }
+        ).unwrap();
+
+
+      let first_comment =  channel.get_comment(&comment_id.clone()).unwrap();
+      assert_eq!(first_comment.replies.comments.len(), 1);
     }
     #[test]
     fn existing_comment_is_updated() {

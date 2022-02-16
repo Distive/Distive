@@ -33,7 +33,7 @@ type delete_comment_param = record {
 };
 
 service : {
-    "upsert_comment": (input: upsert_comment_param) -> (bool);
-    "delete_comment":(input: delete_comment_param)-> (bool);
+    "upsert_comment": (input: upsert_comment_param) -> (text);
+    "delete_comment":(input: delete_comment_param)-> (text);
     "get_thread": (param: get_thread_param) -> (page) query;
 }
