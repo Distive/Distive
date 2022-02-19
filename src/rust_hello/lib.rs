@@ -1,7 +1,6 @@
 use chat_engine::{Channel, CommentInput, CommentOutput as Comment, Page};
 use ic_cdk::api::time;
-// use ic_cdk::export::candid;
-use ic_cdk::export::candid::{CandidType, Deserialize,Nat,types::{number}};
+use ic_cdk::export::candid::{CandidType, Deserialize, Nat};
 use ic_cdk_macros::{init, query, update};
 use std::collections::HashMap;
 
@@ -29,16 +28,12 @@ fn upsert_comment(param: UpsertCommentParam) -> String {
                 user_id: user_id.clone(),
                 created_at: time(),
             };
-            channel
-                .upsert_comment(comment_input)
-                
-             
-            
+            channel.upsert_comment(comment_input)
         },
     ) {
         Ok(result) => match result {
-            Ok(output)=>output.id,
-            Err(message)=>message
+            Ok(output) => output.id,
+            Err(message) => message,
         },
         Err(message) => message,
     }
@@ -47,7 +42,7 @@ fn upsert_comment(param: UpsertCommentParam) -> String {
 #[update]
 fn delete_comment(param: DeleteCommentParam) -> String {
     let user_id = ic_cdk::caller().to_string();
-   let result = authenticate_user_and_comment_action(
+    let result = authenticate_user_and_comment_action(
         &param.channel_id,
         &param.comment_id,
         &user_id,
@@ -55,9 +50,8 @@ fn delete_comment(param: DeleteCommentParam) -> String {
             channel.delete_comment(param.comment_id.clone());
         },
     );
-   
-   "".to_string()
-    
+
+    "".to_string()
 }
 
 #[query]
@@ -66,8 +60,9 @@ fn get_thread(param: GetThreadParam) -> IPage {
         let channel = channels
             .entry(param.channel_id.to_string())
             .or_insert_with(|| Channel::new(param.channel_id.to_string()));
-       
-        let page = channel.get_page(&10, param.cursor.as_ref());
+        // let limit = param.limit
+        // Nat32::try_from(param.limit).unwrap();
+        let page = channel.get_page(&(param.limit as usize), param.cursor.as_ref());
         page.map(|p| p.into()).unwrap_or_default()
     } else {
         IPage {
@@ -122,7 +117,7 @@ struct DeleteCommentParam {
 
 #[derive(Clone, Debug, Default, CandidType, Deserialize)]
 struct GetThreadParam {
-    limit: Nat,
+    limit: u8,
     channel_id: String,
     cursor: Option<String>,
 }
@@ -166,7 +161,6 @@ impl From<Page> for IPage {
         }
     }
 }
-
 
 //dfx canister call rust_hello get_thread '(record {limit=10;channel_id="channel_1";cursor=null})'
 // dfx canister call rust_hello upsert_comment '(record {channel_id="channel_1";message="hello";comment_id="comment_id_1"})'
