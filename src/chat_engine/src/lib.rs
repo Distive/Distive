@@ -422,6 +422,15 @@ mod tests {
             })
             .unwrap();
     
+            channel
+            .upsert_comment(CommentInput {
+                content: "hello world".to_string(),
+                created_at: 0,
+                id: comment_id.clone(),
+                user_id: "user_id".to_string(),
+                parent_id: None,
+            })
+            .unwrap();
         assert_eq!(channel.thread.len(), 3);
         assert_eq!(
             channel.get_page(&1, Some(&comment_id)).unwrap().comments[0].content,
