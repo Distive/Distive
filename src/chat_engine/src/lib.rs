@@ -110,12 +110,20 @@ impl Channel {
                 let comment_id = comment_input.id.clone();
                 let parent_id = comment_input.parent_id.clone();
                 let hierarchal_id = Self::create_hierarchal_id(parent_id, &comment_id);
-                let comment = Comment::new(CommentInput {
-                    id: hierarchal_id.clone(),
-                    ..comment_input
-                });
-                thread.insert(comment_id, comment.clone());
-                Ok(comment.into())
+                match thread.get_mut(&comment_id) {
+                    Some(comment) => {
+                        comment.content = comment_input.content;
+                        Ok(comment.clone().into())
+                    }
+                    None => {
+                        let comment = Comment::new(CommentInput {
+                            id: hierarchal_id.clone(),
+                            ..comment_input
+                        });
+                        thread.insert(comment_id, comment.clone());
+                        Ok(comment.into())
+                    }
+                }
             }
             None => Err(String::from("PARENT_NOT_FOUND")),
         }
@@ -145,23 +153,21 @@ impl Channel {
         }
     }
 
-
     pub fn get_comment(&mut self, comment_id: &String) -> Option<CommentOutput> {
-        let (thread, cursor) =  {
-                let mut hierarchal_ids = Channel::split_comment_id(comment_id);
-                match hierarchal_ids.len() {
-                    0 => (None, None),
-                    1 => (Some(&mut self.thread), Some(hierarchal_ids[0].to_string())),
-                    _ => {
-                        let cursor = hierarchal_ids.pop();
-                        (
-                            self.get_thread(&hierarchal_ids.join(DELIMITER)),
-                            cursor.map(|c| c.to_string()),
-                        )
-                    }
+        let (thread, cursor) = {
+            let mut hierarchal_ids = Channel::split_comment_id(comment_id);
+            match hierarchal_ids.len() {
+                0 => (None, None),
+                1 => (Some(&mut self.thread), Some(hierarchal_ids[0].to_string())),
+                _ => {
+                    let cursor = hierarchal_ids.pop();
+                    (
+                        self.get_thread(&hierarchal_ids.join(DELIMITER)),
+                        cursor.map(|c| c.to_string()),
+                    )
                 }
-            };
-            
+            }
+        };
         match (thread, cursor) {
             (Some(thread), Some(cursor)) => {
                 let comment = thread.get(&cursor);
@@ -171,26 +177,23 @@ impl Channel {
         }
     }
 
-    // pub fn prune 
+    // pub fn prune
 
     pub fn delete_comment(&mut self, comment_id: String) {
         let (thread, cursor) = {
-                let mut hierarchal_ids = Channel::split_comment_id(&comment_id);
-                match hierarchal_ids.len() {
-                    0 => (None, None),
-                    1 => (Some(&mut self.thread), Some(hierarchal_ids[0])),
-                    _ => {
-                        let cursor = hierarchal_ids.pop();
-                        (
-                            self.get_thread(&hierarchal_ids.join(DELIMITER)),
-                            cursor,
-                        )
-                    }
+            let mut hierarchal_ids = Channel::split_comment_id(&comment_id);
+            match hierarchal_ids.len() {
+                0 => (None, None),
+                1 => (Some(&mut self.thread), Some(hierarchal_ids[0])),
+                _ => {
+                    let cursor = hierarchal_ids.pop();
+                    (self.get_thread(&hierarchal_ids.join(DELIMITER)), cursor)
                 }
+            }
         };
 
         match (thread, cursor) {
-            (Some(thread),Some(cursor)) => {
+            (Some(thread), Some(cursor)) => {
                 thread.remove(cursor);
             }
             _ => (),
@@ -418,41 +421,40 @@ mod tests {
                 parent_id: None,
             })
             .unwrap();
-        channel.update_comment(&comment_id, "hello world");
+    
         assert_eq!(channel.thread.len(), 3);
         assert_eq!(
-            channel.get_page(&1,Some(&comment_id)).unwrap().comments[0].content,
+            channel.get_page(&1, Some(&comment_id)).unwrap().comments[0].content,
             "hello world"
         );
 
-          //upserts should not remove replies
+        //upserts should not remove replies
 
         //reply to first comment
-        channel.upsert_comment(
-            CommentInput {
-                content:"reply".to_string(),
+        channel
+            .upsert_comment(CommentInput {
+                content: "reply".to_string(),
                 id: "reply_id".to_string(),
                 user_id: "user_id".to_string(),
                 created_at: 0,
                 parent_id: Some(comment_id.clone()),
-            }
-        ).unwrap();
-        let first_comment =  channel.get_comment(&comment_id.clone()).unwrap();
+            })
+            .unwrap();
+        let first_comment = channel.get_comment(&comment_id.clone()).unwrap();
         assert_eq!(first_comment.replies.comments.len(), 1);
         //upsert to first comment
-        channel.upsert_comment(
-            CommentInput {
+        channel
+            .upsert_comment(CommentInput {
                 content: "hello world".to_string(),
                 id: comment_id.clone(),
                 user_id: "user_id".to_string(),
                 created_at: 0,
                 parent_id: None,
-            }
-        ).unwrap();
+            })
+            .unwrap();
 
-
-      let first_comment =  channel.get_comment(&comment_id.clone()).unwrap();
-      assert_eq!(first_comment.replies.comments.len(), 1);
+        let first_comment = channel.get_comment(&comment_id.clone()).unwrap();
+        assert_eq!(first_comment.replies.comments.len(), 1);
     }
     #[test]
     fn existing_comment_is_updated() {
@@ -476,7 +478,7 @@ mod tests {
 
         assert_eq!(channel.thread.len(), 1);
         assert_eq!(
-            channel.get_page(&1,Some(&comment_id)).unwrap().comments[0].content,
+            channel.get_page(&1, Some(&comment_id)).unwrap().comments[0].content,
             "hello world"
         );
     }
