@@ -1,0 +1,39 @@
+type comment_input = record {
+    channel_id: text;
+    message: text;
+    comment_id:  text;
+    parent_id: opt text;
+};
+
+type page = record {
+    comments: vec comment_output;
+    remaining_count: nat;
+};
+
+type comment_output = record {
+    id: text;
+    content: text;
+    user_id: text;
+    created_at: nat;
+    replies: page;
+};
+
+
+type get_thread_param = record {
+    limit: nat8;
+    channel_id: text;
+    cursor: opt text;
+};
+
+type upsert_comment_param = comment_input;
+
+type delete_comment_param = record {
+    comment_id: text;
+    channel_id: text;
+};
+
+service : {
+    "upsert_comment": (input: upsert_comment_param) -> (text);
+    "delete_comment":(input: delete_comment_param)-> (text);
+    "get_thread": (param: get_thread_param) -> (page) query;
+}

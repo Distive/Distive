@@ -2,3 +2,5 @@
 # Deploy Canisters with clean state
 # Run Unit Tests (Canisters)
 # Run Unit Tests (JS SDK)
+
+# Canister <-> SDK Integration Tests
