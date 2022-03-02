@@ -2,16 +2,19 @@ use chat_engine::{Channel, CommentInput, CommentOutput as Comment, Page};
 use ic_cdk::api::time;
 use ic_cdk::export::candid::{CandidType, Deserialize, Nat};
 use ic_cdk_macros::{init, query, update};
+use std::cell::RefCell;
 use std::collections::HashMap;
 
-static mut CHANNELS: Option<HashMap<String, Channel>> = None;
-
-#[init]
-fn init_function() {
-    unsafe {
-        CHANNELS = Some(HashMap::new());
-    };
+thread_local! {
+    static CHANNELS: RefCell<HashMap<String, Channel>> = RefCell::new(HashMap::new());
 }
+
+// #[init]
+// fn init_function() {
+//     // unsafe {
+//     //     CHANNELS = Some(HashMap::new());
+//     // };
+// }
 
 #[update]
 fn upsert_comment(param: UpsertCommentParam) -> String {
@@ -56,20 +59,14 @@ fn delete_comment(param: DeleteCommentParam) -> String {
 
 #[query]
 fn get_thread(param: GetThreadParam) -> IPage {
-    if let Some(channels) = unsafe { CHANNELS.as_mut() } {
+    CHANNELS.with(|channels| {
+        let mut channels = channels.borrow_mut();
         let channel = channels
             .entry(param.channel_id.to_string())
             .or_insert_with(|| Channel::new(param.channel_id.to_string()));
-        // let limit = param.limit
-        // Nat32::try_from(param.limit).unwrap();
         let page = channel.get_page(&(param.limit as usize), param.cursor.as_ref());
         page.map(|p| p.into()).unwrap_or_default()
-    } else {
-        IPage {
-            comments: vec![],
-            remaining_count: Nat::from(0),
-        }
-    }
+    })
 }
 
 fn authenticate_user_and_comment_action<A, T>(
@@ -81,10 +78,12 @@ fn authenticate_user_and_comment_action<A, T>(
 where
     A: Fn(&mut Channel) -> T,
 {
-    if let Some(channels) = unsafe { CHANNELS.as_mut() } {
+    CHANNELS.with(|channels| {
+        let mut channels = channels.borrow_mut();
         let channel = channels
             .entry(channel_id.to_string())
             .or_insert_with(|| Channel::new(channel_id.to_string()));
+
         let message = match channel.get_comment(comment_id) {
             Some(comment) => {
                 if &comment.user_id != user_id {
@@ -96,9 +95,7 @@ where
             None => Ok(action(channel)),
         };
         message
-    } else {
-        Err("NOT INITIALIZED".to_string())
-    }
+    })
 }
 
 #[derive(Clone, Debug, Default, CandidType, Deserialize)]

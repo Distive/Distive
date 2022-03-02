@@ -6,15 +6,6 @@
       "type": "rust",
       "package": "rust_hello",
       "candid": "src/rust_hello/rust_hello.did"
-    },
-    "rust_hello_assets": {
-      "type": "assets",
-      "source": [
-        "src/rust_hello_assets/assets"
-      ],
-      "dependencies": [
-        "rust_hello"
-      ]
     }
   },
   "defaults": {
