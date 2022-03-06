@@ -15,7 +15,7 @@ interface ZoniaError {
     message: string,
 }
 
-type ZoniaResult<T> = ResultAsync<T, ZoniaError>
+export type ZoniaResult<T> = ResultAsync<T, ZoniaError>
 
 
 type PostID = string
@@ -28,14 +28,14 @@ interface Post {
     replies: Page
 }
 
-type Thread = Array<Post>
+export type Thread = Array<Post>
 
 export interface Page {
     remainingCount: number,
     thread: Thread
 }
 
-interface RemovePostInput {
+export interface RemovePostInput {
     channelId: string,
     postId: string
 }
@@ -57,7 +57,7 @@ export interface SDKConfig {
     serverId: string
 }
 
-interface SDK {
+export interface SDK {
     getThread: (input: GetThreadInput) => ZoniaResult<Page>,
     upsertPost: (input: UpsertPostInput) => ZoniaResult<PostID>,
     removePost: (input: RemovePostInput) => ZoniaResult<PostID>,

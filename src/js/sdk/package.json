@@ -2,7 +2,7 @@
   "name": "zomia",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
     "test": "jest"
   },
@@ -18,7 +18,7 @@
       }
     },
     "transform": {
-      "^.+\\.(ts|tsx)$": "ts-jest"
+      "^.+\\.(js|ts|tsx)$": "ts-jest"
     },
     "testMatch": [
       "**/spec/*.+(ts|tsx|js)"
