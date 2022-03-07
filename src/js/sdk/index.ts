@@ -20,7 +20,7 @@ export type ZoniaResult<T> = ResultAsync<T, ZoniaError>
 
 type PostID = string
 
-interface Post {
+export interface Post {
     id: string,
     content: string,
     created_at: number,
@@ -54,7 +54,7 @@ export interface UpsertPostInput {
 }
 
 export interface SDKConfig {
-    serverId: string
+    serverId: string,
 }
 
 export interface SDK {

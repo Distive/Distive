@@ -1,47 +1,45 @@
-import { useZonia } from '../src'
+import initZoniaHook from '../src'
 import { Thread, Page, ZoniaResult } from '../../sdk'
 import React, { useContext } from 'react'
+import { ThreadState } from '../src/hook'
 
+const useZonia = initZoniaHook({ serverId: "rrkah-fqaaa-aaaaa-aaaaq-cai" })
 
 const Component = () => {
-    const zoniaHookResult = useZonia({ serverId: "rrkah-fqaaa-aaaaa-aaaaq-cai" })
-    return zoniaHookResult.match(({ getThread, removePost, upsertPost }) => {
-        return getThread({ channelId: "", cursor: "", limit: 10 })
-            .
-
-    }, err => <div>{err} </div>)
+    return <RenderThread />
 }
 
 
 interface RenderThreadProps {
-    thread: Thread
+    thread?: Thread
 }
 
 const RenderThread = ({ thread }: RenderThreadProps) => {
-    const zoniaHookResult = useZonia({ serverId: "rrkah-fqaaa-aaaaa-aaaaq-cai" })
-    return zoniaHookResult.match(({ page, removePost, upsertPost, loading, loadMore }) => {
+    const zoniaHookResult = useZonia({ channelID: "", initialThread: thread })
+    return zoniaHookResult.match(({ thread, removePost, addPost, updatePost, loading, loadMore, remainingPostCount }) => {
         return <div>
-            {renderThread(thread)}
-            <div style={{ marginTop: 10 }}>
-                {
-                    loading ? <div>Loading...</div> :
-                        page.match((page) =>
-                            <div>  {renderThread(page.thread)} </div>
-                            , err => <div>{err}</div>)
-
-                }
-            </div>
-            <div style={{ marginTop: 10 }}>
-                <button onClick={loadMore}>Load more</button>
-            </div>
+            {
+                loading ?
+                    <div>Loading...</div> :
+                    <div style={{ marginTop: 10 }}>
+                        {renderThread(thread)}
+                    </div>
+            }
+            {
+                (remainingPostCount > 0 ||
+                    remainingPostCount === -1)
+                && !loading && <div style={{ marginTop: 10 }}>
+                    <button onClick={loadMore}>Load more</button>
+                </div>
+            }
         </div>
 
     }, err => <div>{err} </div>)
 
 }
 
-function renderThread(thread: Thread): React.ReactNode {
-    return thread.map(comment => {
+function renderThread(thread: ThreadState): React.ReactNode {
+    return Object.entries(thread).map(([commentId, comment]) => {
         return <div style={{ marginTop: 10 }}>
             <div>{comment.content}</div>
             <div>{comment.userId}</div>

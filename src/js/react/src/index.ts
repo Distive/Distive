@@ -1,1 +1,1 @@
-export {default as useZonia} from './hook'
+export {default } from './hook'
