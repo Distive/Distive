@@ -1,4 +1,4 @@
-import _SDK, { SDKConfig, Post, Thread, UpsertPostInput } from '../../sdk'
+import _SDK, { SDKConfig, Post, Thread, UpsertPostInput, Page } from '../../sdk'
 import { Result } from 'neverthrow'
 import { useState } from 'react'
 
@@ -22,7 +22,7 @@ interface ZoniaHookParam {
     channelID: string
     // cursor?: string
     limit?: number
-    initialThread?: Thread
+    initialPage?: Page
 }
 
 enum PostStatus {
@@ -67,14 +67,15 @@ export const initUseZonia = (args: SDKConfig) => {
 
     return (params: ZoniaHookParam): Result<ZoniaHook, ErrorMessage> => {
         const [loading, setLoading] = useState(false)
-        const [thread, setThread] = useState<ThreadState>(marshallThread(params.initialThread ?? []))
+        const [thread, setThread] = useState<ThreadState>(marshallThread(params.initialPage?.thread ?? []))
         const [error, setError] = useState("")
 
-        const initialThread = params.initialThread ?? []
+        const initialThread = params.initialPage?.thread ?? []
         const lastPostId = initialThread.length > 0 ? initialThread[initialThread.length - 1].id : ''
         const [cursor, setCursor] = useState(lastPostId ?? '')
 
-        const [remainingPostCount, setRemainingPostCount] = useState<number>(-1)
+        const [remainingPostCount, setRemainingPostCount] = useState<number>(params.initialPage?.remainingCount ?? -1)
+
         return _SDK(args)
             .map(SDK => {
                 const loadMore = async () => {

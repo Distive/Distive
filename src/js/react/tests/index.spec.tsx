@@ -5,17 +5,17 @@ import { ThreadState } from '../src/hook'
 
 const useZonia = initZoniaHook({ serverId: "rrkah-fqaaa-aaaaa-aaaaq-cai" })
 
-const Component = () => {
+export const Component = () => {
     return <RenderThread />
 }
 
 
-interface RenderThreadProps {
-    thread?: Thread
+interface RenderPageProps {
+    page?: Page
 }
 
-const RenderThread = ({ thread }: RenderThreadProps) => {
-    const zoniaHookResult = useZonia({ channelID: "", initialThread: thread })
+const RenderThread = ({ page }: RenderPageProps) => {
+    const zoniaHookResult = useZonia({ channelID: "", initialPage: page })
     return zoniaHookResult.match(({ thread, removePost, addPost, updatePost, loading, loadMore, remainingPostCount }) => {
         return <div>
             {
@@ -28,7 +28,8 @@ const RenderThread = ({ thread }: RenderThreadProps) => {
             {
                 (remainingPostCount > 0 ||
                     remainingPostCount === -1)
-                && !loading && <div style={{ marginTop: 10 }}>
+                && !loading &&
+                <div style={{ marginTop: 10 }}>
                     <button onClick={loadMore}>Load more</button>
                 </div>
             }
@@ -44,7 +45,7 @@ function renderThread(thread: ThreadState): React.ReactNode {
             <div>{comment.content}</div>
             <div>{comment.userId}</div>
             <div style={{ marginLeft: 20 }}>
-                <RenderThread thread={comment.replies.thread} />
+                <RenderThread page={comment.replies} />
             </div>
         </div>
     })
