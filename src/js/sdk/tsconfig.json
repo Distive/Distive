@@ -4,6 +4,20 @@
         "declaration": true,
         "declarationMap": true,
         "moduleResolution": "node",
-        "esModuleInterop": true
-    }
+        "esModuleInterop": true,
+        "target": "ES2015",
+        "module": "ESNext",
+        "lib": [
+            "dom",
+            "dom.iterable",
+            "esnext"
+        ],
+        "skipLibCheck": true,
+        "isolatedModules": true,
+        "outDir": "./dist"
+    },
+    "include": [
+        "index.ts",
+        "declarations"
+    ]
 }

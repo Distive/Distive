@@ -25,7 +25,7 @@ interface ZoniaHookParam {
     initialPage?: Page
 }
 
-enum PostStatus {
+export enum PostStatus {
     INITIAL,
     SENDING,
     SUCCESS,
@@ -71,7 +71,7 @@ export const initUseZonia = (args: SDKConfig) => {
         const [error, setError] = useState("")
 
         const initialThread = params.initialPage?.thread ?? []
-        const lastPostId = initialThread.length > 0 ? initialThread[initialThread.length - 1].id : ''
+        const lastPostId = initialThread.length ? initialThread[initialThread.length - 1].id : ''
         const [cursor, setCursor] = useState(lastPostId ?? '')
 
         const [remainingPostCount, setRemainingPostCount] = useState<number>(params.initialPage?.remainingCount ?? -1)

@@ -1,1 +1,1 @@
-export {default } from './hook'
+export {default as initZoniaHook } from './hook'

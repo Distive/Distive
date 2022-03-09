@@ -63,6 +63,8 @@ export interface SDK {
     removePost: (input: RemovePostInput) => ZoniaResult<PostID>,
 }
 
+export type SDKFn = (config: SDKConfig) => Result<SDK, ZoniaError>
+
 const mapActorPageToPage = (page: page): Page => ({
     remainingCount: Number(page.remaining_count),
     thread: page.comments.map(comment => ({
@@ -74,7 +76,7 @@ const mapActorPageToPage = (page: page): Page => ({
     }))
 })
 
-export default (config: SDKConfig): Result<SDK, ZoniaError> => {
+const sdkFn: SDKFn = (config: SDKConfig): Result<SDK, ZoniaError> => {
 
     const clientInit = Result.fromThrowable(init_actor)
     const IDGen = () => nanoid(5)
@@ -124,3 +126,5 @@ export default (config: SDKConfig): Result<SDK, ZoniaError> => {
         .mapErr(() =>
             ({ kind: ErrorKind.Internal, message: 'Failed to initialize client' }))
 }
+
+export default sdkFn

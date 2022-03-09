@@ -2,7 +2,7 @@
   "name": "zomia",
   "version": "1.0.0",
   "description": "",
-  "main": "index.ts",
+  "main": "dist/index.js",
   "scripts": {
     "test": "jest"
   },
@@ -30,6 +30,7 @@
   "dependencies": {
     "@dfinity/agent": "^0.10.3",
     "@dfinity/principal": "^0.10.3",
+    "esbuild": "^0.14.25",
     "isomorphic-fetch": "^3.0.0",
     "nanoid": "^3.3.1",
     "neverthrow": "^4.3.1",
