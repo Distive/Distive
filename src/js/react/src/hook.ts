@@ -1,11 +1,11 @@
-import _SDK, { SDKConfig, Post, Thread, UpsertPostInput, Page } from '../../sdk'
+import { SDKConfig, Post, Thread, UpsertPostInput, Page, SDKResult, SDK } from '../../sdk'
 import { Result } from 'neverthrow'
 import { useState } from 'react'
 
-type AddPostInput = Omit<UpsertPostInput, 'commentId'>
-type UpdatePostInput = { commentId: string, content: string }
+type AddPostInput = Omit<UpsertPostInput, 'commentId' | 'channelId'>
+type UpdatePostInput = { postId: string, content: string }
 
-interface ZoniaHook {
+export interface ZoniaHook {
     loading: boolean
     thread: ThreadState
     error: string
@@ -18,7 +18,7 @@ interface ZoniaHook {
     // onPostSuccess?: () => void
 }
 
-interface ZoniaHookParam {
+export interface ZoniaHookParam {
     channelID: string
     // cursor?: string
     limit?: number
@@ -27,9 +27,15 @@ interface ZoniaHookParam {
 
 export enum PostStatus {
     INITIAL,
-    SENDING,
-    SUCCESS,
-    FAILURE
+    SENDING_REMOVE,
+    SENDING_UPDATE,
+    SENDING_ADD,
+    SUCCESS_REMOVE,
+    SUCCESS_UPDATE,
+    SUCCESS_ADD,
+    FAILURE_REMOVE,
+    FAILURE_UPDATE,
+    FAILURE_ADD,
 } // INITIAL -> SENDING -> SUCCESS | FAILURE
 
 export interface ThreadState {
@@ -43,29 +49,21 @@ interface PostThreadState extends Post {
 type ErrorMessage = String
 
 
-interface State {
-    thread: ThreadState
-    error: ErrorMessage
-    loading: boolean
-    remainingPostsCount: number //-1 initial state, 0 no more posts, >0 has more posts
-    cursor: string
-}
-
 //sdk should be an argument to initUseZonia
-export const initUseZonia = (args: SDKConfig) => {
+export const initUseZonia = (SDK: SDK) => {
     const marshallThread = (thread: Thread): ThreadState => {
         return thread.reduce((prevThreadState, currPost): ThreadState => {
             return {
                 ...prevThreadState,
                 [currPost.id]: {
                     ...currPost,
-                    status: PostStatus.SUCCESS
+                    status: PostStatus.INITIAL
                 }
             }
         }, {} as ThreadState)
     }
 
-    return (params: ZoniaHookParam): Result<ZoniaHook, ErrorMessage> => {
+    return (params: ZoniaHookParam): ZoniaHook => {
         const [loading, setLoading] = useState(false)
         const [thread, setThread] = useState<ThreadState>(marshallThread(params.initialPage?.thread ?? []))
         const [error, setError] = useState("")
@@ -76,165 +74,183 @@ export const initUseZonia = (args: SDKConfig) => {
 
         const [remainingPostCount, setRemainingPostCount] = useState<number>(params.initialPage?.remainingCount ?? -1)
 
-        return _SDK(args)
-            .map(SDK => {
-                const loadMore = async () => {
-                    setError("")
-                    setLoading(true)
-                    await SDK.getThread({
-                        channelId: params.channelID,
-                        limit: params?.limit,
-                        cursor
-                    }).map(page => {
 
-                        setThread({
-                            ...thread,
-                            ...marshallThread(page.thread)
-                        })
+        const loadMore = () => {
+            setLoading(true)
+            setError("")
+            SDK.getThread({
+                channelId: params.channelID,
+                limit: params?.limit,
+                cursor
+            }).map(page => {
 
-                        setRemainingPostCount(page.remainingCount)
+                setThread({
+                    ...thread,
+                    ...marshallThread(page.thread)
+                })
 
-                        if (page.thread.length > 0) {
-                            const lastPostId = page.thread[page.thread.length - 1].id
-                            setCursor(lastPostId)
-                        }
+                setRemainingPostCount(page.remainingCount)
 
-                        setLoading(false)
-
-                    }).mapErr(err => {
-                        setError(err.message)
-                        setLoading(false)
-                    })
+                if (page.thread.length > 0) {
+                    const lastPostId = page.thread[page.thread.length - 1].id
+                    setCursor(lastPostId)
                 }
 
-                const addPost: ZoniaHook['addPost'] = ({ channelId, content, parentId }) => {
-                    const temporaryPostId = (Math.random() + 1).toString(36).substring(10)
-                    setThread({
-                        ...thread,
-                        [temporaryPostId]: {
-                            content,
-                            id: temporaryPostId,
-                            created_at: Date.now(),
-                            replies: { remainingCount: 0, thread: [] },
-                            status: PostStatus.SENDING,
-                            userId: ''
-                        }
-                    })
-                    SDK.upsertPost({
-                        channelId,
-                        content,
-                        parentId
-                    }).match(id => {
-                        const { [temporaryPostId]: newPost, ...oldThread } = thread
-                        setThread({
+                setLoading(false)
+
+            }).mapErr(err => {
+                setError(err.message)
+                setLoading(false)
+            })
+        }
+
+        const addPost: ZoniaHook['addPost'] = ({ content, parentId }) => {
+            const temporaryPostId = (Math.random() + 1).toString(36).substring(10)
+
+            setThread(thread => ({
+                ...thread,
+                [temporaryPostId]: {
+                    content,
+                    id: temporaryPostId,
+                    created_at: Date.now(),
+                    replies: { remainingCount: 0, thread: [] },
+                    status: PostStatus.SENDING_ADD,
+                    userId: ''
+                }
+            }))
+
+            SDK.upsertPost({
+                channelId: params.channelID,
+                content,
+                parentId
+            })
+                .match(id => {
+                    setThread(prevThreadState => {
+                        const { [temporaryPostId]: newPost, ...oldThread } = prevThreadState
+
+                        return {
                             ...oldThread,
                             [id]: {
                                 ...newPost,
-                                status: PostStatus.SUCCESS
+                                status: PostStatus.SUCCESS_ADD
                             }
-                        })
-                    }, e => {
-                        console.error(e) //perhaps call a callback supplied by the developer
-                        const { [temporaryPostId]: newPost, ...oldThread } = thread
-                        setThread({
+                        }
+
+                    })
+                }, e => {
+                    setThread(prevThreadState => {
+                        const { [temporaryPostId]: newPost, ...oldThread } = prevThreadState
+
+                        return {
                             ...oldThread,
                             [temporaryPostId]: {
                                 ...newPost,
-                                status: PostStatus.FAILURE
+                                status: PostStatus.FAILURE_ADD
                             }
-                        })
+                        }
+
                     })
+                    // console.error(e) //perhaps call a callback supplied by the developer
 
+                })
+
+        }
+
+        const updatePost: ZoniaHook['updatePost'] = ({ content, postId: postId }) => {
+            if(!(postId in thread)) {
+                return
+            }
+
+            const { [postId]: oldPost } = thread
+
+            setThread({
+                ...thread,
+                [postId]: {
+                    ...oldPost,
+                    content,
+                    status: PostStatus.SENDING_UPDATE
                 }
+            })
 
-                const updatePost: ZoniaHook['updatePost'] = ({ content, commentId }) => {
-                    const { [commentId]: oldPost } = thread
+            SDK.upsertPost({
+                channelId: params.channelID,
+                content,
+                postId: postId,
+            }).match(_ => {
+                const { [postId]: newPost } = thread
+                setThread({
+                    ...thread,
+                    [postId]: {
+                        ...newPost,
+                        status: PostStatus.SUCCESS_UPDATE
+                    }
+                })
+            }, e => {
+                // console.error(e) //perhaps call a callback supplied by the developer
+                const { [postId]: newPost } = thread
+                setThread({
+                    ...thread,
+                    [postId]: {
+                        ...newPost,
+                        status: PostStatus.FAILURE_UPDATE
+                    }
+                })
+            })
 
+        }
+
+
+
+        const removePost: ZoniaHook['removePost'] = async (postId) => {
+            if(!(postId in thread)) {
+                return
+            }
+            
+            const { [postId]: oldPost } = thread
+            setThread({
+                ...thread,
+                [postId]: {
+                    ...oldPost,
+                    status: PostStatus.SENDING_REMOVE
+                }
+            })
+            SDK.removePost({
+                channelId: params.channelID,
+                postId
+            })
+                .match(_ => {
+                    const { [postId]: newPost,...newThread } = thread
                     setThread({
-                        ...thread,
-                        [commentId]: {
-                            ...oldPost,
-                            content,
-                            status: PostStatus.SENDING
+                        ...newThread,
+                        [postId]: {
+                            ...newPost,
+                            status: PostStatus.SUCCESS_REMOVE
                         }
                     })
-
-                    SDK.upsertPost({
-                        channelId: params.channelID,
-                        content,
-                        commentId,
-                    }).match(_ => {
-                        const { [commentId]: newPost } = thread
-                        setThread({
-                            ...thread,
-                            [commentId]: {
-                                ...newPost,
-                                status: PostStatus.SUCCESS
-                            }
-                        })
-                    }, e => {
-                        console.error(e) //perhaps call a callback supplied by the developer
-                        const { [commentId]: newPost } = thread
-                        setThread({
-                            ...thread,
-                            [commentId]: {
-                                ...newPost,
-                                status: PostStatus.FAILURE
-                            }
-                        })
-                    })
-
-                }
-
-
-
-                const removePost: ZoniaHook['removePost'] = async (postId) => {
-                    const { [postId]: oldPost } = thread
+                }, e => {
+                    // console.error(e) //perhaps call a callback supplied by the developer
+                    const { [postId]: newPost } = thread
                     setThread({
                         ...thread,
                         [postId]: {
-                            ...oldPost,
-                            status: PostStatus.SENDING
+                            ...newPost,
+                            status: PostStatus.FAILURE_REMOVE
                         }
                     })
-                    SDK.removePost({
-                        channelId: params.channelID,
-                        postId
-                    })
-                        .match(_ => {
-                            const { [postId]: newPost } = thread
-                            setThread({
-                                ...thread,
-                                [postId]: {
-                                    ...newPost,
-                                    status: PostStatus.SUCCESS
-                                }
-                            })
-                        }, e => {
-                            console.error(e) //perhaps call a callback supplied by the developer
-                            const { [postId]: newPost } = thread
-                            setThread({
-                                ...thread,
-                                [postId]: {
-                                    ...newPost,
-                                    status: PostStatus.FAILURE
-                                }
-                            })
-                        })
-                }
+                })
+        }
 
-                return {
-                    error,
-                    loadMore,
-                    loading,
-                    thread,
-                    addPost,
-                    updatePost,
-                    remainingPostCount,
-                    removePost
-                }
-            })
-            .mapErr(({ message }) => message)
+        return {
+            error,
+            loadMore,
+            loading,
+            thread,
+            addPost,
+            updatePost,
+            remainingPostCount,
+            removePost
+        }
+
 
 
     }

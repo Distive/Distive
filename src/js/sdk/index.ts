@@ -1,23 +1,29 @@
 import { init_actor } from './declarations/canisters/rust_hello'
 import { nanoid } from 'nanoid'
 import 'isomorphic-fetch'
-import { Result, ResultAsync } from 'neverthrow'
+import { errAsync, okAsync, Result, ResultAsync } from 'neverthrow'
 import { page } from './declarations/canisters/rust_hello/rust_hello.did'
 
-enum ErrorKind {
+export enum ErrorKind {
     NotFound,
     InvalidInput,
     Internal,
 }
 
-interface ZoniaError {
+export  interface ZoniaError {
     kind: ErrorKind,
     message: string,
 }
 
 export type ZoniaResult<T> = ResultAsync<T, ZoniaError>
 
-
+// creates a zonia result object (for testing purposes)
+export function createZoniaResult<T>(r: { value?: T, e?: ZoniaError }): ZoniaResult<T> {
+    if (r?.value) {
+        return okAsync(r.value)
+    }
+    return errAsync(r.e)
+}
 type PostID = string
 
 export interface Post {
@@ -50,7 +56,7 @@ export interface UpsertPostInput {
     channelId: string,
     parentId?: string,
     content: string
-    commentId?: string
+    postId?: string
 }
 
 export interface SDKConfig {
@@ -63,7 +69,9 @@ export interface SDK {
     removePost: (input: RemovePostInput) => ZoniaResult<PostID>,
 }
 
-export type SDKFn = (config: SDKConfig) => Result<SDK, ZoniaError>
+export type SDKResult = Result<SDK, ZoniaError>
+
+export type SDKFn = (config: SDKConfig) => SDKResult
 
 const mapActorPageToPage = (page: page): Page => ({
     remainingCount: Number(page.remaining_count),
@@ -88,7 +96,7 @@ const sdkFn: SDKFn = (config: SDKConfig): Result<SDK, ZoniaError> => {
                     channel_id: input.channelId,
                     parent_id: (input.parentId ? [input.parentId] : []) as [string],
                     message: input.content,
-                    comment_id: input?.commentId ?? IDGen()
+                    comment_id: input?.postId ?? IDGen()
                 }
                 return ResultAsync
                     .fromPromise(client.upsert_comment(upsertInput),
