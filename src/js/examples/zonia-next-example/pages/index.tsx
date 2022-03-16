@@ -1,13 +1,19 @@
 import type { NextPage } from 'next'
-import { Page } from '../../../sdk'
-import { initZoniaHook } from '../../../react'
-import { ThreadState } from '../../../react/dist/hook'
-
-const useZonia = initZoniaHook({ serverId: "rrkah-fqaaa-aaaaa-aaaaq-cai" })
+import { Page } from 'zomia'
+import initZoniaHook, { ThreadState } from 'zomia-react'
+const useZonia = initZoniaHook({
+  serverId: "rrkah-fqaaa-aaaaa-aaaaq-cai"
+})._unsafeUnwrap()
 
 const Home: NextPage = () => {
+  // const {}
   return (
     <div>
+      {/* {
+        loading ? <div>Loading...</div> :
+          thread.map(post => (<div>{post.content}</div>))
+      }
+      {<div style={{ color: 'red' }}>{error}</div>} */}
       <Component />
     </div>
   )
@@ -26,41 +32,43 @@ interface RenderPageProps {
 }
 
 const RenderThread = ({ page }: RenderPageProps) => {
-  const zoniaHookResult = useZonia({ channelID: "", initialPage: page })
-  return zoniaHookResult.match(({ thread, removePost, addPost, updatePost, loading, loadMore, remainingPostCount }) => {
-    return <div>
-      {
-        loading ?
-          <div>Loading...</div> :
-          <div style={{ marginTop: 10 }}>
-            {renderThread(thread)}
-          </div>
-      }
-      {
-        (remainingPostCount > 0 ||
-          remainingPostCount === -1)
-        && !loading &&
+  const {
+    thread,
+    removePost,
+    addPost,
+    updatePost,
+    loading,
+    loadMore,
+    remainingPostCount
+  } = useZonia({ channelID: "channel_1", initialPage: page, limit: 20 })
+
+  return <div>
+    {
+      loading ?
+        <div>Loading...</div> :
         <div style={{ marginTop: 10 }}>
-          <button onClick={loadMore}>Load more</button>
+          {Object.entries(thread).map(([commentId, comment]) => {
+            return <div style={{ marginTop: 10 }}>
+              <div>{comment.content}</div>
+              {/* <div>{comment.userId}</div> */}
+              <div key={comment.id} style={{ marginLeft: 20 }}>
+                <RenderThread page={comment.replies} />
+              </div>
+            </div>
+          })}
         </div>
-      }
-    </div>
+    }
+    {
 
-  }, err => <div>{err} </div>)
-
-}
-
-function renderThread(thread: ThreadState): React.ReactNode {
-  return Object.entries(thread).map(([commentId, comment]) => {
-    return <div style={{ marginTop: 10 }}>
-      <div>{comment.content}</div>
-      <div>{comment.userId}</div>
-      <div style={{ marginLeft: 20 }}>
-        <RenderThread page={comment.replies} />
+      <div style={{ marginTop: 10 }}>
+        <button disabled={!((remainingPostCount > 0 ||
+          remainingPostCount === -1)
+          && !loading)} onClick={loadMore}>Load more ({remainingPostCount})</button>
       </div>
-    </div>
-  })
+    }
+  </div>
 }
+
 
 
 export default Home

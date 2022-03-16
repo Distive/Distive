@@ -1,0 +1,98 @@
+
+> @zomia/react@0.0.1 test
+> jest
+
+warning: unused variable: `reply`
+   --> src/chat_engine/tests/spec.rs:115:9
+    |
+115 |     let reply = channel
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_reply`
+    |
+    = note: `#[warn(unused_variables)]` on by default
+
+warning: `chat_engine` (test "spec") generated 1 warning
+warning: unused import: `init`
+ --> src/rust_hello/lib.rs:4:21
+  |
+4 | use ic_cdk_macros::{init, query, update};
+  |                     ^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused variable: `result`
+  --> src/rust_hello/lib.rs:48:9
+   |
+48 |     let result = authenticate_user_and_comment_action(
+   |         ^^^^^^ help: if this is intentional, prefix it with an underscore: `_result`
+   |
+   = note: `#[warn(unused_variables)]` on by default
+
+warning: `rust_hello` (lib test) generated 2 warnings
+    Finished test [unoptimized + debuginfo] target(s) in 0.06s
+     Running unittests (target/debug/deps/chat_engine-75897e345a715332)
+
+running 9 tests
+test tests::channel_create ... ok
+test tests::comment_channel_delete_comment ... ok
+test tests::comment_channel_update_comment ... ok
+test tests::comment_channel_add_comment ... ok
+test tests::comment_create ... ok
+test tests::existing_comment_is_updated ... ok
+test tests::get_comment_by_id ... ok
+test tests::split_comment_id ... ok
+test tests::get_thread ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/spec.rs (target/debug/deps/spec-4035633675ce6f8e)
+
+running 4 tests
+test get_comment_test ... ok
+test comment_reply ... ok
+test comment_channel_get_comments ... ok
+test n_nested_comments ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests (target/debug/deps/rust_hello-dbfed535853427b3)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests chat_engine
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+> zomia@1.0.0 test
+> jest
+
+(node:3487) V8: /home/sim04ful/rust_hello/src/js/sdk/node_modules/borc/src/decoder.asm.js:3 Linking failure in asm.js: Unexpected stdlib member
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS spec/tests.spec.ts (5.614 s)
+  ✓ createThread (2341 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       1 passed, 1 total
+Snapshots:   0 total
+Time:        5.718 s
+Ran all test suites.
+
+> @zomia/react@0.0.1 test
+> jest
+
+PASS spec/index.spec.tsx
+  ✓ actions should set the proper states (success) (45 ms)
+  ✓ actions should set the proper states (failure) (22 ms)
+  ✓ pagination
+  ✓ error
+  ✓ remaining post count
+
+Test Suites: 1 passed, 1 total
+Tests:       5 passed, 5 total
+Snapshots:   0 total
+Time:        3.751 s, estimated 4 s
+Ran all test suites.

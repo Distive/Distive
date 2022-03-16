@@ -10,7 +10,7 @@ export enum ErrorKind {
     Internal,
 }
 
-export  interface ZoniaError {
+export interface ZoniaError {
     kind: ErrorKind,
     message: string,
 }
@@ -24,6 +24,7 @@ export function createZoniaResult<T>(r: { value?: T, e?: ZoniaError }): ZoniaRes
     }
     return errAsync(r.e)
 }
+
 type PostID = string
 
 export interface Post {

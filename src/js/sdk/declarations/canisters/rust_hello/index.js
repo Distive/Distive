@@ -11,12 +11,12 @@ export { idlFactory } from './rust_hello.did.js';
  * @param {{agentOptions?: import("@dfinity/agent").HttpAgentOptions; actorOptions?: import("@dfinity/agent").ActorConfig}} [options]
  * @return {import("@dfinity/agent").ActorSubclass<import("./rust_hello.did.js")._SERVICE>}
  */
- export const createActor = (canisterId, options) => {
+export const createActor = (canisterId, options) => {
   const agent = new HttpAgent({ ...options?.agentOptions });
-  
+
   // Fetch root key for certificate validation during development
-  if(process.env.NODE_ENV !== "production") {
-    agent.fetchRootKey().catch(err=>{
+  if (process.env.NODE_ENV !== "production") {
+    agent.fetchRootKey().catch(err => {
       console.warn("Unable to fetch root key. Check to ensure that your local replica is running");
       console.error(err);
     });
@@ -29,12 +29,15 @@ export { idlFactory } from './rust_hello.did.js';
     ...options?.actorOptions,
   });
 };
-  
+
 /**
  * 
  * @param {string | import("@dfinity/principal").Principal} canisterId Canister ID of Agent
  */
-export const init_actor = (canisterId)=>{
-   const rust_hello = createActor(canisterId,{agentOptions:{host:'http://127.0.0.1:8000'}});
-   return rust_hello
+export const init_actor = (canisterId) => {
+  const rust_hello = createActor(
+    canisterId,
+    {agentOptions:{host:'http://127.0.0.1:8000'}}
+  )
+  return rust_hello
 }

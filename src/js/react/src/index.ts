@@ -1,11 +1,9 @@
 import { Result, ok } from 'neverthrow'
-import _SDK, { SDK, SDKConfig, ZoniaResult } from '../../sdk/dist'
+import _SDK, { SDK } from 'zomia'
+import { ZoniaHookParam, useZonia, ZoniaHook } from './hook'
 
-import { default as _initZoniaHook, ZoniaHook, ZoniaHookParam } from './hook'
-
-const initZoniaHook = (sdk: SDK) => {
-    return _initZoniaHook(sdk)
-}
+// export { useZonia } from './hook'
+export type { ThreadState, ZoniaHook, ZoniaHookParam, PostStatus } from './hook'
 
 interface Config {
     serverId: string
@@ -14,10 +12,10 @@ interface Config {
 
 const initZoniaHookWithDefault = ({ serverId, sdk }: Config): Result<(params: ZoniaHookParam) => ZoniaHook, string> => {
     if (sdk) {
-        return ok(initZoniaHook(sdk))
+        return ok((params) => useZonia(sdk, params))
     } else {
         return _SDK({ serverId })
-            .map(sdk => initZoniaHook(sdk))
+            .map(sdk => (params: ZoniaHookParam) => useZonia(sdk, params))
             .mapErr(err => err.message)
     }
 }
