@@ -37,7 +37,11 @@ export const createActor = (canisterId, options) => {
 export const init_actor = (canisterId) => {
   const rust_hello = createActor(
     canisterId,
-    {agentOptions:{host:'http://127.0.0.1:8000'}}
+    {
+      agentOptions: {
+        host: 'http://127.0.0.1:8000'
+      }
+    }
   )
   return rust_hello
 }
