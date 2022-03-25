@@ -62,6 +62,7 @@ export interface UpsertPostInput {
 
 export interface SDKConfig {
     serverId: string,
+    host?: string,
 }
 
 export interface SDK {
@@ -90,7 +91,7 @@ const sdkFn: SDKFn = (config: SDKConfig): Result<SDK, ZoniaError> => {
     const clientInit = Result.fromThrowable(init_actor)
     const IDGen = () => nanoid(5)
 
-    return clientInit(config.serverId)
+    return clientInit(config.serverId,config?.host)
         .map(client => ({
             upsertPost: (input: UpsertPostInput) => {
                 const upsertInput = {

@@ -4,7 +4,7 @@ import SDK, { GetThreadInput, SDKConfig, UpsertPostInput } from '..'
 
 const DEMO_DATA: UpsertPostInput[] = []
 
-const client = SDK({ serverId: 'rrkah-fqaaa-aaaaa-aaaaq-cai' })
+const client = SDK({ serverId: 'rrkah-fqaaa-aaaaa-aaaaq-cai', host: 'http://127.0.0.1:8000' })
     ._unsafeUnwrap()
 
 test('createThread', async () => {

@@ -34,12 +34,12 @@ export const createActor = (canisterId, options) => {
  * 
  * @param {string | import("@dfinity/principal").Principal} canisterId Canister ID of Agent
  */
-export const init_actor = (canisterId) => {
+export const init_actor = (canisterId, host = "https://boundary.ic0.app/") => {
   const rust_hello = createActor(
     canisterId,
     {
       agentOptions: {
-        host: 'http://127.0.0.1:8000'
+        host
       }
     }
   )
