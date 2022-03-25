@@ -105,12 +105,12 @@ test('actions should set the proper states (success)', async () => {
     })
 
     for (const postId in result.current.thread) {
-        expect(result.current.thread[postId].status).toBe(PostStatus.SENDING_ADD)
+        expect(result.current.thread[postId].status).toBe('SENDING_ADD')
     }
     await waitForNextUpdate()
 
     for (const postId in result.current.thread) {
-        expect(result.current.thread[postId].status).toBe(PostStatus.SUCCESS_ADD)
+        expect(result.current.thread[postId].status).toBe('SUCCESS_ADD')
     }
 
     act(() => {
@@ -121,12 +121,12 @@ test('actions should set the proper states (success)', async () => {
 
 
     for (const postId in result.current.thread) {
-        expect(result.current.thread[postId].status).toBe(PostStatus.SENDING_REMOVE)
+        expect(result.current.thread[postId].status).toBe('SENDING_REMOVE')
     }
     await waitForNextUpdate()
 
     for (const postId in result.current.thread) {
-        expect(result.current.thread[postId].status).toBe(PostStatus.SUCCESS_REMOVE)
+        expect(result.current.thread[postId].status).toBe('SUCCESS_REMOVE')
     }
 
 
@@ -156,12 +156,12 @@ test('actions should set the proper states (failure)', async () => {
     })
 
     for (const postId in result.current.thread) {
-        expect(result.current.thread[postId].status).toBe(PostStatus.SENDING_ADD)
+        expect(result.current.thread[postId].status).toBe('SENDING_ADD')
     }
     await waitForNextUpdate()
 
     for (const postId in result.current.thread) {
-        expect(result.current.thread[postId].status).toBe(PostStatus.FAILURE_ADD)
+        expect(result.current.thread[postId].status).toBe('FAILURE_ADD')
     }
 
     act(() => {
@@ -171,12 +171,12 @@ test('actions should set the proper states (failure)', async () => {
     })
 
     for (const postId in result.current.thread) {
-        expect(result.current.thread[postId].status).toBe(PostStatus.SENDING_REMOVE)
+        expect(result.current.thread[postId].status).toBe('SENDING_REMOVE')
     }
     await waitForNextUpdate()
 
     for (const postId in result.current.thread) {
-        expect(result.current.thread[postId].status).toBe(PostStatus.FAILURE_REMOVE)
+        expect(result.current.thread[postId].status).toBe('FAILURE_REMOVE')
     }
 })
 

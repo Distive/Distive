@@ -26,18 +26,22 @@ export interface ZoniaHookParam {
     initialPage?: Page
 }
 
-export enum PostStatus {
-    INITIAL,
-    SENDING_REMOVE,
-    SENDING_UPDATE,
-    SENDING_ADD,
-    SUCCESS_REMOVE,
-    SUCCESS_UPDATE,
-    SUCCESS_ADD,
-    FAILURE_REMOVE,
-    FAILURE_UPDATE,
-    FAILURE_ADD,
-} // INITIAL -> SENDING -> SUCCESS | FAILURE
+// export enum PostStatus {
+//     INITIAL,
+//     SENDING_REMOVE,
+//     SENDING_UPDATE,
+//     SENDING_ADD,
+//     SUCCESS_REMOVE,
+//     SUCCESS_UPDATE,
+//     SUCCESS_ADD,
+//     FAILURE_REMOVE,
+//     FAILURE_UPDATE,
+//     FAILURE_ADD,
+// } 
+
+
+// INITIAL -> SENDING -> SUCCESS | FAILURE
+export type PostStatus = `${'SENDING'|'SUCCESS'|'FAILURE'}_${'REMOVE'|'UPDATE'|'ADD'}` | 'INITIAL'
 
 export interface ThreadState {
     [postId: string]: PostThreadState
@@ -51,7 +55,7 @@ interface PostThreadState extends Post {
 export const useZonia = (SDK: SDK, params: ZoniaHookParam) => {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
-
+   
     const [thread, setThread] = useState<ThreadState>(
         marshallThread(params.initialPage?.thread ?? [])
     )
@@ -70,7 +74,7 @@ export const useZonia = (SDK: SDK, params: ZoniaHookParam) => {
                 ...prevThreadState,
                 [currPost.id]: {
                     ...currPost,
-                    status: PostStatus.INITIAL,
+                    status: 'INITIAL',
                 },
             }
         }, {} as ThreadState)
@@ -115,7 +119,7 @@ export const useZonia = (SDK: SDK, params: ZoniaHookParam) => {
                 id: temporaryPostId,
                 created_at: Date.now(),
                 replies: { remainingCount: 0, thread: [] },
-                status: PostStatus.SENDING_ADD,
+                status: 'SENDING_ADD',
                 userId: '',
             },
         }))
@@ -133,7 +137,7 @@ export const useZonia = (SDK: SDK, params: ZoniaHookParam) => {
                         ...oldThread,
                         [id]: {
                             ...newPost,
-                            status: PostStatus.SUCCESS_ADD,
+                            status: 'SUCCESS_ADD',
                         },
                     }
                 })
@@ -146,7 +150,7 @@ export const useZonia = (SDK: SDK, params: ZoniaHookParam) => {
                         ...oldThread,
                         [temporaryPostId]: {
                             ...newPost,
-                            status: PostStatus.FAILURE_ADD,
+                            status: 'FAILURE_ADD',
                         },
                     }
                 })
@@ -167,7 +171,7 @@ export const useZonia = (SDK: SDK, params: ZoniaHookParam) => {
             [postId]: {
                 ...oldPost,
                 content,
-                status: PostStatus.SENDING_UPDATE,
+                status: 'SENDING_UPDATE',
             },
         })
 
@@ -182,7 +186,7 @@ export const useZonia = (SDK: SDK, params: ZoniaHookParam) => {
                     ...thread,
                     [postId]: {
                         ...newPost,
-                        status: PostStatus.SUCCESS_UPDATE,
+                        status: 'SUCCESS_UPDATE',
                     },
                 })
             },
@@ -193,7 +197,7 @@ export const useZonia = (SDK: SDK, params: ZoniaHookParam) => {
                     ...thread,
                     [postId]: {
                         ...newPost,
-                        status: PostStatus.FAILURE_UPDATE,
+                        status: 'FAILURE_UPDATE',
                     },
                 })
             }
@@ -210,7 +214,7 @@ export const useZonia = (SDK: SDK, params: ZoniaHookParam) => {
             ...thread,
             [postId]: {
                 ...oldPost,
-                status: PostStatus.SENDING_REMOVE,
+                status: 'SENDING_REMOVE',
             },
         })
         SDK.removePost({
@@ -223,7 +227,7 @@ export const useZonia = (SDK: SDK, params: ZoniaHookParam) => {
                     ...newThread,
                     [postId]: {
                         ...newPost,
-                        status: PostStatus.SUCCESS_REMOVE,
+                        status: 'SUCCESS_REMOVE',
                     },
                 })
             },
@@ -234,7 +238,7 @@ export const useZonia = (SDK: SDK, params: ZoniaHookParam) => {
                     ...thread,
                     [postId]: {
                         ...newPost,
-                        status: PostStatus.FAILURE_REMOVE,
+                        status: 'FAILURE_REMOVE',
                     },
                 })
             }
