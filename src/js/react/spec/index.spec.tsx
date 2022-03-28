@@ -123,6 +123,7 @@ test('actions should set the proper states (success)', async () => {
     for (const postId in result.current.thread) {
         expect(result.current.thread[postId].status).toBe('SENDING_REMOVE')
     }
+
     await waitForNextUpdate()
 
     for (const postId in result.current.thread) {
@@ -131,7 +132,79 @@ test('actions should set the proper states (success)', async () => {
 
 
 
+
 })
+
+test('replies should set proper states (success)', async () => {
+    const { result, waitForNextUpdate } = renderHook(() => useZonia(successSdk, {
+        channelID: 'test_channel',
+        initialPage: { remainingCount: 0, thread: [] },
+    }))
+
+
+
+    act(() => {
+        result.current.addPost({
+            content: 'test_content',
+        })
+    })
+
+    await waitForNextUpdate()
+
+    act(() => {
+        for (const postId in result.current.thread) {
+            result.current.addPost({
+                content: '',
+                parentId: postId,
+            })
+        }
+    })
+
+    expect(Object.values(result.current.thread).map(post =>
+        post.status).some(status => status === 'SENDING_REPLY')).toBeTruthy()
+
+    await waitForNextUpdate()
+
+
+    expect(Object.values(result.current.thread).map(post =>
+        post.status).some(status => status === 'SUCCESS_REPLY')).toBeTruthy()
+})
+
+test('replies should set proper states (failure)', async () => {
+    const { result, waitForNextUpdate } = renderHook(() => useZonia(failureSdk, {
+        channelID: 'test_channel',
+        initialPage: { remainingCount: 0, thread: [] },
+    }))
+
+
+
+    act(() => {
+        result.current.addPost({
+            content: 'test_content',
+        })
+    })
+
+    await waitForNextUpdate()
+
+    act(() => {
+        for (const postId in result.current.thread) {
+            result.current.addPost({
+                content: '',
+                parentId: postId,
+            })
+        }
+    })
+
+    expect(Object.values(result.current.thread).map(post =>
+        post.status).some(status => status === 'SENDING_REPLY')).toBeTruthy()
+
+    await waitForNextUpdate()
+
+
+    expect(Object.values(result.current.thread).map(post =>
+        post.status).some(status => status === 'FAILURE_REPLY')).toBeTruthy()
+})
+
 
 test('actions should set the proper states (failure)', async () => {
 
@@ -178,6 +251,8 @@ test('actions should set the proper states (failure)', async () => {
     for (const postId in result.current.thread) {
         expect(result.current.thread[postId].status).toBe('FAILURE_REMOVE')
     }
+
+
 })
 
 
