@@ -317,6 +317,11 @@ export const useZonia = (SDK: SDK, params: ZoniaHookParam) => {
             postId,
         }).match(
             (_) => {
+                onPostStatusChange({
+                    id:postId,
+                    status: 'SUCCESS',
+                    type: 'REMOVE'
+                })
                 setThread(prevThreadState => {
                     const { [postId]: newPost, ...newThread } = prevThreadState
 
@@ -330,7 +335,11 @@ export const useZonia = (SDK: SDK, params: ZoniaHookParam) => {
                 })
             },
             (e) => {
-                // console.error(e) //perhaps call a callback supplied by the developer
+                onPostStatusChange({
+                    id:postId,
+                    status: 'FAILURE',
+                    type: 'REMOVE'
+                })
                 setThread(prevThreadState => {
                     const { [postId]: newPost } = prevThreadState
                     return {
