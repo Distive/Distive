@@ -1,8 +1,10 @@
 import type { NextPage } from 'next'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { Page } from 'zomia'
-import initZoniaHook from 'zomia-react'
-import  { PostStatus } from 'zomia-react'
+import initZoniaHook, { ThreadState } from 'zomia-react'
+import { PostStatus, } from 'zomia-react'
+import { Button, Textarea, VStack, Text, Container, Stack, ButtonGroup, IconButton, HStack, Divider } from '@chakra-ui/react'
+import { AddIcon, ChatIcon, EditIcon, DeleteIcon } from '@chakra-ui/icons'
 const useZonia = initZoniaHook({
   // serverId: "rrkah-fqaaa-aaaaa-aaaaq-cai"
   serverId: "rofub-iaaaa-aaaai-ab7da-cai"
@@ -13,15 +15,9 @@ const Home: NextPage = () => {
 
   // const {}
   return (
-    <div>
-      {/* {
-        loading ? <div>Loading...</div> :
-          thread.map(post => (<div>{post.content}</div>))
-      }
-      {<div style={{ color: 'red' }}>{error}</div>} */}
-      <RenderThread />
-
-    </div>
+    <Container p='10' bg='gray.50' boxShadow='base'>
+      <Thread />
+    </Container>
   )
 }
 
@@ -31,65 +27,148 @@ interface RenderPageProps {
   page?: Page
 }
 
-const RenderThread = ({ page, parentId }: RenderPageProps) => {
+const threadObjToArray = (threadObj: ThreadState): Array<ThreadState['']> => {
+  return Object.values(threadObj)
+}
+
+
+const Thread = ({ page, parentId }: RenderPageProps) => {
   const {
     thread,
     removePost,
-
     addPost,
     updatePost,
     loading,
     loadMore,
     remainingPostCount
-  } = useZonia({ channelID: "channel_1", initialPage: page, limit: 20 })
-  const [comment, setComment] = useState('')
+  } = useZonia({ channelID: "channel_1", initialPage: page, limit: 8 })
 
-  return <div>
-    {
-      loading ?
-        <div>Loading...</div> :
-        <div style={{ marginTop: 10 }}>
-          {Object.entries(thread).map(([_, comment]) => {
-            return <div key={comment.id} style={{
-              marginTop: 10,
-              opacity: [PostStatus.SENDING_REMOVE, PostStatus.SUCCESS_REMOVE].includes(comment.status) ? 0.5 : 1,
-            }}>
-              <div>{comment.content}</div>
-              {/* <div>{comment.userId}</div> */}
-              <div key={comment.id} style={{ marginLeft: 20 }}>
-                <RenderThread page={comment.replies} parentId={comment.id} />
-              </div>
-              <button onClick={() => removePost(comment.id)}>Delete</button>
-            </div>
-          })}
-        </div>
-    }
+
+
+
+  return <Stack  >
+
+    {!parentId && <CommentInput
+      onSubmit={(content) => addPost({ content, parentId })}
+      loading={false}
+      buttonText='Comment'
+    />}
+
     <div>
-      <input
-        value={comment}
-        onChange={e => setComment(e.target.value)}
-      />
-      <button
-        onClick={() => {
-          addPost({
-            content: comment,
-            parentId,
-          })
-        }}
-      >add</button>
-    </div>
+    {threadObjToArray(thread)
+      // .filter(comment => comment.status !== 'SENDING_ADD')
+      .sort((a, b) => b.created_at - a.created_at)
+      .map(comment =>
+        <React.Fragment key={comment.id}>
+          <Divider />
+          <Comment
+            parentId={parentId}
+            comment={comment}
+            removePost={removePost}
+            addPost={addPost}
+          />
+
+        </React.Fragment>
+      )
+    }
+   </div>
+
     {
-      ((remainingPostCount > 0 ||
-        remainingPostCount === -1)
-        && !loading) &&
+      !(remainingPostCount === 0) &&
       <div style={{ marginTop: 10 }}>
-        <button onClick={loadMore}>Load more ({remainingPostCount})</button>
+        <Button isFullWidth isLoading={loading} onClick={loadMore}>Load more {remainingPostCount > 0 && `${remainingPostCount} Remaining`}</Button>
       </div>
     }
 
-  </div>
+  </Stack>
+}
+
+interface CommentProps {
+  parentId?: string
+  //type of value of ThreadState 
+  comment: ThreadState['']
+  removePost: (id: string) => void
+  addPost: (input: { content: string, parentId?: string }) => void
+
+}
+
+const Comment = ({ comment, removePost, addPost, parentId }: CommentProps) => {
+  const [replyVisible, setReplyVisible] = useState(false)
+
+  return <Stack>
+
+    <VStack
+      style={{
+        padding: 10,
+        opacity: (['SENDING_REMOVE', 'SENDING_ADD', 'SENDING_UPDATE'] as PostStatus[]).includes(comment.status) ? 0.5 : 1,
+        display: comment.status === 'SUCCESS_REMOVE' ? 'none' : 'block',
+        borderLeft: '2px solid #02C39A',
+        borderColor: parentId ? '#02C39A' : '#E8F0FF',
+        backgroundColor: '#fefefe',
+        paddingRight: 0
+      }}
+
+    >
+
+      <Text fontSize='sm'>{comment.content}</Text>
+
+      <HStack
+        justifyContent={'space-between'}
+        paddingRight={4}
+      >
+
+        <Button onClick={() => setReplyVisible(!replyVisible)} size='xs' leftIcon={<ChatIcon />} >Reply</Button>
+        <ButtonGroup size='sm' isAttached variant='outline'>
+          <Button size='xs' mr='-px'>Update</Button>
+          <IconButton onClick={() => removePost(comment.id)} isLoading={comment.status === 'SENDING_REMOVE'} size='xs' aria-label='Delete Comment' icon={<DeleteIcon />} />
+        </ButtonGroup>
+      </HStack>
+      {
+        replyVisible && <CommentInput
+          onSubmit={(content) => addPost({ content, parentId })}
+          loading={(['SENDING_REPLY'] as PostStatus[]).includes(comment.status)}
+          buttonText='Reply'
+        />
+      }
+
+      {/* <div>{comment.userId}</div> */}
+      <div style={{ marginLeft: 20 }}>
+        <Thread page={comment.replies} parentId={comment.id} />
+      </div>
+      <div style={{ background: 'red', display: (['FAILURE_ADD', 'FAILURE_REMOVE', 'FAILURE_UPDATE', 'FAILURE_REPLY'] as PostStatus[]).includes(comment.status) ? 'block' : 'none' }}>Unable to send</div>
+    </VStack>
+  </Stack>
 }
 
 
+interface CommentInputProps {
+  onSubmit: (content: string) => void
+  loading?: boolean,
+  buttonText?: string
+}
+const defaultCommentInputProps: CommentInputProps = {
+  onSubmit: () => { },
+  loading: false,
+  buttonText: 'Send'
+}
+
+const CommentInput = ({ onSubmit, loading, buttonText }: CommentInputProps = defaultCommentInputProps) => {
+  const [comment, setComment] = useState('')
+
+  return <VStack
+    alignItems={'flex-end'}
+  >
+    <Textarea
+      value={comment}
+      onChange={e => setComment(e.target.value)}
+      placeholder='Comment'
+
+    />
+
+    <Button size={'sm'} loadingText='Sending' isLoading={loading} onClick={() => onSubmit(comment)}>
+      {buttonText}
+    </Button>
+  </VStack>
+}
 
 export default Home
