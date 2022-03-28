@@ -1,21 +1,20 @@
 import type { NextPage } from 'next'
-import React, { useState } from 'react'
-import { Page } from 'zomia'
+import React, { useEffect, useState } from 'react'
+import { Page, Thread } from 'zomia'
 import initZoniaHook, { ThreadState } from 'zomia-react'
 import { PostStatus, } from 'zomia-react'
-import { Button, Textarea, VStack, Text, Container, Stack, ButtonGroup, IconButton, HStack, Divider } from '@chakra-ui/react'
-import { AddIcon, ChatIcon, EditIcon, DeleteIcon } from '@chakra-ui/icons'
-const useZonia = initZoniaHook({
-  // serverId: "rrkah-fqaaa-aaaaa-aaaaq-cai"
-  serverId: "rofub-iaaaa-aaaai-ab7da-cai"
+import { Button, Textarea, VStack, Text, Container, Stack, ButtonGroup, IconButton, HStack, Divider, useToast, Menu, MenuButton, MenuItem, MenuList, Collapse } from '@chakra-ui/react'
+import { AddIcon, ChatIcon, EditIcon, DeleteIcon, ChevronDownIcon } from '@chakra-ui/icons'
 
+const useZonia = initZoniaHook({
+  serverId: "rofub-iaaaa-aaaai-ab7da-cai"
 })._unsafeUnwrap()
 
 const Home: NextPage = () => {
 
   // const {}
   return (
-    <Container p='10' bg='gray.50' boxShadow='base'>
+    <Container maxW='container.md'  p='10' bg='gray.50' boxShadow='inner' >
       <Thread />
     </Container>
   )
@@ -33,6 +32,8 @@ const threadObjToArray = (threadObj: ThreadState): Array<ThreadState['']> => {
 
 
 const Thread = ({ page, parentId }: RenderPageProps) => {
+  const toast = useToast()
+
   const {
     thread,
     removePost,
@@ -41,12 +42,16 @@ const Thread = ({ page, parentId }: RenderPageProps) => {
     loading,
     loadMore,
     remainingPostCount
-  } = useZonia({ channelID: "channel_1", initialPage: page, limit: 8 })
+  } = useZonia({
+    channelID: "channel_1",
+    initialPage: page,
+    limit: 8,
+    onPostStatusChange: ({ id, status, type }) => {
+      toast({ title: type, status: 'info', duration: 2000, isClosable: true })
+    }
+  })
 
-
-
-
-  return <Stack  >
+  return <Stack>
 
     {!parentId && <CommentInput
       onSubmit={(content) => addPost({ content, parentId })}
@@ -54,24 +59,24 @@ const Thread = ({ page, parentId }: RenderPageProps) => {
       buttonText='Comment'
     />}
 
-    <div>
-    {threadObjToArray(thread)
-      // .filter(comment => comment.status !== 'SENDING_ADD')
-      .sort((a, b) => b.created_at - a.created_at)
-      .map(comment =>
-        <React.Fragment key={comment.id}>
-          <Divider />
-          <Comment
-            parentId={parentId}
-            comment={comment}
-            removePost={removePost}
-            addPost={addPost}
-          />
+    <Stack>
+      {
+        threadObjToArray(thread)
+          .sort((a, b) => b.created_at - a.created_at)
+          .map(comment =>
+            <React.Fragment key={comment.id}>
+              <Divider />
+              <Comment
+                parentId={parentId}
+                comment={comment}
+                removePost={removePost}
+                addPost={addPost}
+              />
 
-        </React.Fragment>
-      )
-    }
-   </div>
+            </React.Fragment>
+          )
+      }
+    </Stack>
 
     {
       !(remainingPostCount === 0) &&
@@ -103,7 +108,7 @@ const Comment = ({ comment, removePost, addPost, parentId }: CommentProps) => {
         opacity: (['SENDING_REMOVE', 'SENDING_ADD', 'SENDING_UPDATE'] as PostStatus[]).includes(comment.status) ? 0.5 : 1,
         display: comment.status === 'SUCCESS_REMOVE' ? 'none' : 'block',
         borderLeft: '2px solid #02C39A',
-        borderColor: parentId ? '#02C39A' : '#E8F0FF',
+        borderColor: parentId ? '#02C39A' : '#023047',
         backgroundColor: '#fefefe',
         paddingRight: 0
       }}
@@ -112,30 +117,36 @@ const Comment = ({ comment, removePost, addPost, parentId }: CommentProps) => {
 
       <Text fontSize='sm'>{comment.content}</Text>
 
+
       <HStack
-        justifyContent={'space-between'}
+        justifyContent={'flex-end'}
         paddingRight={4}
+        
       >
 
-        <Button onClick={() => setReplyVisible(!replyVisible)} size='xs' leftIcon={<ChatIcon />} >Reply</Button>
-        <ButtonGroup size='sm' isAttached variant='outline'>
-          <Button size='xs' mr='-px'>Update</Button>
-          <IconButton onClick={() => removePost(comment.id)} isLoading={comment.status === 'SENDING_REMOVE'} size='xs' aria-label='Delete Comment' icon={<DeleteIcon />} />
+        <ButtonGroup  size='sm' isAttached variant='outline'>
+          <IconButton  boxShadow='inner' aria-label='Toggle Reply' onClick={() => setReplyVisible(!replyVisible)} size='xs' icon={<ChatIcon />} />
+          <IconButton  boxShadow='inner' aria-label='Update' icon={<EditIcon />} size='xs' mr='-px'>Update</IconButton>
+          <IconButton  boxShadow='inner' onClick={() => removePost(comment.id)} isLoading={comment.status === 'SENDING_REMOVE'} size='xs' aria-label='Delete Comment' icon={<DeleteIcon />} />
         </ButtonGroup>
       </HStack>
-      {
-        replyVisible && <CommentInput
-          onSubmit={(content) => addPost({ content, parentId })}
-          loading={(['SENDING_REPLY'] as PostStatus[]).includes(comment.status)}
-          buttonText='Reply'
-        />
-      }
+      <div  >
+        <Stack paddingRight={4}>
+          <Collapse unmountOnExit  in={replyVisible} animateOpacity>
+            <CommentInput
+              onSubmit={(content) => addPost({ content, parentId: comment.id })}
+              loading={(['SENDING_REPLY'] as PostStatus[]).includes(comment.status)}
+              buttonText='Reply'
 
-      {/* <div>{comment.userId}</div> */}
-      <div style={{ marginLeft: 20 }}>
-        <Thread page={comment.replies} parentId={comment.id} />
+            />
+
+          </Collapse>
+        </Stack>
+        <div style={{ marginLeft: 20 }}>
+          <Thread page={comment.replies} parentId={comment.id} />
+        </div>
+
       </div>
-      <div style={{ background: 'red', display: (['FAILURE_ADD', 'FAILURE_REMOVE', 'FAILURE_UPDATE', 'FAILURE_REPLY'] as PostStatus[]).includes(comment.status) ? 'block' : 'none' }}>Unable to send</div>
     </VStack>
   </Stack>
 }
@@ -162,13 +173,15 @@ const CommentInput = ({ onSubmit, loading, buttonText }: CommentInputProps = def
       value={comment}
       onChange={e => setComment(e.target.value)}
       placeholder='Comment'
+      variant={'filled'}
 
     />
 
-    <Button size={'sm'} loadingText='Sending' isLoading={loading} onClick={() => onSubmit(comment)}>
+    <Button size={'xs'} loadingText='Sending' isLoading={loading} onClick={() => onSubmit(comment)}>
       {buttonText}
     </Button>
   </VStack>
 }
+
 
 export default Home
