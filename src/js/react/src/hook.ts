@@ -1,6 +1,6 @@
 //types should be standalone and not depend on sdk
 import { Post, Thread, UpsertPostInput, Page, SDK } from 'zomia'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 type AddPostInput = Omit<UpsertPostInput, 'commentId' | 'channelId'>
 // interface AddPostInput {}
@@ -16,9 +16,6 @@ export interface ZoniaHook {
     removePost: (postId: string) => void
     remainingPostCount: number
     loadMore: () => void
-
-
-
 }
 
 interface PostStatusCallback {
@@ -49,6 +46,17 @@ interface PostThreadState extends Post {
 
 }
 
+function marshallThread(thread: Thread): ThreadState {
+    return thread.reduce((prevThreadState, currPost): ThreadState => {
+        return {
+            ...prevThreadState,
+            [currPost.id]: {
+                ...currPost,
+                status: 'INITIAL',
+            },
+        }
+    }, {} as ThreadState)
+}
 //sdk should be an argument to initUseZonia
 export const useZonia = (SDK: SDK, params: ZoniaHookParam) => {
     const onPostStatusChange = params.onPostStatusChange ?? (() => { })
@@ -69,17 +77,14 @@ export const useZonia = (SDK: SDK, params: ZoniaHookParam) => {
         params.initialPage?.remainingCount ?? -1
     )
 
-    function marshallThread(thread: Thread): ThreadState {
-        return thread.reduce((prevThreadState, currPost): ThreadState => {
-            return {
-                ...prevThreadState,
-                [currPost.id]: {
-                    ...currPost,
-                    status: 'INITIAL',
-                },
-            }
-        }, {} as ThreadState)
-    }
+    useEffect(() => {
+        setThread({
+            ...thread,
+            ...marshallThread(params.initialPage?.thread ?? [])
+        })
+    }, [params.initialPage])
+
+
 
     const loadMore = () => {
         setLoading(true)
@@ -168,7 +173,7 @@ export const useZonia = (SDK: SDK, params: ZoniaHookParam) => {
                                         {
                                             content,
                                             created_at: Date.now(),
-                                            id: temporaryPostId,
+                                            id,
                                             replies: { remainingCount: 0, thread: [] },
                                             userId: ''
                                         }
