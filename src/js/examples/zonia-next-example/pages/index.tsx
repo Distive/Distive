@@ -3,8 +3,8 @@ import React, { useEffect, useState } from 'react'
 import { Page, Thread } from 'zomia'
 import initZoniaHook, { ThreadState } from 'zomia-react'
 import { PostStatus, } from 'zomia-react'
-import { Button, Textarea, VStack, Text, Container, Stack, ButtonGroup, IconButton, HStack, Divider, useToast, Menu, MenuButton, MenuItem, MenuList, Collapse } from '@chakra-ui/react'
-import { AddIcon, ChatIcon, EditIcon, DeleteIcon, ChevronDownIcon } from '@chakra-ui/icons'
+import { Button, Textarea, VStack, Text, Container, Stack, ButtonGroup, IconButton, HStack, Divider, useToast, Menu, MenuButton, MenuItem, MenuList, Collapse, useEditableControls, Editable, EditablePreview, Input, EditableTextarea } from '@chakra-ui/react'
+import { AddIcon, ChatIcon, EditIcon, DeleteIcon, ChevronDownIcon, CloseIcon, CheckIcon } from '@chakra-ui/icons'
 
 const useZonia = initZoniaHook({
   serverId: "rofub-iaaaa-aaaai-ab7da-cai"
@@ -14,7 +14,7 @@ const Home: NextPage = () => {
 
   // const {}
   return (
-    <Container maxW='container.sm' p='10' bg='gray.50' boxShadow='inner' >
+    <Container maxW='container.sm' p='2' bg='gray.50' boxShadow='inner' >
       <Thread />
     </Container>
   )
@@ -48,7 +48,7 @@ const Thread = ({ page, parentId }: RenderPageProps) => {
     limit: 8,
     onPostStatusChange: ({ id, status, type }) => {
       if (status === 'SENDING') return
-      
+
       const map = {
         'REMOVE': {
           'SUCCESS': {
@@ -94,14 +94,10 @@ const Thread = ({ page, parentId }: RenderPageProps) => {
         }
       }
 
-
-
       const mapStatus = {
         'SUCCESS': 'success',
         'FAILURE': 'error',
       }
-
-
 
       toast({
         duration: 3000,
@@ -124,7 +120,7 @@ const Thread = ({ page, parentId }: RenderPageProps) => {
       buttonText='Comment'
     />}
 
-    <Stack>
+    <div>
       {
         threadObjToArray(thread)
           .sort((a, b) => b.created_at - a.created_at)
@@ -136,12 +132,13 @@ const Thread = ({ page, parentId }: RenderPageProps) => {
                 comment={comment}
                 removePost={removePost}
                 addPost={addPost}
+                updatePost={updatePost}
               />
 
             </React.Fragment>
           )
       }
-    </Stack>
+    </div>
 
     {
       !(remainingPostCount === 0) &&
@@ -159,41 +156,39 @@ interface CommentProps {
   comment: ThreadState['']
   removePost: (id: string) => void
   addPost: (input: { content: string, parentId?: string }) => void
-
+  updatePost: (input: { content: string, postId: string }) => void
 }
 
-const Comment = ({ comment, removePost, addPost, parentId }: CommentProps) => {
+const Comment = ({ comment, removePost,updatePost, addPost, parentId }: CommentProps) => {
   const [replyVisible, setReplyVisible] = useState(false)
 
-  return <Stack>
 
+  return <Stack>
     <VStack
       style={{
         padding: 10,
         opacity: (['SENDING_REMOVE', 'SENDING_ADD', 'SENDING_UPDATE'] as PostStatus[]).includes(comment.status) ? 0.5 : 1,
         display: comment.status === 'SUCCESS_REMOVE' ? 'none' : 'block',
         borderLeft: '2px solid #02C39A',
-        borderColor: parentId ? '#02C39A' : '#023047',
+        borderColor: parentId ? '#30343F' : '#FAFAFF',
         backgroundColor: '#fefefe',
         paddingRight: 0
       }}
 
     >
 
-      <Text fontSize='sm'>{comment.content}</Text>
-
-
-      <HStack
-        justifyContent={'flex-end'}
-        paddingRight={4}
-
+      <Editable
+       
+        defaultValue={comment.content}
+        fontSize='sm'
+        onSubmit={(content)=> updatePost({content,postId:comment.id})}
       >
-        <ButtonGroup size='sm' isAttached variant='outline'>
-          <IconButton boxShadow='inner' aria-label='Toggle Reply' onClick={() => setReplyVisible(!replyVisible)} size='xs' icon={<ChatIcon />} />
-          <IconButton boxShadow='inner' aria-label='Update' icon={<EditIcon />} size='xs' mr='-px'>Update</IconButton>
-          <IconButton boxShadow='inner' onClick={() => removePost(comment.id)} isLoading={comment.status === 'SENDING_REMOVE'} size='xs' aria-label='Delete Comment' icon={<DeleteIcon />} />
-        </ButtonGroup>
-      </HStack>
+        <EditablePreview />
+        <Input as={EditableTextarea} />
+        <CommentControls />
+      </Editable>
+
+
       <div  >
         <Stack paddingRight={4}>
           <Collapse unmountOnExit in={replyVisible} animateOpacity>
@@ -206,13 +201,37 @@ const Comment = ({ comment, removePost, addPost, parentId }: CommentProps) => {
 
           </Collapse>
         </Stack>
-        <div style={{ marginLeft: 20 }}>
+        <div style={{ marginLeft: 10 }}>
           <Thread page={comment.replies} parentId={comment.id} />
         </div>
 
       </div>
     </VStack>
   </Stack>
+
+  function CommentControls() {
+    const { isEditing, getSubmitButtonProps, getCancelButtonProps, getEditButtonProps } = useEditableControls()
+
+    return <HStack
+      justifyContent={'flex-end'}
+      paddingRight={4}
+
+    >
+      {!isEditing ? <ButtonGroup size='sm' isAttached variant='outline'>
+        <IconButton boxShadow='inner' aria-label='Toggle Reply' onClick={() => setReplyVisible(!replyVisible)} size='xs' icon={<ChatIcon />} />
+        <IconButton boxShadow='inner' aria-label='Update' isLoading={comment.status === 'SENDING_UPDATE'} icon={<EditIcon />} size='xs' mr='-px'
+          {...getEditButtonProps()}
+        >Update</IconButton>
+        <IconButton boxShadow='inner' onClick={() => removePost(comment.id)} isLoading={comment.status === 'SENDING_REMOVE'} size='xs' aria-label='Delete Comment' icon={<DeleteIcon />} />
+      </ButtonGroup> :
+        <ButtonGroup size='sm' isAttached variant='outline'>
+          <IconButton boxShadow='inner' aria-label='Accept Edit'   size='xs' icon={<CheckIcon />}
+            {...getSubmitButtonProps()} />
+          <IconButton boxShadow='inner' aria-label='Decline Edit' icon={<CloseIcon />} size='xs' mr='-px'
+            {...getCancelButtonProps()} />
+        </ButtonGroup>}
+    </HStack>
+  }
 }
 
 
