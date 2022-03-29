@@ -80,7 +80,7 @@ const mapActorPageToPage = (page: page): Page => ({
     thread: page.comments.map(comment => ({
         id: comment.id,
         content: comment.content,
-        created_at: Number(comment.created_at),
+        created_at: Number(comment.created_at)/1_000_000,
         userId: comment.user_id,
         replies: mapActorPageToPage(comment.replies)
     }))
