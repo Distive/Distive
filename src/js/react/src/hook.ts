@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 
 type AddPostInput = Omit<UpsertPostInput, 'commentId' | 'channelId'>
 // interface AddPostInput {}
-type UpdatePostInput = { postId: string; content: string }
+type UpdatePostInput = { postId: string; content: string; parentId?:string }
 
 export interface ZoniaHook {
     loading: boolean
@@ -219,7 +219,7 @@ export const useZonia = (SDK: SDK, params: ZoniaHookParam) => {
         )
     }
 
-    const updatePost: ZoniaHook['updatePost'] = ({ content, postId: postId }) => {
+    const updatePost: ZoniaHook['updatePost'] = ({ content, postId, parentId }) => {
         if (!(postId in thread)) {
             return
         }
@@ -247,6 +247,7 @@ export const useZonia = (SDK: SDK, params: ZoniaHookParam) => {
             channelId: params.channelID,
             content,
             postId: postId,
+            parentId
         })
             .match(
                 (_) => {
