@@ -38,7 +38,6 @@ impl Channel {
                         .map(|comment| comment.clone().into())
                         .collect::<Vec<CommentOutput>>();
                     let thread_length = thread.len();
-                    
                     let remaining_count = (thread_length
                         - thread_length.min(thread_length.min(limit) + (cursor_index + 1)))
                         as u32;
@@ -107,7 +106,11 @@ impl Channel {
         };
         match thread {
             Some(thread) => {
-                let comment_id = comment_input.id.clone();
+                let comment_id = Channel::split_comment_id(&comment_input.id)
+                .pop()
+                .unwrap_or(&comment_input.id)
+                .to_string();
+                
                 let parent_id = comment_input.parent_id.clone();
                 let hierarchal_id = Self::create_hierarchal_id(parent_id, &comment_id);
                 match thread.get_mut(&comment_id) {
@@ -392,7 +395,6 @@ mod tests {
         let mut channel = Channel::new("channel_id".to_string());
 
         let comment_id = "comment_id".to_string();
-       
         channel
             .upsert_comment(CommentInput {
                 content: "hello".to_string(),
@@ -402,9 +404,8 @@ mod tests {
                 parent_id: None,
             })
             .unwrap();
-  
-    
-            channel
+
+        channel
             .upsert_comment(CommentInput {
                 content: "hello world".to_string(),
                 created_at: 0,
@@ -432,22 +433,24 @@ mod tests {
             })
             .unwrap();
 
-      
-        //upsert to reply 
+        let reply_id =
+            &Channel::create_hierarchal_id(Some(comment_id.clone()), &"reply_id".to_string());
+        //upsert to reply
         channel
             .upsert_comment(CommentInput {
                 content: "updated reply".to_string(),
-                id: "reply_id".to_string(),
+                id: reply_id.to_string(),
                 user_id: "user_id".to_string(),
                 created_at: 0,
                 parent_id: Some(comment_id.clone()),
             })
             .unwrap();
 
-        let updated_comment = channel.get_comment(&Channel::create_hierarchal_id(Some(comment_id),& "reply_id".to_string())).unwrap();
+        let updated_comment = channel.get_comment(reply_id).unwrap();
         assert_eq!(updated_comment.content, "updated reply");
+        //check that another reply was not created for comment_id
+        assert_eq!(channel.thread[0].replies.len(), 1);
         assert_eq!(channel.thread.len(), 1);
-        
     }
     #[test]
     fn existing_comment_is_updated() {
@@ -545,8 +548,6 @@ mod tests {
         assert_eq!(split_ids.len(), 1);
         assert_eq!(split_ids, [&hierarchal_id])
     }
-
-    
 
     // fn
 }
