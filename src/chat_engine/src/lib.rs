@@ -38,7 +38,7 @@ impl Channel {
                         .map(|comment| comment.clone().into())
                         .collect::<Vec<CommentOutput>>();
                     let thread_length = thread.len();
-                    //remaining_count = len - ( len, min(len, min(len, limit) + cursor_index))
+                    
                     let remaining_count = (thread_length
                         - thread_length.min(thread_length.min(limit) + (cursor_index + 1)))
                         as u32;

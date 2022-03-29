@@ -1,6 +1,6 @@
 {
   "name": "zomia-react",
-  "version": "0.5.0",
+  "version": "0.6.1",
   "license": "MIT",
   "description": "A React component and hook library for Zomia",
   "private": false,
