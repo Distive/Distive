@@ -392,8 +392,7 @@ mod tests {
         let mut channel = Channel::new("channel_id".to_string());
 
         let comment_id = "comment_id".to_string();
-        let comment_id_2 = "comment_id_2".to_string();
-        let comment_id_3 = "comment_id_3".to_string();
+       
         channel
             .upsert_comment(CommentInput {
                 content: "hello".to_string(),
@@ -403,24 +402,7 @@ mod tests {
                 parent_id: None,
             })
             .unwrap();
-        channel
-            .upsert_comment(CommentInput {
-                content: "hello".to_string(),
-                created_at: 0,
-                id: comment_id_2.clone(),
-                user_id: "user_id".to_string(),
-                parent_id: None,
-            })
-            .unwrap();
-        channel
-            .upsert_comment(CommentInput {
-                content: "hello".to_string(),
-                id: comment_id_3.clone(),
-                user_id: "user_id".to_string(),
-                created_at: 0,
-                parent_id: None,
-            })
-            .unwrap();
+  
     
             channel
             .upsert_comment(CommentInput {
@@ -431,7 +413,7 @@ mod tests {
                 parent_id: None,
             })
             .unwrap();
-        assert_eq!(channel.thread.len(), 3);
+        assert_eq!(channel.thread.len(), 1);
         assert_eq!(
             channel.get_page(&1, Some(&comment_id)).unwrap().comments[0].content,
             "hello world"
@@ -449,21 +431,23 @@ mod tests {
                 parent_id: Some(comment_id.clone()),
             })
             .unwrap();
-        let first_comment = channel.get_comment(&comment_id.clone()).unwrap();
-        assert_eq!(first_comment.replies.comments.len(), 1);
-        //upsert to first comment
+
+      
+        //upsert to reply 
         channel
             .upsert_comment(CommentInput {
-                content: "hello world".to_string(),
-                id: comment_id.clone(),
+                content: "updated reply".to_string(),
+                id: "reply_id".to_string(),
                 user_id: "user_id".to_string(),
                 created_at: 0,
-                parent_id: None,
+                parent_id: Some(comment_id.clone()),
             })
             .unwrap();
 
-        let first_comment = channel.get_comment(&comment_id.clone()).unwrap();
-        assert_eq!(first_comment.replies.comments.len(), 1);
+        let updated_comment = channel.get_comment(&Channel::create_hierarchal_id(Some(comment_id),& "reply_id".to_string())).unwrap();
+        assert_eq!(updated_comment.content, "updated reply");
+        assert_eq!(channel.thread.len(), 1);
+        
     }
     #[test]
     fn existing_comment_is_updated() {
@@ -561,6 +545,8 @@ mod tests {
         assert_eq!(split_ids.len(), 1);
         assert_eq!(split_ids, [&hierarchal_id])
     }
+
+    
 
     // fn
 }
