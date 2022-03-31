@@ -3,19 +3,21 @@ import React, { useEffect, useState } from 'react'
 import { Page, Thread } from 'zomia'
 import initZoniaHook, { ThreadState } from 'zomia-react'
 import { PostStatus, } from 'zomia-react'
-import { Button, Textarea, VStack, Text, Container, Stack, ButtonGroup, IconButton, HStack, Divider, useToast, Menu, MenuButton, MenuItem, MenuList, Collapse, useEditableControls, Editable, EditablePreview, Input, EditableTextarea } from '@chakra-ui/react'
+import { Button, Textarea, VStack, Text, Container, Stack, ButtonGroup, IconButton, HStack, Divider, useToast, Menu, MenuButton, MenuItem, MenuList, Collapse, useEditableControls, Editable, EditablePreview, Input, EditableTextarea, Avatar } from '@chakra-ui/react'
 import { AddIcon, ChatIcon, EditIcon, DeleteIcon, ChevronDownIcon, CloseIcon, CheckIcon } from '@chakra-ui/icons'
+import { useRouter } from 'next/router'
 
 const useZonia = initZoniaHook({
   serverId: "rofub-iaaaa-aaaai-ab7da-cai"
 })._unsafeUnwrap()
 
 const Home: NextPage = () => {
-
+  const router = useRouter()
+  const { channel = 'main' } = router.query as { channel?: string }
   // const {}
   return (
     <Container maxW='container.sm' p='2' bg='gray.50' boxShadow='inner' >
-      <Thread />
+      <Thread channelId={channel} />
     </Container>
   )
 }
@@ -24,6 +26,7 @@ const Home: NextPage = () => {
 interface RenderPageProps {
   parentId?: string
   page?: Page
+  channelId: string
 }
 
 const threadObjToArray = (threadObj: ThreadState): Array<ThreadState['']> => {
@@ -31,8 +34,9 @@ const threadObjToArray = (threadObj: ThreadState): Array<ThreadState['']> => {
 }
 
 
-const Thread = ({ page, parentId }: RenderPageProps) => {
+const Thread = ({ page, parentId, channelId }: RenderPageProps) => {
   const toast = useToast()
+
 
   const {
     thread,
@@ -43,12 +47,13 @@ const Thread = ({ page, parentId }: RenderPageProps) => {
     loadMore,
     remainingPostCount
   } = useZonia({
-    channelID: "channel_1",
+    channelID: channelId,
     initialPage: page,
     limit: 8,
-    onPostStatusChange: ({ id, status, type }) => {
-      if (status === 'SENDING') return
-
+    onPostStatusChange: function ({ id, status, type }): void {
+      if (status === 'SENDING')
+        return
+      
       const map = {
         'REMOVE': {
           'SUCCESS': {
@@ -69,13 +74,11 @@ const Thread = ({ page, parentId }: RenderPageProps) => {
             title: 'Failed to add post',
             description: 'The post could not be added',
           },
-
         },
         'UPDATE': {
           'SUCCESS': {
             title: 'Post updated',
             description: 'The post has been updated',
-
           },
           'FAILURE': {
             title: 'Failed to update post',
@@ -128,13 +131,13 @@ const Thread = ({ page, parentId }: RenderPageProps) => {
             <React.Fragment key={comment.id}>
               <Divider />
               <Comment
+                channelId={channelId}
                 parentId={parentId}
                 comment={comment}
                 removePost={removePost}
                 addPost={addPost}
                 updatePost={updatePost}
               />
-
             </React.Fragment>
           )
       }
@@ -143,7 +146,7 @@ const Thread = ({ page, parentId }: RenderPageProps) => {
     {
       !(remainingPostCount === 0) &&
       <div style={{ marginTop: 10 }}>
-        <Button isFullWidth isLoading={loading} onClick={loadMore}>Load more {remainingPostCount > 0 && `${remainingPostCount} Remaining`}</Button>
+        <Button isFullWidth isLoading={loading} onClick={loadMore}>{remainingPostCount < 0 ? 'Load Comments' : `Load More`} {remainingPostCount > 0 && `${remainingPostCount} Remaining`}</Button>
       </div>
     }
 
@@ -152,15 +155,17 @@ const Thread = ({ page, parentId }: RenderPageProps) => {
 
 interface CommentProps {
   parentId?: string
+  channelId: string
   //type of value of ThreadState 
   comment: ThreadState['']
   removePost: (id: string) => void
   addPost: (input: { content: string, parentId?: string }) => void
-  updatePost: (input: { content: string, postId: string }) => void
+  updatePost: (input: { content: string, postId: string, parentId?: string }) => void
 }
 
-const Comment = ({ comment, removePost,updatePost, addPost, parentId }: CommentProps) => {
+const Comment = ({ comment, removePost, updatePost, addPost, parentId, channelId }: CommentProps) => {
   const [replyVisible, setReplyVisible] = useState(false)
+
 
 
   return <Stack>
@@ -176,15 +181,22 @@ const Comment = ({ comment, removePost,updatePost, addPost, parentId }: CommentP
       }}
 
     >
+      <HStack>
+        <Avatar
+          size='xs'
+        // name={comment.userId}
+        />
+        <Text fontSize={'xs'}>{getHumanReadableTime((Date.now()) - comment.created_at)}</Text>
+      </HStack>
 
       <Editable
-       
+
         defaultValue={comment.content}
         fontSize='sm'
-        onSubmit={(content)=> updatePost({content,postId:comment.id})}
+        onSubmit={(content) => content !== comment.content && updatePost({ content, postId: comment.id, parentId })}
       >
         <EditablePreview />
-        <Input as={EditableTextarea} />
+        <Input minHeight={20} as={EditableTextarea} />
         <CommentControls />
       </Editable>
 
@@ -202,7 +214,7 @@ const Comment = ({ comment, removePost,updatePost, addPost, parentId }: CommentP
           </Collapse>
         </Stack>
         <div style={{ marginLeft: 10 }}>
-          <Thread page={comment.replies} parentId={comment.id} />
+          <Thread channelId={channelId} page={comment.replies} parentId={comment.id} />
         </div>
 
       </div>
@@ -225,7 +237,7 @@ const Comment = ({ comment, removePost,updatePost, addPost, parentId }: CommentP
         <IconButton boxShadow='inner' onClick={() => removePost(comment.id)} isLoading={comment.status === 'SENDING_REMOVE'} size='xs' aria-label='Delete Comment' icon={<DeleteIcon />} />
       </ButtonGroup> :
         <ButtonGroup size='sm' isAttached variant='outline'>
-          <IconButton boxShadow='inner' aria-label='Accept Edit'   size='xs' icon={<CheckIcon />}
+          <IconButton boxShadow='inner' aria-label='Accept Edit' size='xs' icon={<CheckIcon />}
             {...getSubmitButtonProps()} />
           <IconButton boxShadow='inner' aria-label='Decline Edit' icon={<CloseIcon />} size='xs' mr='-px'
             {...getCancelButtonProps()} />
@@ -266,5 +278,20 @@ const CommentInput = ({ onSubmit, loading, buttonText }: CommentInputProps = def
   </VStack>
 }
 
+
+const getHumanReadableTime = (ms: number, dp = 0) => {
+  const timeScalars = [1000, 60, 60, 24, 7, 52];
+  const timeUnits = ['ms', 's', 'm', 'h', 'd', 'w', 'y'];
+
+  let timeScalarIndex = 0, scaledTime = ms;
+
+
+  while (scaledTime > timeScalars[timeScalarIndex]) {
+    scaledTime /= timeScalars[timeScalarIndex++];
+  }
+  if (timeScalarIndex < 2) return `now`
+
+  return `${scaledTime.toFixed(dp)}${timeUnits[timeScalarIndex]}`;
+}
 
 export default Home
