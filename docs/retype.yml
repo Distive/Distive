@@ -1,8 +1,8 @@
 input: .
 output: .retype
-url: zonia-landing.vercel.app/
+url: distive.vercel.app/
 branding:
-  title: Zomia
+  title: Distive
   label: Docs
 links:
 - text: Getting Started

@@ -1,5 +1,5 @@
 //types should be standalone and not depend on sdk
-import { Post, Thread, UpsertPostInput, Page, SDK } from 'zomia'
+import { Post, Thread, UpsertPostInput, Page, SDK } from '@distive/sdk'
 import { useEffect, useState } from 'react'
 
 type AddPostInput = Omit<UpsertPostInput, 'commentId' | 'channelId'>

@@ -2,10 +2,10 @@
   "version": 1,
   "dfx": "0.9.3",
   "canisters": {
-    "rust_hello": {
+    "chat_canister": {
       "type": "rust",
-      "package": "rust_hello",
-      "candid": "src/rust_hello/rust_hello.did"
+      "package": "chat_canister",
+      "candid": "src/chat_canister/chat_canister.did"
     }
   },
   "defaults": {

@@ -1,5 +1,5 @@
 [workspace]
 members = [
-    "src/rust_hello",
+    "src/chat_canister",
     "src/chat_engine"
 ]

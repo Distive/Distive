@@ -10,19 +10,16 @@ export enum ErrorKind {
     Internal,
 }
 
-export interface ZoniaError {
+export interface DistiveError {
     kind: ErrorKind,
-    message: string,
+    message: string
 }
 
-export type ZoniaResult<T> = ResultAsync<T, ZoniaError>
+export type DistiveResult<T> = ResultAsync<T, DistiveError>
 
-// creates a zonia result object (for testing purposes)
-export function createZoniaResult<T>(r: { value?: T, e?: ZoniaError }): ZoniaResult<T> {
-    if (r?.value) {
-        return okAsync(r.value)
-    }
-    return errAsync(r.e)
+// creates a distive result object (for testing purposes)
+export function createDistiveResult<T>(r: { value?: T, e?: DistiveError }): DistiveResult<T> {
+    return r?.value ? okAsync(r.value) : errAsync(r.e)
 }
 
 type PostID = string
@@ -66,12 +63,12 @@ export interface SDKConfig {
 }
 
 export interface SDK {
-    getThread: (input: GetThreadInput) => ZoniaResult<Page>,
-    upsertPost: (input: UpsertPostInput) => ZoniaResult<PostID>,
-    removePost: (input: RemovePostInput) => ZoniaResult<PostID>,
+    getThread: (input: GetThreadInput) => DistiveResult<Page>,
+    upsertPost: (input: UpsertPostInput) => DistiveResult<PostID>,
+    removePost: (input: RemovePostInput) => DistiveResult<PostID>,
 }
 
-export type SDKResult = Result<SDK, ZoniaError>
+export type SDKResult = Result<SDK, DistiveError>
 
 export type SDKFn = (config: SDKConfig) => SDKResult
 
@@ -80,13 +77,13 @@ const mapActorPageToPage = (page: page): Page => ({
     thread: page.comments.map(comment => ({
         id: comment.id,
         content: comment.content,
-        created_at: Number(comment.created_at)/1_000_000,
+        created_at: Number(comment.created_at)/1_000_000, //original tiime is in nanoseconds
         userId: comment.user_id,
         replies: mapActorPageToPage(comment.replies)
     }))
 })
 
-const sdkFn: SDKFn = (config: SDKConfig): Result<SDK, ZoniaError> => {
+const sdkFn: SDKFn = (config: SDKConfig): Result<SDK, DistiveError> => {
 
     const clientInit = Result.fromThrowable(init_actor)
     const IDGen = () => nanoid(5)

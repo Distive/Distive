@@ -1,4 +1,4 @@
-import { Thread, Page, ZoniaError, ErrorKind, Post, SDK } from 'zomia'
+import { Thread, Page, DistiveError, ErrorKind, Post, SDK } from '@distive/sdk'
 import { renderHook, act } from '@testing-library/react-hooks'
 import useZonia, { PostStatus } from '../src/hook'
 import { errAsync, fromSafePromise, ResultAsync } from 'neverthrow'
@@ -65,19 +65,19 @@ const failureSdk: SDK = {
         return fromSafePromise(stall(5))
             .andThen(() => {
                 return errAsync({ kind: ErrorKind.Internal, message: 'internal error' })
-            }) as ResultAsync<Page, ZoniaError>
+            }) as ResultAsync<Page, DistiveError>
     },
     removePost() {
         return fromSafePromise(stall(5))
             .andThen(() => {
                 return errAsync({ kind: ErrorKind.Internal, message: 'internal error' })
-            }) as ResultAsync<string, ZoniaError>
+            }) as ResultAsync<string, DistiveError>
     },
     upsertPost() {
         return fromSafePromise(stall(5))
             .andThen(() => {
                 return errAsync({ kind: ErrorKind.Internal, message: 'internal error' })
-            }) as ResultAsync<string, ZoniaError>
+            }) as ResultAsync<string, DistiveError>
     }
 }
 

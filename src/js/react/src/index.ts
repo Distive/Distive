@@ -1,5 +1,5 @@
 import { Result, ok } from 'neverthrow'
-import _SDK, { SDK } from 'zomia'
+import _SDK, { SDK } from '@distive/sdk'
 import { ZoniaHookParam, useZonia, ZoniaHook } from './hook'
 
 // export { useZonia } from './hook'

@@ -2,7 +2,7 @@ test_scripts=("cargo test" "npm run --prefix src/js/sdk test" "npm run --prefix 
 # Start DFX 
 dfx start --background
 # Deploy Canisters with clean state
-yes | dfx deploy rust_hello -m reinstall
+yes | dfx deploy chat_canister -m reinstall
 
 # Run tests print "success" or "failure" depending on the result
 for test in "${test_scripts[@]}"
