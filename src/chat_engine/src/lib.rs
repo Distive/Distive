@@ -1,5 +1,6 @@
 use indexmap::IndexMap;
 use std::fmt;
+
 const DELIMITER: &str = ".";
 type Thread = IndexMap<String, Comment>;
 
@@ -107,10 +108,9 @@ impl Channel {
         match thread {
             Some(thread) => {
                 let comment_id = Channel::split_comment_id(&comment_input.id)
-                .pop()
-                .unwrap_or(&comment_input.id)
-                .to_string();
-                
+                    .pop()
+                    .unwrap_or(&comment_input.id)
+                    .to_string();
                 let parent_id = comment_input.parent_id.clone();
                 let hierarchal_id = Self::create_hierarchal_id(parent_id, &comment_id);
                 match thread.get_mut(&comment_id) {

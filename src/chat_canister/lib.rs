@@ -9,13 +9,6 @@ thread_local! {
     static CHANNELS: RefCell<HashMap<String, Channel>> = RefCell::new(HashMap::new());
 }
 
-// #[init]
-// fn init_function() {
-//     // unsafe {
-//     //     CHANNELS = Some(HashMap::new());
-//     // };
-// }
-
 #[update]
 fn upsert_comment(param: UpsertCommentParam) -> String {
     let user_id = ic_cdk::caller().to_string();

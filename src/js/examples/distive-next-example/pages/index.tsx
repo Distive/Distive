@@ -1,13 +1,13 @@
 import type { NextPage } from 'next'
 import React, { useEffect, useState } from 'react'
-import { Page, Thread } from 'zomia'
-import initZoniaHook, { ThreadState } from 'zomia-react'
-import { PostStatus, } from 'zomia-react'
+import { Page, Thread } from '@distive/sdk'
+import initDistiveHook, { ThreadState } from '@distive/react'
+import { PostStatus, } from '@distive/react'
 import { Button, Textarea, VStack, Text, Container, Stack, ButtonGroup, IconButton, HStack, Divider, useToast, Menu, MenuButton, MenuItem, MenuList, Collapse, useEditableControls, Editable, EditablePreview, Input, EditableTextarea, Avatar } from '@chakra-ui/react'
 import { AddIcon, ChatIcon, EditIcon, DeleteIcon, ChevronDownIcon, CloseIcon, CheckIcon } from '@chakra-ui/icons'
 import { useRouter } from 'next/router'
 
-const useZonia = initZoniaHook({
+const useDistive = initDistiveHook({
   serverId: "rofub-iaaaa-aaaai-ab7da-cai"
 })._unsafeUnwrap()
 
@@ -46,14 +46,14 @@ const Thread = ({ page, parentId, channelId }: RenderPageProps) => {
     loading,
     loadMore,
     remainingPostCount
-  } = useZonia({
+  } = useDistive({
     channelID: channelId,
     initialPage: page,
     limit: 8,
     onPostStatusChange: function ({ id, status, type }): void {
       if (status === 'SENDING')
         return
-      
+
       const map = {
         'REMOVE': {
           'SUCCESS': {
@@ -146,7 +146,12 @@ const Thread = ({ page, parentId, channelId }: RenderPageProps) => {
     {
       !(remainingPostCount === 0) &&
       <div style={{ marginTop: 10 }}>
-        <Button isFullWidth isLoading={loading} onClick={loadMore}>{remainingPostCount < 0 ? 'Load Comments' : `Load More`} {remainingPostCount > 0 && `${remainingPostCount} Remaining`}</Button>
+        <Button
+          isFullWidth
+          isLoading={loading}
+          onClick={loadMore}>
+          {remainingPostCount < 0 ? 'Load Comments' : `Load More`} {remainingPostCount > 0 && `${remainingPostCount} Remaining`}
+        </Button>
       </div>
     }
 
