@@ -47,7 +47,10 @@ fn delete_comment(param: DeleteCommentParam) -> String {
         },
     );
 
-    "".to_string()
+    match result {
+        Ok(()) => "OK".to_string(),
+        Err(message) => message,
+    }
 }
 
 #[query]
