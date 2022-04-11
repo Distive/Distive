@@ -14,3 +14,5 @@ ic-cdk = "0.3"
 ic-cdk-macros = "0.3"
 chat_engine = { path = "../chat_engine" }
 serde = "1.0"
+mopa = "0.2.2"
+cucumber = "0.13.0"
