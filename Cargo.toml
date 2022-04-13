@@ -1,5 +1,6 @@
 [workspace]
 members = [
     "src/chat_canister",
-    "src/chat_engine"
+    "src/chat_engine",
+    "src/distributed_chat_engine",
 ]

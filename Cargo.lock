@@ -423,6 +423,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "distive_chat_engine"
+version = "0.0.1"
+dependencies = [
+ "indexmap",
+]
+
+[[package]]
 name = "either"
 version = "1.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"

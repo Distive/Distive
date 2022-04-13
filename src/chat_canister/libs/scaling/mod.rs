@@ -1,9 +1,11 @@
 use mopa::*;
 use std::collections::HashSet;
-
+// use ic_cdk::export::{Principal};
 pub trait ScaledData: Any {
     fn is_full(&self) -> bool;
     fn is_empty(&self) -> bool;
+    // fn get_canister_id(&self) -> Option<String>;
+    // fn set_canister_id(&self, canister_id: String) -> ();
 }
 mopafy!(ScaledData);
 
@@ -42,12 +44,36 @@ impl ScaledStorage {
         self.data.downcast_mut::<T>().unwrap()
     }
 
-    pub fn with_data_mut<T: ScaledData, E, F, R>(&mut self, action: F) -> R
+    pub fn with_data_mut<T: ScaledData, F, R>(
+        &mut self,
+        action: F,
+        canister_id: Option<String>,
+    ) -> R
     where
         F: FnOnce(&mut T) -> R,
     {
-        action(self.get_data_mut())
+        // let canister_id = self.data.get_canister_id();
+        match canister_id {
+            Some(canister_id) => {
+                // forward data here, then parse
+                // let canister_result_data =
+                // action(canister_result_data)
+                action(self.get_data_mut())
+            }
+            None => action(self.get_data_mut()),
+        }
     }
+
+    // fn create_canister(&mut self, id: String) -> ScaledStorage {
+    //     let canister = ScaledStorage::new(
+    //         id,
+    //         HashSet::new(),
+    //         self.next_canister_id.take(),
+    //         ScaledStorage::default(),
+    //     );
+    //     self.next_canister_id = Some(id);
+    //     canister
+    // }
 }
 
 #[cfg(test)]
@@ -65,6 +91,12 @@ mod tests {
         fn is_empty(&self) -> bool {
             self.data.len() == 0
         }
+
+        // fn get_canister_id(&self) -> Option<String> {
+        //     None
+        // }
+
+        // fn set_canister_id(&self, _id: String) {}
     }
 
     #[test]
@@ -134,19 +166,20 @@ mod tests {
     #[test]
     fn with_data_mut_should_take_a_closure_and_be_mutable() {
         let data = ListU32Data { data: vec![1] };
-
         let mut scaled_storage = ScaledStorage::new("id".to_string(), HashSet::new(), None, data);
-
-        let result = scaled_storage
-            .with_data_mut::<ListU32Data, String, _, Result<String, String>>(
-                |list_u32_scaled_data| {
-                    list_u32_scaled_data.data.push(2);
-                    list_u32_scaled_data.data.push(3);
-                    Ok("OK".to_string())
-                },
-            );
+        let result = scaled_storage.with_data_mut::<ListU32Data, _, _>(
+            |list_u32_scaled_data| {
+                list_u32_scaled_data.data.push(2);
+                list_u32_scaled_data.data.push(3);
+                Ok("OK".to_string()) as Result<String, String>
+            },
+            None,
+        );
 
         assert_eq!(result.unwrap(), "OK");
         assert_eq!(scaled_storage.get_data::<ListU32Data>().data, vec![1, 2, 3]);
     }
+
+    // #[test]
+    //if_full
 }

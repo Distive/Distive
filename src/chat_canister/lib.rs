@@ -5,7 +5,25 @@ use ic_cdk_macros::{init, query, update};
 use std::cell::RefCell;
 use std::collections::HashMap;
 mod libs;
-use libs::scaling::ScaledStorage;
+use libs::scaling::{ScaledData, ScaledStorage};
+
+struct ChannelMap {
+    data: RefCell<HashMap<String, Channel>>,
+}
+
+impl ScaledData for ChannelMap {
+    fn is_full(&self) -> bool {
+        self.data.borrow().len() > 10
+    }
+
+    fn is_empty(&self) -> bool {
+        self.data.borrow().is_empty()
+    }
+
+    // fn get_canister_id(&self) -> Option<String> {
+    //     self.data.borrow().
+    // }
+}
 
 thread_local! {
     static CHANNELS: RefCell<HashMap<String, Channel>> = RefCell::new(HashMap::new());
