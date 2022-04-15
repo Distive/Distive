@@ -16,3 +16,6 @@ chat_engine = { path = "../chat_engine" }
 serde = "1.0"
 mopa = "0.2.2"
 cucumber = "0.13.0"
+ic-agent = "0.15.0"
+ic-utils = "0.15.0"
+garcon = "0.2.3"

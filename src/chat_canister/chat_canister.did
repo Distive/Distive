@@ -32,8 +32,14 @@ type delete_comment_param = record {
     channel_id: text;
 };
 
+type node_info = record {
+    index_node: text;
+    all_nodes: vec text;
+}
+
 service : {
     "upsert_comment": (input: upsert_comment_param) -> (text);
     "delete_comment": (input: delete_comment_param)-> (text);
     "get_thread": (param: get_thread_param) -> (page) query;
+    "node_info": () -> (node_info) query;
 }
