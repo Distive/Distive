@@ -8,6 +8,8 @@ use std::collections::HashSet;
 pub trait ScaledData: Any {
     fn is_full(&self) -> bool;
     fn is_empty(&self) -> bool;
+    // fn get_canister_id(&self) -> Option<String>;
+    // fn set_canister_id(&self, canister_id: String) -> ();
 }
 
 mopafy!(ScaledData);
