@@ -2,5 +2,5 @@
 members = [
     "src/chat_canister",
     "src/chat_engine",
-    
+    "src/scaled_storage"
 ]

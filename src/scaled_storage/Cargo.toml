@@ -1,0 +1,10 @@
+[package]
+name = "scaled_storage"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "lib.rs"
+
+[dependencies]
+anchorhash = "0.2.1"

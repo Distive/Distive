@@ -1,4 +1,5 @@
 use chat_engine::{Channel, CommentInput, CommentOutput as Comment, Page};
+use garcon::Delay;
 use ic_agent::Agent;
 use ic_cdk::api::time;
 use ic_cdk::call;
@@ -7,8 +8,13 @@ use ic_cdk::export::Principal;
 use ic_cdk_macros::{heartbeat, init, query, update};
 use ic_utils::call::AsyncCall;
 use ic_utils::interfaces::ManagementCanister;
+use ic_utils::Canister;
 use std::cell::RefCell;
 use std::collections::HashMap;
+use std::collections::HashSet;
+
+// const WASM_CODE: [u8] = std::include_bytes!();
+
 thread_local! {
     static CHANNELS: RefCell<HashMap<String, Channel>> = RefCell::new(HashMap::new());
     static NODE_INFO: RefCell<NodeInfo> = RefCell::new(NodeInfo::default());
@@ -85,12 +91,19 @@ fn get_thread(param: GetThreadParam) -> IPage {
     })
 }
 
+#[query]
+fn node_info() -> NodeInfoVec {
+    NODE_INFO.with(|node_info| {
+        let node_info = node_info.borrow();
+        NodeInfoVec {
+            all_nodes: node_info.all_nodes.into_iter().collect::<Vec<String>>(),
+            index_node: node_info.index_node,
+        }
+    })
+}
+
 #[heartbeat]
 fn heartbeat() -> () {}
-
-fn is_full() -> bool {
-    true
-}
 
 fn authenticate_user_and_comment_action<A, T>(
     channel_id: &String,
@@ -121,9 +134,47 @@ where
     })
 }
 
-fn create_new_node(args: InstallArgs) -> Result<Principal, ()> {
-    const WASM_CODE: &str = "";
+fn install_code(
+    management_canister: &Canister<ManagementCanister>,
+    canister_id: Principal,
+    waiter: &Delay,
+    new_node_info: NodeInfo,
+) -> Result<Principal, ()> {
+    let result = management_canister
+        .install_code(&canister_id, &WASM_CODE)
+        .with_arg(InstallArgs {
+            node_info: Some(new_node_info),
+        })
+        .call_and_wait(waiter)
+        .await;
 
+    result.map_err(|_| ()).map(|_| canister_id)
+}
+
+fn create_new_node(
+    management_canister: &Canister<ManagementCanister>,
+    waiter: &Delay,
+) -> Result<Principal, ()> {
+    match management_canister
+        .create_canister()
+        .with_controller(ic_cdk::id())
+        .as_provisional_create_with_amount(Some(1_000_000))
+        .build()
+    {
+        Ok(create_canister) => {
+            create_canister
+                .map(|canister_id| canister_id)
+                .call_and_wait(waiter)
+                .await
+        }
+        Err(err) => {
+            println!("{:?}", err);
+            Err(())
+        }
+    };
+}
+
+fn scale_up() {
     let agent = Agent::builder()
         .with_url(URL)
         .with_identity(create_identity())
@@ -132,38 +183,28 @@ fn create_new_node(args: InstallArgs) -> Result<Principal, ()> {
     let management_canister = ManagementCanister::create(&agent);
 
     let waiter = garcon::Delay::builder()
-    .throttle(std::time::Duration::from_millis(500)
-    .timeout(std::time::Duration::from_secs(60 * 5))
-    .build();
+        .throttle(std::time::Duration::from_millis(500))
+        .timeout(std::time::Duration::from_secs(60 * 5))
+        .build();
 
-    let create_canister_result = match management_canister
-        .create_canister()
-        .with_controller(ic_cdk::id())
-        .as_provisional_create_with_amount(Some(100_000_000))
-        .build()
-    {
-        Ok(create_canister) => {
-          create_canister.map(|canister_id| canister_id)
-                .call_and_wait(waiter)
-                .await
-        },
-        Err(err) => {
-            println!("{:?}", err);
-            err
-        }
-    };
+    let result = create_new_node(&management_canister, &waiter).and_then(|canister_id| {
+        install_code(
+            &management_canister,
+            canister_id,
+            &waiter,
+            NODE_INFO.with(|node_info| NodeInfo {
+                index_node: node_info.borrow().index_node,
+                all_nodes: node_info.borrow().all_nodes.clone().insert(canister_id),
+            }),
+        )
+    });
 
- match create_canister_result {
-        Ok((canister_id,)) => {
-
-            management_canister
-                .install_code(&canister_id, WASM_CODE)
-        },
-        Err(err) => {
-            println!("{:?}", err);
-            return Err(());
-        }
-    };
+    if Ok(canister_id) = result {
+        NODE_INFO.with(|node_info| {
+            let mut node_info = node_info.borrow_mut();
+            node_info.all_nodes.insert(canister_id);
+        });
+    }
 }
 
 fn migrate_to_node(node_id: String) -> Result<(), ()> {
@@ -233,9 +274,15 @@ impl From<Page> for IPage {
 
 #[derive(Clone, Debug, CandidType, Deserialize, Default)]
 struct NodeInfo {
-    pub all_nodes: Vec<String>,
+    pub all_nodes: HashSet<String>,
     pub index_node: String,
     // pub status: NodeStatus
+}
+
+#[derive(Clone, Debug, CandidType, Deserialize, Default)]
+struct NodeInfoVec {
+    pub all_nodes: Vec<String>,
+    pub index_node: String,
 }
 
 #[derive(Clone, Debug, CandidType, Deserialize)]

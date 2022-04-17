@@ -36,6 +36,7 @@ impl ScaledStorage {
 
     pub fn get_data<T: ScaledData>(&self) -> &T {
         self.data.downcast_ref::<T>().unwrap()
+    
     }
 
     fn get_data_mut<T: ScaledData>(&mut self) -> &mut T {
