@@ -1,21 +1,28 @@
 use anchorhash::AnchorHash;
 // use anchorhash::AnchorHash::
 use highway::{HighwayBuildHasher, HighwayHasher};
-use std::collections::hash_map::RandomState;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::hash::Hash;
 pub struct Node<TId: Hash + Eq + Clone, Data> {
     id: TId,
     data: HashMap<String, Data>,
-    // all_nodes: HashSet<TId>,
     // next_node_id: Option<TId>,
     // prev_node_id: Option<TId>,
     index_node_id: TId,
     hash: AnchorHash<String, TId, HighwayBuildHasher>,
+    status: NodeStatus,
 }
 
-impl<TId: Eq + Hash + Clone, Data> Node<TId, Data> {
+pub enum NodeStatus {
+    Scaling,
+    Normal,
+}
+
+impl<TId, Data> Node<TId, Data>
+where
+    TId: Eq + Hash + Clone + Default,
+{
     fn new(id: TId, index_node_id: TId, all_nodes: HashSet<TId>) -> Self {
         Node {
             id,
@@ -24,6 +31,7 @@ impl<TId: Eq + Hash + Clone, Data> Node<TId, Data> {
                 .with_resources(all_nodes)
                 .build(100),
             data: HashMap::new(),
+            status: NodeStatus::Normal,
         }
     }
 
@@ -46,22 +54,44 @@ impl<TId: Eq + Hash + Clone, Data> Node<TId, Data> {
         }
     }
 
-    // fn handle_request(request: Request) -> Response {}
-    // fn ping() {}
-    fn node_id_from_data_key(&self, data_key: String) -> Option<&TId> {
-        self.hash.get_resource(data_key)
+    fn node_id_from_data_key(&self, data_key: &String) -> Option<&TId> {
+        self.hash.get_resource(data_key.clone())
     }
 
     fn add_node(&mut self, node_id: TId) {
         self.hash.add_resource(node_id);
     }
 
-    fn remove_node(&mut self, node_id: &TId) {
-        self.hash.remove_resource(node_id);
+    fn remove_node(&mut self, node_id: &TId) -> Option<Vec<(TId, String)>> {
+        match self.hash.remove_resource(node_id) {
+            Ok(_) => {
+                let keys_to_migrate = self
+                    .data
+                    .keys()
+                    .map(|key| -> (&TId, &String) {
+                        match self.node_id_from_data_key(key) {
+                            Some(node_id) => (node_id, key),
+                            None => (&TId::default(), &String::default()),
+                        }
+                    })
+                    .filter(|(node_id, _)| **node_id != self.id)
+                    .map(|(node_id, key)| (node_id.clone(), key.clone()))
+                    .collect::<Vec<(TId, String)>>();
+
+                Some(keys_to_migrate)
+            }
+            _ => None,
+        }
+
+        //get all keys that are no longer associated with this node
     }
 
-    
-    // fn migrate_data_request(node_id: TId, data: HashMap<String, Data>) -> Response {}
+    // fn handle_request(request: Request) -> Response {}
+    // fn migrate_data_request()->Request{}
+    // fn on_migrate_data_request(node_id: TId, data: Vec<Data>) -> Response {}
+
+    // fn ping() {}
+    // fn on_ping_request(){}
 }
 
 #[derive(Debug, PartialEq)]
@@ -99,7 +129,7 @@ mod tests {
 
         node_1.add_node("node_1".to_string());
         assert_eq!(
-            node_1.node_id_from_data_key("data_key".to_string()),
+            node_1.node_id_from_data_key(&"data_key".to_string()),
             Some(&"node_1".to_string())
         );
     }
@@ -114,7 +144,7 @@ mod tests {
 
         node_1.add_node("node_1".to_string());
         node_1.remove_node(&"node_1".to_string());
-        assert_eq!(node_1.node_id_from_data_key("data_key".to_string()), None);
+        assert_eq!(node_1.node_id_from_data_key(&"data_key".to_string()), None);
     }
 
     #[test]
@@ -132,7 +162,7 @@ mod tests {
 
         for id in 1..15 {
             let data_key = format!("data_key_{}", id);
-            let node_id = index_node.node_id_from_data_key(data_key).unwrap();
+            let node_id = index_node.node_id_from_data_key(&data_key).unwrap();
             node_ids.push(node_id.clone());
         }
 
@@ -169,7 +199,7 @@ mod tests {
             index_node.add_node("node_1".to_string());
 
             let data_key = "data_key".to_string();
-            let node_id = index_node.node_id_from_data_key(data_key).unwrap();
+            let node_id = index_node.node_id_from_data_key(&data_key).unwrap();
             node_ids.push(node_id.clone());
         }
         //all ids should be same
