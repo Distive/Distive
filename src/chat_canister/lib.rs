@@ -7,7 +7,7 @@ use ic_cdk::api::time;
 use ic_cdk::export::candid::{CandidType, Deserialize, Nat};
 use ic_cdk_macros::{query, update};
 use std::cell::RefCell;
-use std::collections::HashMap;
+use hashbrown::HashMap;
 
 thread_local! {
     static CHANNELS: RefCell<HashMap<String, Channel>> = RefCell::new(HashMap::new());

@@ -181,6 +181,7 @@ name = "chat_canister"
 version = "0.1.0"
 dependencies = [
  "chat_engine",
+ "hashbrown 0.12.1",
  "ic-cdk",
  "ic-cdk-macros",
  "serde",
