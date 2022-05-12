@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 indexmap = "1.7.0"
+hashbrown = "0.12.1"

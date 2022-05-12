@@ -10,14 +10,12 @@ const DELIMITER: &str = ".";
 
 
 pub struct Channel {
-    // id: String,
     thread: Thread,
 }
 
 impl Channel {
     pub fn new(_id: String) -> Self {
         Channel {
-            // id,
             thread: Thread::new(),
         }
     }

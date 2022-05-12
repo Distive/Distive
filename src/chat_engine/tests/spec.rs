@@ -115,7 +115,7 @@ fn comment_reply() {
     println!("{:?}", comment.id.clone());
 
     //reply to first comment
-    let reply = channel
+    let _reply = channel
         .upsert_comment(CommentInput {
             content: "reply 1".to_string(),
             created_at: 0,
@@ -266,4 +266,11 @@ fn get_comment_test() {
     if let Some(_) = comment {
         panic!("should have returned None");
     }
+}
+
+#[test]
+fn comment_metadata(){
+    // let mut comment = Comment
+
+
 }
