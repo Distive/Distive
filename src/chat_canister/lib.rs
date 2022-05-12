@@ -1,4 +1,8 @@
-use chat_engine::{Channel, CommentInput, CommentOutput as Comment, Page};
+use chat_engine::{
+    comment::{CommentInput, CommentOutput as Comment},
+    page::Page,
+    Channel,
+};
 use ic_cdk::api::time;
 use ic_cdk::export::candid::{CandidType, Deserialize, Nat};
 use ic_cdk_macros::{init, query, update};

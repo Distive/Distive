@@ -1,5 +1,8 @@
 //tests
-use chat_engine::{Channel, CommentInput,CommentOutput};
+use chat_engine::{
+    comment::{CommentInput, CommentOutput},
+    Channel,
+};
 
 #[test]
 /*
@@ -156,7 +159,6 @@ fn comment_reply() {
 #[test]
 
 fn n_nested_comments() {
-
     //channel.get_page, should also return nested comments
     fn create_nested_comments(depth: usize, channel: &mut Channel) {
         let mut parent_id: Option<String> = None;
@@ -179,17 +181,17 @@ fn n_nested_comments() {
     //check if every nested comment has one reply
     fn check_nested_comments(depth: usize, channel: &mut Channel) {
         let mut comment_id: Option<String> = None;
-        for i in 0..depth-1 {
+        for i in 0..depth - 1 {
             let first_reply = &channel
                 .get_page(&10, comment_id.as_ref())
                 .unwrap()
                 //first comment of thread
-                .comments[0] 
+                .comments[0]
                 .replies
                 //first reply of first comment of thread
-                .comments[0]; 
-                
-            assert_eq!(first_reply.content, format!("comment {}", i+1));
+                .comments[0];
+
+            assert_eq!(first_reply.content, format!("comment {}", i + 1));
             comment_id = Some(first_reply.id.clone());
         }
     }
@@ -197,10 +199,9 @@ fn n_nested_comments() {
     let mut channel = Channel::new("channel_id".to_string());
     create_nested_comments(6, &mut channel);
     check_nested_comments(6, &mut channel);
-    
 
     //a comment should contain the full thread of replies
-    fn check_full_thread_count(comment: &CommentOutput)->usize{
+    fn check_full_thread_count(comment: &CommentOutput) -> usize {
         let mut count = 1;
         if comment.replies.comments.len() > 0 {
             for reply in &comment.replies.comments {
@@ -214,17 +215,13 @@ fn n_nested_comments() {
     let comment = &channel.get_page(&10, None).unwrap().comments[0];
     assert_eq!(check_full_thread_count(comment), 6);
 
-
     //when a comment is deleted, its replies should also be removed
     channel.delete_comment("comment_id_0.comment_id_1".to_string());
-    assert_eq!(check_full_thread_count(&channel.get_page(&10, None).unwrap().comments[0]), 1);
-
-
-
-
+    assert_eq!(
+        check_full_thread_count(&channel.get_page(&10, None).unwrap().comments[0]),
+        1
+    );
 }
-
-
 
 #[test]
 fn get_comment_test() {
@@ -262,7 +259,6 @@ fn get_comment_test() {
     //get the reply
     let reply = channel.get_comment(&reply.id).unwrap();
     assert_eq!(reply.content, "reply 1".to_string());
-    
 
     //get a comment that does not exist
     let comment = channel.get_comment(&"wrong_id".to_string());
@@ -270,5 +266,4 @@ fn get_comment_test() {
     if let Some(_) = comment {
         panic!("should have returned None");
     }
-  
 }
