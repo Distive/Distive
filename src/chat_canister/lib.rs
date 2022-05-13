@@ -3,11 +3,13 @@ use chat_engine::{
     page::Page,
     Channel,
 };
-use ic_cdk::api::time;
-use ic_cdk::export::candid::{CandidType, Deserialize, Nat};
+use hashbrown::HashMap;
+use ic_cdk::{
+    api::time,
+    export::candid::{CandidType, Deserialize, Nat},
+};
 use ic_cdk_macros::{query, update};
 use std::cell::RefCell;
-use hashbrown::HashMap;
 
 thread_local! {
     static CHANNELS: RefCell<HashMap<String, Channel>> = RefCell::new(HashMap::new());

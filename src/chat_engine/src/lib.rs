@@ -1,13 +1,13 @@
 pub mod comment;
-mod thread;
+pub mod metadata;
 pub mod page;
+mod thread;
+use comment::{Comment, CommentInput, CommentOutput};
+use metadata::{Metadata, MetadataInput};
 use page::Page;
 use thread::Thread;
-use comment::{Comment, CommentInput, CommentOutput};
 
 const DELIMITER: &str = ".";
-
-
 
 pub struct Channel {
     thread: Thread,
@@ -26,13 +26,11 @@ impl Channel {
         cursor: Option<&String>,
     ) -> Result<Page, String> {
         let limit = *limit;
-    
 
         match cursor {
             Some(cursor) => match thread.get_index_of(cursor) {
                 Some(cursor_index) => {
                     let comments = thread
-                   
                         .values()
                         .skip(cursor_index)
                         .take(limit)
@@ -206,6 +204,25 @@ impl Channel {
     pub fn update_comment(&mut self, id: &str, content: &str) {
         if let Some(comment) = self.thread.get_mut(id) {
             comment.content = content.to_string();
+        }
+    }
+
+    pub fn toggle_comment_metadata(&mut self, id: &str, metadata: MetadataInput) {
+        let MetadataInput { label, user_id } = metadata;
+
+        match self.thread.get_mut(id) {
+            Some(Comment {
+                metadata: Some(metadata),
+                ..
+            }) => {
+                metadata.toggle_value(&user_id, &label);
+            }
+            Some(comment) => {
+                let mut metadata = Metadata::new();
+                metadata.toggle_value(&user_id, &label);
+                comment.metadata = Some(metadata);
+            }
+            _ => (),
         }
     }
 }
@@ -490,5 +507,26 @@ mod tests {
         assert_eq!(split_ids, [&hierarchal_id])
     }
 
-    // fn
+    #[test]
+    fn toggle_comment_metadata() {
+        let mut channel = Channel::new("channel_id".to_string());
+        let comment_id = "comment_id".to_string();
+        let comment_input = CommentInput {
+            content: "hello".to_string(),
+            parent_id: None,
+            created_at: 0,
+            id: comment_id.clone(),
+            user_id: "user_id".to_string(),
+        };
+        channel.upsert_comment(comment_input.clone()).unwrap();
+        channel.toggle_comment_metadata(
+            &comment_id,
+            MetadataInput {
+                label: "upvote".to_string(),
+                user_id: "user_id".to_string(),
+            },
+        );
+        let comment = channel.get_comment(&comment_id).unwrap();
+        assert_eq!(comment.metadata, vec![("upvote".to_string(), 1)]);
+    }
 }
