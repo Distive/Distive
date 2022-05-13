@@ -15,11 +15,8 @@ pub struct MetadataInput {
 
 /// (label, number of users)
 pub type MetadataOutput = Vec<(String, usize)>;
-// pub struct MetadataOutput (Vec<()>);
 
 impl Metadata {
-
-
     pub fn new() -> Self {
         Self {
             value: HashMap::new(),
@@ -80,9 +77,6 @@ impl DerefMut for Metadata {
         &mut self.value
     }
 }
-
-
-
 
 #[cfg(test)]
 mod tests {

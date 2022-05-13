@@ -16,8 +16,13 @@ type comment_output = record {
     user_id: text;
     created_at: nat;
     replies: page;
+    metadata: vec metadata_output;
 };
 
+type metadata_output = record {
+    text;
+    nat64;
+};
 
 type get_thread_param = record {
     limit: nat8;
@@ -32,8 +37,15 @@ type delete_comment_param = record {
     channel_id: text;
 };
 
+type toggle_metadata_param = record {
+    comment_id: text;
+    channel_id: text;
+    label: text;
+}
+
 service : {
     "upsert_comment": (input: upsert_comment_param) -> (text);
     "delete_comment": (input: delete_comment_param)-> (text);
     "get_thread": (param: get_thread_param) -> (page) query;
+    "toggle_metadata": (param: toggle_metadata_param) -> (bool);
 }

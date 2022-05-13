@@ -1,12 +1,16 @@
 use chat_engine::{
     comment::{CommentInput, CommentOutput as Comment},
+    metadata::{MetadataInput, MetadataOutput},
     page::Page,
     Channel,
 };
 use hashbrown::HashMap;
 use ic_cdk::{
     api::time,
-    export::candid::{CandidType, Deserialize, Nat},
+    export::{
+        candid::{CandidType, Deserialize, Nat},
+        Principal,
+    },
 };
 use ic_cdk_macros::{query, update};
 use std::cell::RefCell;
@@ -68,6 +72,37 @@ fn get_thread(param: GetThreadParam) -> IPage {
     })
 }
 
+#[update]
+fn toggle_metadata(param: ToggleMetadataParam) -> bool {
+    let user_id = ic_cdk::caller();
+    if Principal::management_canister().eq(&user_id) {
+        false
+    } else {
+        let ToggleMetadataParam {
+            channel_id,
+            comment_id,
+            label,
+        } = param;
+
+        CHANNELS.with(|channels| {
+            let mut channels = channels.borrow_mut();
+            channels
+                .entry(channel_id.to_string())
+                .and_modify(|channel| {
+                    channel.toggle_comment_metadata(
+                        &comment_id,
+                        MetadataInput {
+                            label: label.to_string(),
+                            user_id: user_id.to_string(),
+                        },
+                    )
+                });
+        });
+
+        true
+    }
+}
+
 fn authenticate_user_and_comment_action<A, T>(
     channel_id: &String,
     comment_id: &String,
@@ -95,6 +130,13 @@ where
         };
         message
     })
+}
+
+#[derive(Clone, Debug, CandidType, Deserialize)]
+struct ToggleMetadataParam {
+    channel_id: String,
+    comment_id: String,
+    label: String,
 }
 
 #[derive(Clone, Debug, Default, CandidType, Deserialize)]
@@ -125,6 +167,7 @@ struct ICommentOutput {
     created_at: Nat,
     user_id: String,
     replies: IPage,
+    metadata: MetadataOutput,
 }
 
 #[derive(Clone, Debug, Default, CandidType, Deserialize)]
@@ -141,6 +184,7 @@ impl From<Comment> for ICommentOutput {
             created_at: Nat::from(comment.created_at),
             user_id: comment.user_id.to_string(),
             replies: comment.replies.into(),
+            metadata: comment.metadata,
         }
     }
 }
