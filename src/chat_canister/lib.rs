@@ -75,7 +75,7 @@ fn get_thread(param: GetThreadParam) -> IPage {
 #[update]
 fn toggle_metadata(param: ToggleMetadataParam) -> bool {
     let user_id = ic_cdk::caller();
-    if Principal::management_canister().eq(&user_id) {
+    if Principal::anonymous().eq(&user_id) {
         false
     } else {
         let ToggleMetadataParam {
