@@ -20,6 +20,7 @@ thread_local! {
 }
 
 #[update]
+#[ic_cdk::export::candid::candid_method(update)]
 fn upsert_comment(param: UpsertCommentParam) -> String {
     let user_id = ic_cdk::caller().to_string();
     match authenticate_user_and_comment_action(
@@ -46,6 +47,7 @@ fn upsert_comment(param: UpsertCommentParam) -> String {
 }
 
 #[update]
+#[ic_cdk::export::candid::candid_method(update)]
 fn delete_comment(param: DeleteCommentParam) -> String {
     let user_id = ic_cdk::caller().to_string();
     let _result = authenticate_user_and_comment_action(
@@ -61,6 +63,7 @@ fn delete_comment(param: DeleteCommentParam) -> String {
 }
 
 #[query]
+#[ic_cdk::export::candid::candid_method(query)]
 fn get_thread(param: GetThreadParam) -> IPage {
     CHANNELS.with(|channels| {
         let mut channels = channels.borrow_mut();
@@ -73,6 +76,7 @@ fn get_thread(param: GetThreadParam) -> IPage {
 }
 
 #[update]
+#[ic_cdk::export::candid::candid_method(update)]
 fn toggle_metadata(param: ToggleMetadataParam) -> bool {
     let user_id = ic_cdk::caller();
     if Principal::anonymous().eq(&user_id) {
@@ -202,5 +206,10 @@ impl From<Page> for IPage {
     }
 }
 
-//dfx canister call rust_hello get_thread '(record {limit=10;channel_id="channel_1";cursor=null})'
-// dfx canister call rust_hello upsert_comment '(record {channel_id="channel_1";message="hello";comment_id="comment_id_1"})'
+
+ic_cdk::export::candid::export_service!();
+
+#[ic_cdk_macros::query(name = "__get_candid_interface_tmp_hack")]
+fn export_candid() -> String {
+    __export_service()
+}
