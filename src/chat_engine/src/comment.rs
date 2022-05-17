@@ -25,16 +25,17 @@ pub struct CommentOutput {
 
 impl From<Comment> for CommentOutput {
     fn from(comment: Comment) -> Self {
+        let user_id = comment.user_id.clone();
         CommentOutput {
+            metadata: comment.metadata.map_or(vec![], |m| m.to_output(&user_id)),
             id: comment.id,
             content: comment.content,
-            user_id: comment.user_id,
+            user_id,
             created_at: comment.created_at,
             replies: Channel::get_thread_as_page(&comment.replies, &10, None).unwrap_or(Page {
                 comments: vec![],
                 remaining_count: 0,
             }),
-            metadata: comment.metadata.map_or(vec![], |m| m.into()),
         }
     }
 }

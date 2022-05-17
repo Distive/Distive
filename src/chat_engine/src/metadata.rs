@@ -13,8 +13,8 @@ pub struct MetadataInput {
     pub user_id: String,
 }
 
-/// (label, number of users)
-pub type MetadataOutput = Vec<(String, usize)>;
+/// (label, number of users, toggled by current_user)
+pub type MetadataOutput = Vec<(String, usize, bool)>;
 
 impl Metadata {
     pub fn new() -> Self {
@@ -51,17 +51,11 @@ impl Metadata {
         }
     }
 
-    pub fn user_count(&self) -> MetadataOutput {
+    pub fn to_output(&self, user_id: &String) -> MetadataOutput {
         self.value
             .iter()
-            .map(|(label, users)| (label.to_string(), users.len()))
+            .map(|(label, users)| (label.to_string(), users.len(), users.contains(user_id)))
             .collect()
-    }
-}
-
-impl From<Metadata> for MetadataOutput {
-    fn from(metadata: Metadata) -> Self {
-        metadata.user_count()
     }
 }
 
@@ -147,12 +141,26 @@ mod tests {
     }
 
     #[test]
-    fn can_count_number_of_users_per_label() {
+    fn metadata_output_is_correct() {
         let mut metadata = Metadata::default();
-        metadata.add("user_id".to_string(), "label".to_string());
-        let counts = metadata.user_count();
-        assert_eq!(counts.len(), 1);
-        assert_eq!(counts[0].1, 1);
-        assert_eq!(counts[0].0, "label".to_string());
+        metadata.toggle_value(&"user_id".to_string(), &"label".to_string());
+        let metadata_output = metadata.to_output(&"user_id".to_string());
+
+        let (label, user_count, is_toggled) = metadata_output[0].clone();
+
+        assert_eq!(
+            (label, user_count, is_toggled),
+            ("label".to_string(), 1, true)
+        );
+
+        metadata.toggle_value(&"user_id".to_string(), &"label".to_string());
+        let metadata_output = metadata.to_output(&"user_id".to_string());
+
+        let (label, user_count, is_toggled) = metadata_output[0].clone();
+
+        assert_eq!(
+            (label, user_count, is_toggled),
+            ("label".to_string(), 0, false)
+        );
     }
 }

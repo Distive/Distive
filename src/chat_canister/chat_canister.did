@@ -22,6 +22,7 @@ type comment_output = record {
 type metadata_output = record {
     text;
     nat64;
+    bool;
 };
 
 type get_thread_param = record {

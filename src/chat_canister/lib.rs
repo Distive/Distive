@@ -206,7 +206,6 @@ impl From<Page> for IPage {
     }
 }
 
-
 ic_cdk::export::candid::export_service!();
 
 #[ic_cdk_macros::query(name = "__get_candid_interface_tmp_hack")]

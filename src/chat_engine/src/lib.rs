@@ -527,6 +527,7 @@ mod tests {
             },
         );
         let comment = channel.get_comment(&comment_id).unwrap();
-        assert_eq!(comment.metadata, vec![("upvote".to_string(), 1)]);
+       
+        assert_eq!(comment.metadata, vec![("upvote".to_string(), 1, true)]);
     }
 }
