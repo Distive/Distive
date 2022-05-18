@@ -18,4 +18,13 @@ test('createThread', async () => {
     expect(result._unsafeUnwrap()).toBe("comment_1")
 })
 
-// created_at should be in unix time
+test('toggleMetadata', async () => {
+    const result = await client.toggleMetadata({
+        channelId: "channel_1",
+        label: "label_1",
+        postId: "comment_1"
+    })
+    // Anonymous SDK doesn't support toggle_metadata
+    expect(result.isOk()).toBeTruthy()
+    expect(result._unsafeUnwrap()).toBeFalsy()
+})

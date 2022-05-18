@@ -1,8 +1,8 @@
-import { init_actor } from './declarations/canisters/rust_hello'
+import { init_actor } from './declarations/canisters/chat_canister'
 import { nanoid } from 'nanoid'
 import 'isomorphic-fetch'
 import { errAsync, okAsync, Result, ResultAsync } from 'neverthrow'
-import { page } from './declarations/canisters/rust_hello/rust_hello.did'
+import { page, metadata_output } from './declarations/canisters/chat_canister/chat_canister.did'
 
 export enum ErrorKind {
     NotFound,
@@ -29,7 +29,14 @@ export interface Post {
     content: string,
     created_at: number,
     userId: string,
-    replies: Page
+    replies: Page,
+    metadata: Array<Metadata>
+}
+
+export interface Metadata {
+    label: string,
+    count: number,
+    is_toggled: boolean,
 }
 
 export type Thread = Array<Post>
@@ -57,6 +64,12 @@ export interface UpsertPostInput {
     postId?: string
 }
 
+export interface ToggleMetadataInput {
+    postId: string,
+    channelId: string,
+    label: string
+}
+
 export interface SDKConfig {
     serverId: string,
     host?: string,
@@ -66,10 +79,10 @@ export interface SDK {
     getThread: (input: GetThreadInput) => DistiveResult<Page>,
     upsertPost: (input: UpsertPostInput) => DistiveResult<PostID>,
     removePost: (input: RemovePostInput) => DistiveResult<PostID>,
+    toggleMetadata: (input: ToggleMetadataInput) => DistiveResult<boolean>
 }
 
 export type SDKResult = Result<SDK, DistiveError>
-
 export type SDKFn = (config: SDKConfig) => SDKResult
 
 const mapActorPageToPage = (page: page): Page => ({
@@ -77,10 +90,17 @@ const mapActorPageToPage = (page: page): Page => ({
     thread: page.comments.map(comment => ({
         id: comment.id,
         content: comment.content,
-        created_at: Number(comment.created_at)/1_000_000, //original tiime is in nanoseconds
+        created_at: Number(comment.created_at) / 1_000_000, //original time is in nanoseconds
         userId: comment.user_id,
-        replies: mapActorPageToPage(comment.replies)
+        replies: mapActorPageToPage(comment.replies),
+        metadata: comment.metadata.map(mapActorMetadataToMetadata)
     }))
+})
+
+const mapActorMetadataToMetadata = ([label, count, is_toggled]: metadata_output): Metadata => ({
+    label,
+    count: Number(count),
+    is_toggled
 })
 
 const sdkFn: SDKFn = (config: SDKConfig): Result<SDK, DistiveError> => {
@@ -88,7 +108,7 @@ const sdkFn: SDKFn = (config: SDKConfig): Result<SDK, DistiveError> => {
     const clientInit = Result.fromThrowable(init_actor)
     const IDGen = () => nanoid(5)
 
-    return clientInit(config.serverId,config?.host)
+    return clientInit(config.serverId, config?.host)
         .map(client => ({
             upsertPost: (input: UpsertPostInput) => {
                 const upsertInput = {
@@ -128,7 +148,19 @@ const sdkFn: SDKFn = (config: SDKConfig): Result<SDK, DistiveError> => {
                         kind: ErrorKind.Internal,
                         message: (error as any)?.message ?? 'Unknown Error'
                     }))
+            },
+            toggleMetadata: (input: ToggleMetadataInput) => {
+                return ResultAsync
+                    .fromPromise(client.toggle_metadata({
+                        channel_id: input.channelId,
+                        comment_id: input.postId,
+                        label: input.label
+                    }), error => ({
+                        kind: ErrorKind.Internal,
+                        message: (error as any)?.message ?? 'Unknown Error'
+                    }))
             }
+
         }))
         .mapErr(() =>
             ({ kind: ErrorKind.Internal, message: 'Failed to initialize client' }))
