@@ -1,6 +1,6 @@
 import { Thread, Page, DistiveError, ErrorKind, Post, SDK } from '@distive/sdk'
 import { renderHook, act } from '@testing-library/react-hooks'
-import useZonia, { PostStatus } from '../src/hook'
+import useDistive, { PostStatus } from '../src/hook'
 import { errAsync, fromSafePromise, ResultAsync } from 'neverthrow'
 
 const stall = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
@@ -51,10 +51,28 @@ const successSdk: SDK = {
                         content,
                         created_at: 0,
                         replies: { remainingCount: 0, thread: [] },
-                        userId: ''
+                        userId: '',
+                        metadata: []
                     }
                 }
                 return _commentId
+            })
+            .mapErr(e => ({ kind: ErrorKind.Internal, message: 'internal error' }))
+    },
+    toggleMetadata({ channelId, label, postId }) {
+        return fromSafePromise(stall(5))
+            .map(() => {
+                mockStorage = {
+                    ...mockStorage,
+                    [postId]: {
+                        ...mockStorage[postId],
+                        metadata: mockStorage[postId].metadata.map(({ label: l }) => l).includes(label) ?
+                            mockStorage[postId].metadata.filter(({ label: l }) => l !== label) :
+                            [...mockStorage[postId].metadata, { label, count: 1, is_toggled: true }],
+                    }
+                }
+
+                return true
             })
             .mapErr(e => ({ kind: ErrorKind.Internal, message: 'internal error' }))
     }
@@ -78,12 +96,18 @@ const failureSdk: SDK = {
             .andThen(() => {
                 return errAsync({ kind: ErrorKind.Internal, message: 'internal error' })
             }) as ResultAsync<string, DistiveError>
+    },
+    toggleMetadata({ channelId, label, postId }) {
+        return fromSafePromise(stall(5))
+            .andThen(() => {
+                return errAsync({ kind: ErrorKind.Internal, message: 'internal error' })
+            }) as ResultAsync<boolean, DistiveError>
     }
 }
 
 test('actions should set the proper states (success)', async () => {
 
-    const { result, waitForNextUpdate } = renderHook(() => useZonia(successSdk, {
+    const { result, waitForNextUpdate } = renderHook(() => useDistive(successSdk, {
         channelID: 'test_channel',
         initialPage: { remainingCount: 0, thread: [] },
     }))
@@ -136,7 +160,7 @@ test('actions should set the proper states (success)', async () => {
 })
 
 test('replies should set proper states (success)', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useZonia(successSdk, {
+    const { result, waitForNextUpdate } = renderHook(() => useDistive(successSdk, {
         channelID: 'test_channel',
         initialPage: { remainingCount: 0, thread: [] },
     }))
@@ -171,7 +195,7 @@ test('replies should set proper states (success)', async () => {
 })
 
 test('replies should set proper states (failure)', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useZonia(failureSdk, {
+    const { result, waitForNextUpdate } = renderHook(() => useDistive(failureSdk, {
         channelID: 'test_channel',
         initialPage: { remainingCount: 0, thread: [] },
     }))
@@ -208,7 +232,7 @@ test('replies should set proper states (failure)', async () => {
 
 test('actions should set the proper states (failure)', async () => {
 
-    const { result, waitForNextUpdate } = renderHook(() => useZonia
+    const { result, waitForNextUpdate } = renderHook(() => useDistive
         (failureSdk, {
             channelID: 'test_channel',
             initialPage: { remainingCount: 0, thread: [] },

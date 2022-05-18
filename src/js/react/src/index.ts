@@ -1,9 +1,9 @@
 import { Result, ok } from 'neverthrow'
 import _SDK, { SDK } from '@distive/sdk'
-import { ZoniaHookParam, useZonia, ZoniaHook } from './hook'
+import { DistiveHookParam, useDistive, DistiveHook } from './hook'
 
-// export { useZonia } from './hook'
-export type { ThreadState, ZoniaHook, ZoniaHookParam, PostStatus } from './hook'
+// export { useDistive } from './hook'
+export type { ThreadState, DistiveHook, DistiveHookParam, PostStatus } from './hook'
 
 interface Config {
     serverId: string
@@ -11,14 +11,14 @@ interface Config {
     sdk?: SDK
 }
 
-const initZoniaHookWithDefault = ({ serverId, sdk, host }: Config): Result<(params: ZoniaHookParam) => ZoniaHook, string> => {
+const initDistiveHookWithDefault = ({ serverId, sdk, host }: Config): Result<(params: DistiveHookParam) => DistiveHook, string> => {
     if (sdk) {
-        return ok((params) => useZonia(sdk, params))
+        return ok((params) => useDistive(sdk, params))
     } else {
         return _SDK({ serverId, host })
-            .map(sdk => (params: ZoniaHookParam) => useZonia(sdk, params))
+            .map(sdk => (params: DistiveHookParam) => useDistive(sdk, params))
             .mapErr(err => err.message)
     }
 }
 
-export default initZoniaHookWithDefault
+export default initDistiveHookWithDefault

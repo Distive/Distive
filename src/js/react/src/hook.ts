@@ -1,12 +1,12 @@
 //types should be standalone and not depend on sdk
-import { Post, Thread, UpsertPostInput, Page, SDK } from '@distive/sdk'
+import { Post, Thread, UpsertPostInput, Page, SDK, ToggleMetadataInput as _ToggleMetadataInput } from '@distive/sdk'
 import { useEffect, useState } from 'react'
 
 type AddPostInput = Omit<UpsertPostInput, 'commentId' | 'channelId'>
-// interface AddPostInput {}
-type UpdatePostInput = { postId: string; content: string; parentId?:string }
+type UpdatePostInput = { postId: string; content: string; parentId?: string }
+type ToggleMetadataInput = Omit<_ToggleMetadataInput, 'channelId'>
 
-export interface ZoniaHook {
+export interface DistiveHook {
     loading: boolean
     thread: ThreadState
     error: string
@@ -14,6 +14,8 @@ export interface ZoniaHook {
     addPost: (input: AddPostInput) => void
     updatePost: (input: UpdatePostInput) => void
     removePost: (postId: string) => void
+    toggleMetadata: (input: ToggleMetadataInput) => void
+
     remainingPostCount: number
     loadMore: () => void
 }
@@ -21,10 +23,10 @@ export interface ZoniaHook {
 interface PostStatusCallback {
     id: string
     status: 'SUCCESS' | 'FAILURE' | 'SENDING'
-    type: 'REMOVE' | 'UPDATE' | 'ADD' | 'REPLY'
+    type: 'REMOVE' | 'UPDATE' | 'ADD' | 'REPLY' | 'METADATA'
 }
 
-export interface ZoniaHookParam {
+export interface DistiveHookParam {
     channelID: string
     // cursor?: string
     limit?: number
@@ -38,12 +40,12 @@ export interface ZoniaHookParam {
 export type PostStatus = `${PostStatusCallback['status']}_${PostStatusCallback['type']}` | 'INITIAL'
 
 export interface ThreadState {
-    [postId: string]: PostThreadState
+    [postId: string]: PostThreadState,
 }
 
 interface PostThreadState extends Post {
     status: PostStatus,
-
+    toggledMetadataLabels: string[],
 }
 
 function marshallThread(thread: Thread): ThreadState {
@@ -53,12 +55,13 @@ function marshallThread(thread: Thread): ThreadState {
             [currPost.id]: {
                 ...currPost,
                 status: 'INITIAL',
+                toggledMetadataLabels: [],
             },
         }
     }, {} as ThreadState)
 }
-//sdk should be an argument to initUseZonia
-export const useZonia = (SDK: SDK, params: ZoniaHookParam) => {
+//sdk should be an argument to initUseDistive
+export const useDistive = (SDK: SDK, params: DistiveHookParam): DistiveHook => {
     const onPostStatusChange = params.onPostStatusChange ?? (() => { })
 
     const [loading, setLoading] = useState(false)
@@ -115,7 +118,7 @@ export const useZonia = (SDK: SDK, params: ZoniaHookParam) => {
             })
     }
 
-    const addPost: ZoniaHook['addPost'] = ({ content, parentId }) => {
+    const addPost: DistiveHook['addPost'] = ({ content, parentId }) => {
         const temporaryPostId = (Math.random() + 1).toString(36).substring(10)
 
         onPostStatusChange({
@@ -139,6 +142,8 @@ export const useZonia = (SDK: SDK, params: ZoniaHookParam) => {
                     replies: { remainingCount: 0, thread: [] },
                     status: 'SENDING_ADD',
                     userId: '',
+                    metadata: [],
+                    toggledMetadataLabels: [],
                 }
             })
         }))
@@ -175,7 +180,8 @@ export const useZonia = (SDK: SDK, params: ZoniaHookParam) => {
                                             created_at: Date.now(),
                                             id,
                                             replies: { remainingCount: 0, thread: [] },
-                                            userId: ''
+                                            userId: '',
+                                            metadata: []
                                         }
                                     ]
                                 }
@@ -219,7 +225,7 @@ export const useZonia = (SDK: SDK, params: ZoniaHookParam) => {
         )
     }
 
-    const updatePost: ZoniaHook['updatePost'] = ({ content, postId, parentId }) => {
+    const updatePost: DistiveHook['updatePost'] = ({ content, postId, parentId }) => {
         if (!(postId in thread)) {
             return
         }
@@ -291,7 +297,7 @@ export const useZonia = (SDK: SDK, params: ZoniaHookParam) => {
             )
     }
 
-    const removePost: ZoniaHook['removePost'] = async (postId) => {
+    const removePost: DistiveHook['removePost'] = async (postId) => {
         if (!(postId in thread)) {
             return
         }
@@ -319,7 +325,7 @@ export const useZonia = (SDK: SDK, params: ZoniaHookParam) => {
         }).match(
             (_) => {
                 onPostStatusChange({
-                    id:postId,
+                    id: postId,
                     status: 'SUCCESS',
                     type: 'REMOVE'
                 })
@@ -337,7 +343,7 @@ export const useZonia = (SDK: SDK, params: ZoniaHookParam) => {
             },
             (e) => {
                 onPostStatusChange({
-                    id:postId,
+                    id: postId,
                     status: 'FAILURE',
                     type: 'REMOVE'
                 })
@@ -355,6 +361,79 @@ export const useZonia = (SDK: SDK, params: ZoniaHookParam) => {
         )
     }
 
+    const toggleMetadata: DistiveHook['toggleMetadata'] = (input: ToggleMetadataInput) => {
+
+        onPostStatusChange({
+            id: input.postId,
+            status: 'SENDING',
+            type: 'METADATA'
+        })
+
+        setThread(prevThreadState => {
+            const { [input.postId]: oldPost } = prevThreadState
+            return {
+                ...prevThreadState,
+                [input.postId]: {
+                    ...oldPost,
+                    status: 'SENDING_METADATA',
+                },
+            }
+        })
+
+        SDK.toggleMetadata({
+            channelId: params.channelID,
+            postId: input.postId,
+            label: input.label,
+        }).match(
+            (result) => {
+                onPostStatusChange({
+                    id: input.postId,
+                    status: 'SUCCESS',
+                    type: 'METADATA'
+                })
+
+                if (result) {
+                    setThread(prevThreadState => {
+                        const { [input.postId]: oldPost } = prevThreadState
+                        return {
+                            ...prevThreadState,
+                            [input.postId]: {
+                                ...oldPost,
+                                status: 'SUCCESS_METADATA',
+                                toggledMetadataLabels:
+                                    (() => {
+                                        const { toggledMetadataLabels } = oldPost
+                                        if (toggledMetadataLabels.includes(input.label)) {
+                                            return toggledMetadataLabels.filter(l => l !== input.label)
+                                        } else {
+                                            return [...toggledMetadataLabels, input.label]
+                                        }
+                                    })(),
+                            },
+                        }
+                    })
+                }
+            },
+            (e) => {
+                onPostStatusChange({
+                    id: input.postId,
+                    status: 'FAILURE',
+                    type: 'METADATA'
+                })
+
+                setThread(prevThreadState => {
+                    const { [input.postId]: oldPost } = prevThreadState
+                    return {
+                        ...prevThreadState,
+                        [input.postId]: {
+                            ...oldPost,
+                            status: 'FAILURE_METADATA',
+                        },
+                    }
+                })
+            })
+    }
+
     return {
         error,
         loadMore,
@@ -364,7 +443,8 @@ export const useZonia = (SDK: SDK, params: ZoniaHookParam) => {
         updatePost,
         remainingPostCount,
         removePost,
+        toggleMetadata
     }
 }
 
-export default useZonia
+export default useDistive
