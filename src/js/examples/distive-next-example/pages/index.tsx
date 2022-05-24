@@ -17,15 +17,19 @@ const Home: NextPage = () => {
   const toast = useToast()
 
   const useDistive = initDistiveHook({
-    // serverId: "rrkah-fqaaa-aaaaa-aaaaq-cai",
-    serverId: "rofub-iaaaa-aaaai-ab7da-cai",
-    // host: 'http://localhost:8000', 
+    serverId: "rrkah-fqaaa-aaaaa-aaaaq-cai",
+    // serverId: "rofub-iaaaa-aaaai-ab7da-cai",
+    host: 'http://localhost:8000',
     identity
   })._unsafeUnwrap()
 
   useEffect(() => {
     initAuthClient()
   }, [])
+
+  useEffect(() => {
+    handleAuthenticated()
+  },[authClient])
 
   const initAuthClient = async () => {
     const _authClient = await AuthClient.create()
@@ -36,9 +40,12 @@ const Home: NextPage = () => {
   const handleAuthenticated = async () => {
     if (authClient) {
       const identity = authClient.getIdentity()
-      setIdentity(identity)
-      const principal = identity.getPrincipal()
-      toast({ title: 'Authenticated', description: `${principal}` })
+      if (!identity.getPrincipal().isAnonymous()) {
+        setIdentity(identity)
+        const principal = identity.getPrincipal()
+        toast({ title: 'Authenticated', description: `${principal.toString()}` })
+      }
+
     }
   }
 
@@ -58,7 +65,7 @@ const Home: NextPage = () => {
         {!identity ? <Button
           onClick={_ => login()}
         >Authenticate</Button> :
-          <Text>Logged In: {identity.getPrincipal()} </Text>
+          <Text>Logged In: {identity.getPrincipal().toString()} </Text>
         }
       </HStack>
       <Thread useDistive={useDistive} channelId={channel} />
@@ -96,8 +103,8 @@ const Thread = ({ page, parentId, channelId, useDistive }: RenderPageProps) => {
     channelID: channelId,
     initialPage: page,
     limit: 8,
-    onPostStatusChange: function ({ id, status, type, message}): void {
-   
+    onPostStatusChange: function ({ id, status, type, message }): void {
+
       if (status === 'SENDING')
         return
 

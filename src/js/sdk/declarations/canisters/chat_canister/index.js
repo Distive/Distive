@@ -28,6 +28,7 @@ export const createActor = (canisterId, options) => {
     agent,
     canisterId,
     ...options?.actorOptions,
+
   });
 };
 
@@ -38,7 +39,7 @@ export const init_actor = (canisterId, host = "https://boundary.ic0.app/", ident
     {
       agentOptions: {
         host,
-        identity
+        identity,
       }
     }
   )
