@@ -197,6 +197,7 @@ const Thread = ({ page, parentId, channelId, useDistive }: RenderPageProps) => {
                 useDistive={useDistive}
                 votePost={(postId, vote) => {
                   toggleMetadata({ label: vote, postId })
+                  console.log(postId, vote)
                 }}
                 channelId={channelId}
                 parentId={parentId}
@@ -299,7 +300,7 @@ const Comment = ({ comment, removePost, updatePost, addPost, votePost, parentId,
     >
       {!isEditing ?
         <HStack width={'100%'} justifyContent='space-between' >
-          <Stack opacity={comment.status === 'SENDING_METADATA' ? 0.2 : 1}>
+          <Stack>
             <CommentVote
               currentVote={(() => {
                 const labels = comment.toggledMetadataLabels;
@@ -375,11 +376,11 @@ interface CommentVoteProps {
 const CommentVote = ({ currentVote, onVote, loading }: CommentVoteProps) => {
 
   return <ButtonGroup isDisabled={loading} size='lg' isAttached variant='outline'>
-    <IconButton boxShadow='inner' aria-label='upvote' onClick={() => currentVote !== 'none' && onVote('up')}
-      size='xs' icon={<ArrowUpIcon color={currentVote === 'up' ? 'green.300' : 'gray'} />}
+    <IconButton boxShadow='inner' aria-label='upvote' onClick={() =>  onVote('up')}
+      size='xs' isLoading={loading&&currentVote==='up'} icon={<ArrowUpIcon color={currentVote === 'up' ? 'green.300' : 'gray'} />}
     />
-    <IconButton boxShadow='inner' aria-label='downvote' onClick={() => currentVote !== 'none' && onVote('down')}
-      size='xs' icon={<ArrowDownIcon color={currentVote === 'down' ? 'orange.300' : 'gray'} />}
+    <IconButton boxShadow='inner' aria-label='downvote' onClick={() => onVote('down')}
+      size='xs' isLoading={loading&&currentVote==='down'} icon={<ArrowDownIcon  color={currentVote === 'down' ? 'orange.300' : 'gray'} />}
     />
   </ButtonGroup>
 
