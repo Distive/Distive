@@ -425,6 +425,24 @@ export const useDistive = (SDK: SDK, params: DistiveHookParam): DistiveHook => {
                             },
                         }
                     })
+                } else {
+                    onPostStatusChange({
+                        id: input.postId,
+                        status: 'FAILURE',
+                        type: 'METADATA',
+                        message: 'User must be authenticated to toggle metadata',
+                    })
+
+                    setThread(prevThreadState => {
+                        const { [input.postId]: oldPost } = prevThreadState
+                        return {
+                            ...prevThreadState,
+                            [input.postId]: {
+                                ...oldPost,
+                                status: 'FAILURE_METADATA',
+                            },
+                        }
+                    })
                 }
             },
             (e) => {
