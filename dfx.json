@@ -6,6 +6,11 @@
       "type": "rust",
       "package": "chat_canister",
       "candid": "src/chat_canister/chat_canister.did"
+    },
+    "treasury_canister":{
+      "type":"rust",
+      "package":"treasury_canister",
+      "candid":"src/treasury_canister/treasury_canister.did"
     }
   },
   "defaults": {
