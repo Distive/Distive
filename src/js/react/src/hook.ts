@@ -1,4 +1,3 @@
-//types should be standalone and not depend on sdk
 import { Post, Thread, UpsertPostInput, Page, SDK, ToggleMetadataInput as _ToggleMetadataInput } from '@distive/sdk'
 import { useEffect, useState } from 'react'
 
@@ -24,6 +23,7 @@ interface PostStatusCallback {
     id: string
     status: 'SUCCESS' | 'FAILURE' | 'SENDING'
     type: 'REMOVE' | 'UPDATE' | 'ADD' | 'REPLY' | 'METADATA'
+    message: string
 }
 
 export interface DistiveHookParam {
@@ -124,7 +124,8 @@ export const useDistive = (SDK: SDK, params: DistiveHookParam): DistiveHook => {
         onPostStatusChange({
             id: parentId ?? '',
             status: 'SENDING',
-            type: parentId ? 'REPLY' : 'ADD'
+            type: parentId ? 'REPLY' : 'ADD',
+            message: '',
         })
 
         setThread((prevThreadState) => ({
@@ -159,7 +160,8 @@ export const useDistive = (SDK: SDK, params: DistiveHookParam): DistiveHook => {
                 onPostStatusChange({
                     id,
                     status: 'SUCCESS',
-                    type: parentId ? 'REPLY' : 'ADD'
+                    type: parentId ? 'REPLY' : 'ADD',
+                    message: '',
                 })
 
                 setThread((prevThreadState) => {
@@ -200,7 +202,8 @@ export const useDistive = (SDK: SDK, params: DistiveHookParam): DistiveHook => {
                 onPostStatusChange({
                     id: parentId ?? '',
                     status: 'FAILURE',
-                    type: parentId ? 'REPLY' : 'ADD'
+                    type: parentId ? 'REPLY' : 'ADD',
+                    message: '',
                 })
 
                 setThread((prevThreadState) => {
@@ -233,7 +236,8 @@ export const useDistive = (SDK: SDK, params: DistiveHookParam): DistiveHook => {
         onPostStatusChange({
             id: postId,
             status: 'SENDING',
-            type: 'UPDATE'
+            type: 'UPDATE',
+            message: '',
         })
 
         setThread(prevThreadState => {
@@ -261,7 +265,8 @@ export const useDistive = (SDK: SDK, params: DistiveHookParam): DistiveHook => {
                     onPostStatusChange({
                         id: postId,
                         status: 'SUCCESS',
-                        type: 'UPDATE'
+                        type: 'UPDATE',
+                        message: '',
                     })
 
                     setThread(prevThreadState => {
@@ -280,7 +285,8 @@ export const useDistive = (SDK: SDK, params: DistiveHookParam): DistiveHook => {
                     onPostStatusChange({
                         id: postId,
                         status: 'FAILURE',
-                        type: 'UPDATE'
+                        type: 'UPDATE',
+                        message: e.message,
                     })
 
                     setThread(prevThreadState => {
@@ -305,7 +311,8 @@ export const useDistive = (SDK: SDK, params: DistiveHookParam): DistiveHook => {
         onPostStatusChange({
             id: postId,
             status: 'SENDING',
-            type: 'REMOVE'
+            type: 'REMOVE',
+            message: ''
         })
 
         setThread(prevThreadState => {
@@ -327,7 +334,8 @@ export const useDistive = (SDK: SDK, params: DistiveHookParam): DistiveHook => {
                 onPostStatusChange({
                     id: postId,
                     status: 'SUCCESS',
-                    type: 'REMOVE'
+                    type: 'REMOVE',
+                    message: ''
                 })
                 setThread(prevThreadState => {
                     const { [postId]: newPost, ...newThread } = prevThreadState
@@ -345,7 +353,8 @@ export const useDistive = (SDK: SDK, params: DistiveHookParam): DistiveHook => {
                 onPostStatusChange({
                     id: postId,
                     status: 'FAILURE',
-                    type: 'REMOVE'
+                    type: 'REMOVE',
+                    message: e.message,
                 })
                 setThread(prevThreadState => {
                     const { [postId]: newPost } = prevThreadState
@@ -366,7 +375,8 @@ export const useDistive = (SDK: SDK, params: DistiveHookParam): DistiveHook => {
         onPostStatusChange({
             id: input.postId,
             status: 'SENDING',
-            type: 'METADATA'
+            type: 'METADATA',
+            message: '',
         })
 
         setThread(prevThreadState => {
@@ -386,13 +396,16 @@ export const useDistive = (SDK: SDK, params: DistiveHookParam): DistiveHook => {
             label: input.label,
         }).match(
             (result) => {
-                onPostStatusChange({
-                    id: input.postId,
-                    status: 'SUCCESS',
-                    type: 'METADATA'
-                })
+             
 
                 if (result) {
+                    onPostStatusChange({
+                        id: input.postId,
+                        status: 'SUCCESS',
+                        type: 'METADATA',
+                        message: '',
+                    })
+
                     setThread(prevThreadState => {
                         const { [input.postId]: oldPost } = prevThreadState
                         return {
@@ -418,7 +431,8 @@ export const useDistive = (SDK: SDK, params: DistiveHookParam): DistiveHook => {
                 onPostStatusChange({
                     id: input.postId,
                     status: 'FAILURE',
-                    type: 'METADATA'
+                    type: 'METADATA',
+                    message: e.message,
                 })
 
                 setThread(prevThreadState => {

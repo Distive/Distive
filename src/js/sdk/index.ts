@@ -73,6 +73,7 @@ export interface ToggleMetadataInput {
 export interface SDKConfig {
     serverId: string,
     host?: string,
+    identity?: any
 }
 
 export interface SDK {
@@ -108,7 +109,7 @@ const sdkFn: SDKFn = (config: SDKConfig): Result<SDK, DistiveError> => {
     const clientInit = Result.fromThrowable(init_actor)
     const IDGen = () => nanoid(5)
 
-    return clientInit(config.serverId, config?.host)
+    return clientInit(config.serverId, config?.host, config?.identity)
         .map(client => ({
             upsertPost: (input: UpsertPostInput) => {
                 const upsertInput = {

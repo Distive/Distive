@@ -32,15 +32,16 @@ export const createActor = (canisterId, options) => {
 };
 
 
-export const init_actor = (canisterId, host = "https://boundary.ic0.app/") => {
+export const init_actor = (canisterId, host = "https://boundary.ic0.app/", identity) => {
   const chat_actor = createActor(
     canisterId,
     {
       agentOptions: {
-        host
+        host,
+        identity
       }
     }
   )
-  
+
   return chat_actor
 }

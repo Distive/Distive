@@ -1,24 +1,67 @@
 import type { NextPage } from 'next'
 import React, { useEffect, useState } from 'react'
 import { Page, } from '@distive/sdk'
-import initDistiveHook, { ThreadState } from '@distive/react'
-import { PostStatus, } from '@distive/react'
+import initDistiveHook, { ThreadState, PostStatus, DistiveHook, DistiveHookParam } from '@distive/react'
 import { Button, Textarea, VStack, Text, Container, Stack, ButtonGroup, IconButton, HStack, Divider, useToast, Collapse, useEditableControls, Editable, EditablePreview, Input, EditableTextarea, Avatar } from '@chakra-ui/react'
 import { ChatIcon, EditIcon, DeleteIcon, CloseIcon, CheckIcon, ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { useRouter } from 'next/router'
+import { AuthClient } from "@dfinity/auth-client";
 
-const useDistive = initDistiveHook({
-  serverId: "rrkah-fqaaa-aaaaa-aaaaq-cai",
-  host: 'http://localhost:8000',
-})._unsafeUnwrap()
+
 
 const Home: NextPage = () => {
   const router = useRouter()
   const { channel = 'main' } = router.query as { channel?: string }
-  // const {}
+  const [authClient, setAuthClient] = useState<AuthClient>()
+  const [identity, setIdentity] = useState<any>()
+  const toast = useToast()
+
+  const useDistive = initDistiveHook({
+    // serverId: "rrkah-fqaaa-aaaaa-aaaaq-cai",
+    serverId: "rofub-iaaaa-aaaai-ab7da-cai",
+    // host: 'http://localhost:8000', 
+    identity
+  })._unsafeUnwrap()
+
+  useEffect(() => {
+    initAuthClient()
+  }, [])
+
+  const initAuthClient = async () => {
+    const _authClient = await AuthClient.create()
+    setAuthClient(_authClient)
+  }
+
+
+  const handleAuthenticated = async () => {
+    if (authClient) {
+      const identity = authClient.getIdentity()
+      setIdentity(identity)
+      const principal = identity.getPrincipal()
+      toast({ title: 'Authenticated', description: `${principal}` })
+    }
+  }
+
+  const login = async () => {
+    if (authClient) {
+      authClient.login({
+        // 7 days in nanoseconds
+        maxTimeToLive: BigInt(7 * 24 * 60 * 60 * 1000 * 1000 * 1000),
+        onSuccess: handleAuthenticated
+      })
+    }
+  }
+
   return (
     <Container maxW='container.sm' p='2' bg='gray.50' boxShadow='inner' >
-      <Thread channelId={channel} />
+      <HStack>
+        {!identity ? <Button
+          onClick={_ => login()}
+        >Authenticate</Button> :
+          <Text>Logged In: {identity.getPrincipal()} </Text>
+        }
+      </HStack>
+      <Thread useDistive={useDistive} channelId={channel} />
     </Container>
   )
 }
@@ -27,7 +70,8 @@ const Home: NextPage = () => {
 interface RenderPageProps {
   parentId?: string
   page?: Page
-  channelId: string
+  channelId: string,
+  useDistive: (params: DistiveHookParam) => DistiveHook
 }
 
 const threadObjToArray = (threadObj: ThreadState): Array<ThreadState['']> => {
@@ -35,7 +79,7 @@ const threadObjToArray = (threadObj: ThreadState): Array<ThreadState['']> => {
 }
 
 
-const Thread = ({ page, parentId, channelId }: RenderPageProps) => {
+const Thread = ({ page, parentId, channelId, useDistive }: RenderPageProps) => {
   const toast = useToast()
 
 
@@ -52,7 +96,8 @@ const Thread = ({ page, parentId, channelId }: RenderPageProps) => {
     channelID: channelId,
     initialPage: page,
     limit: 8,
-    onPostStatusChange: function ({ id, status, type }): void {
+    onPostStatusChange: function ({ id, status, type, message}): void {
+   
       if (status === 'SENDING')
         return
 
@@ -64,7 +109,7 @@ const Thread = ({ page, parentId, channelId }: RenderPageProps) => {
           },
           'FAILURE': {
             title: 'Failed to remove post',
-            description: 'The post could not be removed',
+            description: `'The post could not be removed' ${message}`,
           },
         },
         'ADD': {
@@ -74,7 +119,7 @@ const Thread = ({ page, parentId, channelId }: RenderPageProps) => {
           },
           'FAILURE': {
             title: 'Failed to add post',
-            description: 'The post could not be added',
+            description: `'The post could not be added' ${message}`,
           },
         },
         'UPDATE': {
@@ -84,7 +129,7 @@ const Thread = ({ page, parentId, channelId }: RenderPageProps) => {
           },
           'FAILURE': {
             title: 'Failed to update post',
-            description: 'The post could not be updated',
+            description: `'The post could not be updated' ${message}`,
           },
         },
         'REPLY': {
@@ -94,7 +139,7 @@ const Thread = ({ page, parentId, channelId }: RenderPageProps) => {
           },
           'FAILURE': {
             title: 'Failed to add post',
-            description: 'The post could not be added'
+            description: `'The post could not be added' ${message}`,
           },
         },
         'METADATA': {
@@ -104,7 +149,7 @@ const Thread = ({ page, parentId, channelId }: RenderPageProps) => {
           },
           'FAILURE': {
             title: 'Failed to update post metadata',
-            description: 'The post metadata could not be updated',
+            description: `The post metadata could not be updated: ${message}`,
           },
         }
       }
@@ -143,6 +188,7 @@ const Thread = ({ page, parentId, channelId }: RenderPageProps) => {
             <React.Fragment key={comment.id}>
               <Divider />
               <Comment
+                useDistive={useDistive}
                 votePost={(postId, vote) => {
                   toggleMetadata({ label: vote, postId })
                 }}
@@ -182,9 +228,10 @@ interface CommentProps {
   votePost: (id: string, vote: 'up' | 'down') => void
   addPost: (input: { content: string, parentId?: string }) => void
   updatePost: (input: { content: string, postId: string, parentId?: string }) => void
+  useDistive: (params: DistiveHookParam) => DistiveHook
 }
 
-const Comment = ({ comment, removePost, updatePost, addPost, votePost, parentId, channelId }: CommentProps) => {
+const Comment = ({ comment, removePost, updatePost, addPost, votePost, parentId, channelId, useDistive }: CommentProps) => {
   const [replyVisible, setReplyVisible] = useState(false)
 
   return <Stack>
@@ -231,7 +278,7 @@ const Comment = ({ comment, removePost, updatePost, addPost, votePost, parentId,
           </Collapse>
         </Stack>
         <div style={{ marginLeft: 10 }}>
-          <Thread channelId={channelId} page={comment.replies} parentId={comment.id} />
+          <Thread useDistive={useDistive} channelId={channelId} page={comment.replies} parentId={comment.id} />
         </div>
       </div>
     </VStack>
@@ -319,14 +366,14 @@ interface CommentVoteProps {
   loading: boolean
 }
 
-const CommentVote = ({ currentVote, onVote,loading }: CommentVoteProps) => {
+const CommentVote = ({ currentVote, onVote, loading }: CommentVoteProps) => {
 
   return <ButtonGroup isDisabled={loading} size='lg' isAttached variant='outline'>
     <IconButton boxShadow='inner' aria-label='upvote' onClick={() => currentVote !== 'none' && onVote('up')}
-      size='xs' icon={<ArrowUpIcon color={currentVote === 'up' ? 'green.300': 'gray'} />}
+      size='xs' icon={<ArrowUpIcon color={currentVote === 'up' ? 'green.300' : 'gray'} />}
     />
     <IconButton boxShadow='inner' aria-label='downvote' onClick={() => currentVote !== 'none' && onVote('down')}
-      size='xs' icon={<ArrowDownIcon color={currentVote === 'down' ? 'orange.300': 'gray'} />}
+      size='xs' icon={<ArrowDownIcon color={currentVote === 'down' ? 'orange.300' : 'gray'} />}
     />
   </ButtonGroup>
 
