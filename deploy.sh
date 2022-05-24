@@ -1,0 +1,1 @@
+# dfx deploy chat_canister --network ic --mode reinstall

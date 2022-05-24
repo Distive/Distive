@@ -1,4 +1,7 @@
 {
+  "chat_canister": {
+    "ic": "vlxpi-eqaaa-aaaag-aajoq-cai"
+  },
   "rust_hello": {
     "ic": "rofub-iaaaa-aaaai-ab7da-cai"
   }
