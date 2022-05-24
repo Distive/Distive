@@ -17,7 +17,7 @@ const Home: NextPage = () => {
   const toast = useToast()
 
   const useDistive = initDistiveHook({
-    serverId: process.env.CANISTER_ID ?? 'rrkah-fqaaa-aaaaa-aaaaq-cai',
+    serverId: process.env.NODE_ENV == 'development' ? 'rrkah-fqaaa-aaaaa-aaaaq-cai' : 'vlxpi-eqaaa-aaaag-aajoq-cai',
     ...(process.env.NODE_ENV === 'development' ? { host: 'http://localhost:8000' } : {}),
     identity
   })._unsafeUnwrap()
