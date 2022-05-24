@@ -17,9 +17,8 @@ const Home: NextPage = () => {
   const toast = useToast()
 
   const useDistive = initDistiveHook({
-    serverId: "rrkah-fqaaa-aaaaa-aaaaq-cai",
-    // serverId: "rofub-iaaaa-aaaai-ab7da-cai",
-    host: 'http://localhost:8000',
+    serverId: process.env?.CANISTER_ID ?? 'rrkah-fqaaa-aaaaa-aaaaq-cai',
+    ...(process.env.NODE_ENV === 'development' ? { host: 'http://localhost:8000' } : {}),
     identity
   })._unsafeUnwrap()
 
@@ -29,7 +28,7 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     handleAuthenticated()
-  },[authClient])
+  }, [authClient])
 
   const initAuthClient = async () => {
     const _authClient = await AuthClient.create()
