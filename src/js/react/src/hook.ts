@@ -55,7 +55,7 @@ function marshallThread(thread: Thread): ThreadState {
             [currPost.id]: {
                 ...currPost,
                 status: 'INITIAL',
-                toggledMetadataLabels: [],
+                toggledMetadataLabels: currPost.metadata.filter(m => m.is_toggled).map(m => m.label),
             },
         }
     }, {} as ThreadState)
@@ -396,7 +396,7 @@ export const useDistive = (SDK: SDK, params: DistiveHookParam): DistiveHook => {
             label: input.label,
         }).match(
             (result) => {
-             
+
 
                 if (result) {
                     onPostStatusChange({
