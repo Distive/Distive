@@ -1,6 +1,6 @@
 {
   "name": "@distive/react",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "license": "MIT",
   "description": "A React component and hook library for distive",
   "private": false,

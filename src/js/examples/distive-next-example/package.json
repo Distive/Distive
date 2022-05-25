@@ -16,7 +16,7 @@
     "@connect2ic/core": "^0.0.6",
     "@connect2ic/react": "^0.0.6",
     "@dfinity/auth-client": "^0.11.2",
-    "@distive/react": "^0.2.3",
+    "@distive/react": "^0.2.4",
     "@distive/sdk": "^0.2.0",
     "@emotion/react": "^11.8.2",
     "@emotion/styled": "^11.8.1",

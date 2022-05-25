@@ -86,7 +86,7 @@ const threadObjToArray = (threadObj: ThreadState): Array<ThreadState['']> => {
 }
 
 
-const Thread = ({ page, parentId, channelId, useDistive,userId }: RenderPageProps) => {
+const Thread = ({ page, parentId, channelId, useDistive, userId }: RenderPageProps) => {
   const toast = useToast()
 
 
@@ -381,10 +381,9 @@ const CommentInput = ({ onSubmit, loading, buttonText }: CommentInputProps = def
       onChange={e => setComment(e.target.value)}
       placeholder='Comment'
       variant={'filled'}
-
     />
-
-    <Button size={'xs'} loadingText='Sending' isLoading={loading} onClick={() => onSubmit(comment)}>
+    <Button size={'xs'} loadingText='Sending' isLoading={loading}
+      onClick={() => onSubmit(comment)}>
       {buttonText}
     </Button>
   </VStack>

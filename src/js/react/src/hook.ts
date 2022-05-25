@@ -371,6 +371,18 @@ export const useDistive = (SDK: SDK, params: DistiveHookParam): DistiveHook => {
     }
 
     const toggleMetadata: DistiveHook['toggleMetadata'] = (input: ToggleMetadataInput) => {
+        const { [input.postId]: oldPost } = thread
+        const { toggledMetadataLabels } = oldPost
+
+        const newMetadataState = {
+            toggledMetadataLabels: toggledMetadataLabels.includes(input.label) ?
+                toggledMetadataLabels.filter(l => l !== input.label) : [...toggledMetadataLabels, input.label]
+        }
+
+        const oldMetadataState = {
+            toggledMetadataLabels
+        }
+
 
         onPostStatusChange({
             id: input.postId,
@@ -380,12 +392,12 @@ export const useDistive = (SDK: SDK, params: DistiveHookParam): DistiveHook => {
         })
 
         setThread(prevThreadState => {
-            const { [input.postId]: oldPost } = prevThreadState
             return {
                 ...prevThreadState,
                 [input.postId]: {
                     ...oldPost,
                     status: 'SENDING_METADATA',
+                    ...newMetadataState
                 },
             }
         })
@@ -396,8 +408,6 @@ export const useDistive = (SDK: SDK, params: DistiveHookParam): DistiveHook => {
             label: input.label,
         }).match(
             (result) => {
-
-
                 if (result) {
                     onPostStatusChange({
                         id: input.postId,
@@ -413,15 +423,7 @@ export const useDistive = (SDK: SDK, params: DistiveHookParam): DistiveHook => {
                             [input.postId]: {
                                 ...oldPost,
                                 status: 'SUCCESS_METADATA',
-                                toggledMetadataLabels:
-                                    (() => {
-                                        const { toggledMetadataLabels } = oldPost
-                                        if (toggledMetadataLabels.includes(input.label)) {
-                                            return toggledMetadataLabels.filter(l => l !== input.label)
-                                        } else {
-                                            return [...toggledMetadataLabels, input.label]
-                                        }
-                                    })(),
+                                ...newMetadataState
                             },
                         }
                     })
@@ -440,6 +442,7 @@ export const useDistive = (SDK: SDK, params: DistiveHookParam): DistiveHook => {
                             [input.postId]: {
                                 ...oldPost,
                                 status: 'FAILURE_METADATA',
+                                ...oldMetadataState
                             },
                         }
                     })
@@ -460,6 +463,7 @@ export const useDistive = (SDK: SDK, params: DistiveHookParam): DistiveHook => {
                         [input.postId]: {
                             ...oldPost,
                             status: 'FAILURE_METADATA',
+                            ...oldMetadataState
                         },
                     }
                 })
