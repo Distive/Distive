@@ -374,18 +374,21 @@ interface CommentVoteProps {
 }
 
 const CommentVote = ({ currentVote, onVote, loading }: CommentVoteProps) => {
+  const [vote, setVote] = useState(currentVote)
+
+  useEffect(() => {
+    vote !== 'none' && onVote(vote)
+  }, [vote])
+
 
   return <ButtonGroup isDisabled={loading} size='lg' isAttached variant='outline'>
-    <IconButton boxShadow='inner' aria-label='upvote' onClick={() =>  onVote('up')}
-      size='xs' isLoading={loading&&currentVote==='up'} icon={<ArrowUpIcon color={currentVote === 'up' ? 'green.300' : 'gray'} />}
+    <IconButton boxShadow='inner' aria-label='upvote' onClick={() => setVote('up')}
+      size='xs' isLoading={loading && vote === 'up'} icon={<ArrowUpIcon color={vote === 'up' ? 'green.300' : 'gray'} />}
     />
-    <IconButton boxShadow='inner' aria-label='downvote' onClick={() => onVote('down')}
-      size='xs' isLoading={loading&&currentVote==='down'} icon={<ArrowDownIcon  color={currentVote === 'down' ? 'orange.300' : 'gray'} />}
+    <IconButton boxShadow='inner' aria-label='downvote' onClick={() => setVote('down')}
+      size='xs' isLoading={loading && vote === 'down'} icon={<ArrowDownIcon color={vote === 'down' ? 'orange.300' : 'gray'} />}
     />
   </ButtonGroup>
-
-
-
 }
 
 
