@@ -67,7 +67,7 @@ const Home: NextPage = () => {
           <Text>Logged In: {identity.getPrincipal().toString()} </Text>
         }
       </HStack>
-      <Thread useDistive={useDistive} channelId={channel} />
+      <Thread userId={identity?.getPrincipal().toString()} useDistive={useDistive} channelId={channel} />
     </Container>
   )
 }
@@ -86,7 +86,7 @@ const threadObjToArray = (threadObj: ThreadState): Array<ThreadState['']> => {
 }
 
 
-const Thread = ({ page, parentId, channelId, useDistive }: RenderPageProps) => {
+const Thread = ({ page, parentId, channelId, useDistive,userId }: RenderPageProps) => {
   const toast = useToast()
 
 
@@ -195,6 +195,7 @@ const Thread = ({ page, parentId, channelId, useDistive }: RenderPageProps) => {
             <React.Fragment key={comment.id}>
               <Divider />
               <Comment
+                userId={userId}
                 useDistive={useDistive}
                 votePost={(postId, vote) => {
                   toggleMetadata({ label: vote, postId })
@@ -342,7 +343,7 @@ const Comment = ({ comment, removePost, updatePost, addPost, votePost, parentId,
               {...getEditButtonProps()}
             >Update</IconButton>
             <IconButton boxShadow='inner' onClick={() => removePost(comment.id)} isLoading={comment.status === 'SENDING_REMOVE'} size='xs' aria-label='Delete Comment' icon={<DeleteIcon />}
-            {...getEditButtonProps()}
+              {...getEditButtonProps()}
             />
           </ButtonGroup>
         </HStack>
@@ -403,27 +404,22 @@ interface CommentVoteProps {
 const CommentVote = ({ onVote, loading, votes: {
   upvoteCount, downvoteCount, current
 } }: CommentVoteProps) => {
-  const [vote, setVote] = useState(current)
-
-  useEffect(() => {
-    if (vote !== 'none') {
-      onVote(vote)
-    }
-  }, [vote])
 
 
   return <HStack borderRadius={10} boxShadow={'inner'} backgroundColor='gray.100'>
     <IconButton
       boxShadow={'inner'}
       aria-label='upvote'
-      onClick={() => setVote('up')}
+      onClick={() => onVote('up')}
       size='sm' isLoading={loading === 'up'}
-      icon={<TriangleUpIcon
-        _hover={{
-          color: 'green.300'
-        }}
-        color={vote === 'up' ? 'green.300' : 'gray'} />}
-
+      icon={
+        <TriangleUpIcon
+          _hover={{
+            color: 'green.300'
+          }}
+          color={current === 'up' ? 'green.300' : 'gray'}
+        />
+      }
     />
     <Text as={'b'} boxShadow={'inner'}>
       {upvoteCount - downvoteCount}
@@ -432,12 +428,14 @@ const CommentVote = ({ onVote, loading, votes: {
       boxShadow={'inner'}
       aria-label='downvote'
       size='sm' isLoading={loading === 'down'}
-      onClick={() => setVote('down')}
-      icon={<TriangleDownIcon
-        _hover={{
-          color: 'orange.300'
-        }}
-        color={vote === 'down' ? 'orange.300' : 'gray'} />}
+      onClick={() => onVote('down')}
+      icon={
+        <TriangleDownIcon
+          _hover={{
+            color: 'orange.300'
+          }}
+          color={current === 'down' ? 'orange.300' : 'gray'} />
+      }
     />
   </HStack>
 
