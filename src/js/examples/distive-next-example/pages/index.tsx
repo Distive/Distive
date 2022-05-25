@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { Page, } from '@distive/sdk'
 import initDistiveHook, { ThreadState, PostStatus, DistiveHook, DistiveHookParam } from '@distive/react'
 import { Button, Textarea, VStack, Text, Container, Stack, ButtonGroup, IconButton, HStack, Divider, useToast, Collapse, useEditableControls, Editable, EditablePreview, Input, EditableTextarea, Avatar } from '@chakra-ui/react'
-import { ChatIcon, EditIcon, DeleteIcon, CloseIcon, CheckIcon, ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
+import { ChatIcon, EditIcon, DeleteIcon, CloseIcon, CheckIcon, ArrowDownIcon, ArrowUpIcon, TriangleUpIcon, TriangleDownIcon } from '@chakra-ui/icons'
 import { useRouter } from 'next/router'
 import { AuthClient } from "@dfinity/auth-client";
 
@@ -302,17 +302,35 @@ const Comment = ({ comment, removePost, updatePost, addPost, votePost, parentId,
         <HStack width={'100%'} justifyContent='space-between' >
           <Stack>
             <CommentVote
-              currentVote={(() => {
+              votes={(() => {
                 const labels = comment.toggledMetadataLabels;
-                if (labels.includes('up') && labels.includes('down')) return 'none'
-                if (labels.includes('up')) return 'up'
-                if (labels.includes('down')) return 'down'
-                return 'none'
+                const current = (() => {
+                  if (labels.includes('up') && labels.includes('down')) return 'none'
+                  if (labels.includes('up')) return 'up'
+                  if (labels.includes('down')) return 'down'
+                  return 'none'
+                })()
+
+                const upvoteCount = labels.filter(label => label === 'up').length
+                const downvoteCount = labels.filter(label => label === 'down').length
+
+                return {
+                  current,
+                  downvoteCount,
+                  upvoteCount
+                }
               })()}
+
               onVote={(vote) => {
                 return votePost(comment.id, vote)
               }}
-              loading={comment.status === 'SENDING_METADATA'}
+
+              loading={
+                comment.status === 'SENDING_METADATA' ?
+                  comment.toggledMetadataLabels.includes('up') ?
+                    'up' : comment.toggledMetadataLabels.includes('down') ?
+                      'down' : 'none' : 'none'
+              }
             />
           </Stack>
           <ButtonGroup size='sm' isAttached variant='outline'>
@@ -368,27 +386,47 @@ const CommentInput = ({ onSubmit, loading, buttonText }: CommentInputProps = def
 
 
 interface CommentVoteProps {
-  currentVote: 'up' | 'down' | 'none'
   onVote: (vote: 'up' | 'down') => void
-  loading: boolean
+  loading: 'none' | 'up' | 'down',
+  votes: {
+    current: 'up' | 'down' | 'none',
+    upvoteCount: number,
+    downvoteCount: number
+  }
 }
 
-const CommentVote = ({ currentVote, onVote, loading }: CommentVoteProps) => {
-  const [vote, setVote] = useState(currentVote)
+const CommentVote = ({ onVote, loading, votes: {
+  upvoteCount, downvoteCount, current
+} }: CommentVoteProps) => {
+  const [vote, setVote] = useState(current)
 
   useEffect(() => {
-    vote !== 'none' && onVote(vote)
+    if (vote !== 'none') {
+      onVote(vote)
+    }
   }, [vote])
 
 
-  return <ButtonGroup isDisabled={loading} size='lg' isAttached variant='outline'>
-    <IconButton boxShadow='inner' aria-label='upvote' onClick={() => setVote('up')}
-      size='xs' isLoading={loading && vote === 'up'} icon={<ArrowUpIcon color={vote === 'up' ? 'green.300' : 'gray'} />}
+  return <HStack borderRadius={10} boxShadow={'inner'} backgroundColor='gray.100'>
+    <IconButton
+      aria-label='upvote'
+      onClick={() => setVote('up')}
+      size='md' isLoading={loading === 'up'}
+      icon={<TriangleUpIcon color={vote === 'up' ? 'green.300' : 'gray'} />}
+
     />
-    <IconButton boxShadow='inner' aria-label='downvote' onClick={() => setVote('down')}
-      size='xs' isLoading={loading && vote === 'down'} icon={<ArrowDownIcon color={vote === 'down' ? 'orange.300' : 'gray'} />}
+    <Text>
+      {upvoteCount - downvoteCount}
+    </Text>
+    <IconButton
+      aria-label='downvote'
+      size='md' isLoading={loading === 'down'}
+      onClick={() => setVote('down')}
+      icon={<TriangleDownIcon color={vote === 'down' ? 'red.300' : 'gray'} />}
     />
-  </ButtonGroup>
+  </HStack>
+
+
 }
 
 
