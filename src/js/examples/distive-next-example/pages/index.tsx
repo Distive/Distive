@@ -77,7 +77,8 @@ interface RenderPageProps {
   parentId?: string
   page?: Page
   channelId: string,
-  useDistive: (params: DistiveHookParam) => DistiveHook
+  useDistive: (params: DistiveHookParam) => DistiveHook,
+  userId?: string
 }
 
 const threadObjToArray = (threadObj: ThreadState): Array<ThreadState['']> => {
@@ -227,6 +228,7 @@ const Thread = ({ page, parentId, channelId, useDistive }: RenderPageProps) => {
 }
 
 interface CommentProps {
+  userId?: string
   parentId?: string
   channelId: string
   //type of value of ThreadState 
@@ -238,9 +240,9 @@ interface CommentProps {
   useDistive: (params: DistiveHookParam) => DistiveHook
 }
 
-const Comment = ({ comment, removePost, updatePost, addPost, votePost, parentId, channelId, useDistive }: CommentProps) => {
+const Comment = ({ comment, removePost, updatePost, addPost, votePost, parentId, channelId, useDistive, userId }: CommentProps) => {
   const [replyVisible, setReplyVisible] = useState(false)
-
+  const ownsComment = !!userId && comment.userId === userId
   return <Stack>
     <VStack
       style={{
@@ -257,12 +259,13 @@ const Comment = ({ comment, removePost, updatePost, addPost, votePost, parentId,
       <HStack>
         <Avatar
           size='xs'
-        // name={comment.userId}
+          name={comment.userId}
         />
         <Text fontSize={'xs'}>{getHumanReadableTime((Date.now()) - comment.created_at)}</Text>
       </HStack>
 
       <Editable
+        isDisabled={!ownsComment}
         defaultValue={comment.content}
         fontSize='sm'
         onSubmit={(content) => content !== comment.content && updatePost({ content, postId: comment.id, parentId })}
@@ -338,7 +341,9 @@ const Comment = ({ comment, removePost, updatePost, addPost, votePost, parentId,
             <IconButton boxShadow='inner' aria-label='Update' isLoading={comment.status === 'SENDING_UPDATE'} icon={<EditIcon />} size='xs' mr='-px'
               {...getEditButtonProps()}
             >Update</IconButton>
-            <IconButton boxShadow='inner' onClick={() => removePost(comment.id)} isLoading={comment.status === 'SENDING_REMOVE'} size='xs' aria-label='Delete Comment' icon={<DeleteIcon />} />
+            <IconButton boxShadow='inner' onClick={() => removePost(comment.id)} isLoading={comment.status === 'SENDING_REMOVE'} size='xs' aria-label='Delete Comment' icon={<DeleteIcon />}
+            {...getEditButtonProps()}
+            />
           </ButtonGroup>
         </HStack>
         :
@@ -409,20 +414,30 @@ const CommentVote = ({ onVote, loading, votes: {
 
   return <HStack borderRadius={10} boxShadow={'inner'} backgroundColor='gray.100'>
     <IconButton
+      boxShadow={'inner'}
       aria-label='upvote'
       onClick={() => setVote('up')}
-      size='md' isLoading={loading === 'up'}
-      icon={<TriangleUpIcon color={vote === 'up' ? 'green.300' : 'gray'} />}
+      size='sm' isLoading={loading === 'up'}
+      icon={<TriangleUpIcon
+        _hover={{
+          color: 'green.300'
+        }}
+        color={vote === 'up' ? 'green.300' : 'gray'} />}
 
     />
-    <Text>
+    <Text as={'b'} boxShadow={'inner'}>
       {upvoteCount - downvoteCount}
     </Text>
     <IconButton
+      boxShadow={'inner'}
       aria-label='downvote'
-      size='md' isLoading={loading === 'down'}
+      size='sm' isLoading={loading === 'down'}
       onClick={() => setVote('down')}
-      icon={<TriangleDownIcon color={vote === 'down' ? 'red.300' : 'gray'} />}
+      icon={<TriangleDownIcon
+        _hover={{
+          color: 'orange.300'
+        }}
+        color={vote === 'down' ? 'orange.300' : 'gray'} />}
     />
   </HStack>
 
