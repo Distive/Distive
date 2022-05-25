@@ -315,8 +315,8 @@ const Comment = ({ comment, removePost, updatePost, addPost, votePost, parentId,
                   return 'none'
                 })()
 
-                const upvoteCount = labels.filter(label => label === 'up').length
-                const downvoteCount = labels.filter(label => label === 'down').length
+                const upvoteCount = labels.filter(label => label === 'up').length + (comment.metadata.find(meta => meta.label === 'up')?.count ?? 0)
+                const downvoteCount = labels.filter(label => label === 'down').length + (comment.metadata.find(meta => meta.label === 'down')?.count ?? 0)
 
                 return {
                   current,
