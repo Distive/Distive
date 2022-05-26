@@ -1,8 +1,10 @@
 pub mod comment;
+pub mod context;
 pub mod metadata;
 pub mod page;
 mod thread;
 use comment::{Comment, CommentInput, CommentOutput};
+use context::Context;
 use metadata::{Metadata, MetadataInput};
 use page::Page;
 use thread::Thread;
@@ -24,6 +26,7 @@ impl Channel {
         thread: &Thread,
         limit: &usize,
         cursor: Option<&String>,
+        context: Option<Context>,
     ) -> Result<Page, String> {
         let limit = *limit;
 
@@ -34,7 +37,7 @@ impl Channel {
                         .values()
                         .skip(cursor_index)
                         .take(limit)
-                        .map(|comment| comment.clone().into())
+                        .map(|comment| comment.clone().to_output(context.clone()))
                         .collect::<Vec<CommentOutput>>();
                     let thread_length = thread.len();
                     let remaining_count = (thread_length
@@ -52,7 +55,7 @@ impl Channel {
                 let comments = thread
                     .values()
                     .take(limit)
-                    .map(|comment| comment.clone().into())
+                    .map(|comment| comment.to_output(context.clone()))
                     .collect::<Vec<CommentOutput>>();
                 let thread_length = thread.len();
                 let remaining_count =
@@ -66,7 +69,12 @@ impl Channel {
         }
     }
 
-    pub fn get_page(&mut self, limit: &usize, cursor: Option<&String>) -> Result<Page, String> {
+    pub fn get_page(
+        &mut self,
+        limit: &usize,
+        cursor: Option<&String>,
+        context: Option<Context>,
+    ) -> Result<Page, String> {
         let (thread, cursor) = match &cursor {
             Some(hierarchal_id) => {
                 let mut hierarchal_ids = Channel::split_comment_id(hierarchal_id);
@@ -86,7 +94,7 @@ impl Channel {
         };
 
         match thread {
-            Some(thread) => Channel::get_thread_as_page(thread, limit, cursor.as_ref()),
+            Some(thread) => Channel::get_thread_as_page(thread, limit, cursor.as_ref(), context),
             None => Err(String::from("CURSOR_NOT_FOUND")),
         }
     }
@@ -98,7 +106,11 @@ impl Channel {
             .unwrap_or(comment_id.clone())
     }
 
-    pub fn upsert_comment(&mut self, comment_input: CommentInput) -> Result<CommentOutput, String> {
+    pub fn upsert_comment(
+        &mut self,
+        comment_input: CommentInput,
+        context: Option<Context>,
+    ) -> Result<CommentOutput, String> {
         let thread = match &comment_input.parent_id {
             Some(parent_id) => self.get_thread(parent_id),
             None => Some(&mut self.thread),
@@ -114,7 +126,7 @@ impl Channel {
                 match thread.get_mut(&comment_id) {
                     Some(comment) => {
                         comment.content = comment_input.content;
-                        Ok(comment.clone().into())
+                        Ok(comment.to_output(context))
                     }
                     None => {
                         let comment = Comment::new(CommentInput {
@@ -122,7 +134,7 @@ impl Channel {
                             ..comment_input
                         });
                         thread.insert(comment_id, comment.clone());
-                        Ok(comment.into())
+                        Ok(comment.to_output(context))
                     }
                 }
             }
@@ -154,7 +166,11 @@ impl Channel {
         }
     }
 
-    pub fn get_comment(&mut self, comment_id: &String) -> Option<CommentOutput> {
+    pub fn get_comment(
+        &mut self,
+        comment_id: &String,
+        context: Option<Context>,
+    ) -> Option<CommentOutput> {
         let (thread, cursor) = {
             let mut hierarchal_ids = Channel::split_comment_id(comment_id);
             match hierarchal_ids.len() {
@@ -172,7 +188,7 @@ impl Channel {
         match (thread, cursor) {
             (Some(thread), Some(cursor)) => {
                 let comment = thread.get(&cursor);
-                comment.map(|comment| comment.clone().into())
+                comment.map(|comment| comment.to_output(context))
             }
             _ => None,
         }
@@ -201,16 +217,16 @@ impl Channel {
         };
     }
 
-    pub fn update_comment(&mut self, id: &str, content: &str) {
-        if let Some(comment) = self.thread.get_mut(id) {
+    pub fn update_comment(&mut self, comment_id: &str, content: &str) {
+        if let Some(comment) = self.thread.get_mut(comment_id) {
             comment.content = content.to_string();
         }
     }
 
-    pub fn toggle_comment_metadata(&mut self, id: &str, metadata: MetadataInput) {
+    pub fn toggle_comment_metadata(&mut self, comment_id: &str, metadata: MetadataInput) {
         let MetadataInput { label, user_id } = metadata;
 
-        match self.thread.get_mut(id) {
+        match self.thread.get_mut(comment_id) {
             Some(Comment {
                 metadata: Some(metadata),
                 ..
@@ -257,16 +273,19 @@ mod tests {
         let comment_id = "comment_id".to_string();
         let mut channel = Channel::new(channel_id);
         channel
-            .upsert_comment(CommentInput {
-                content: "hello".to_string(),
-                id: comment_id.clone(),
-                user_id: "user_id".to_string(),
-                created_at: 0,
-                parent_id: None,
-            })
+            .upsert_comment(
+                CommentInput {
+                    content: "hello".to_string(),
+                    id: comment_id.clone(),
+                    user_id: "user_id".to_string(),
+                    created_at: 0,
+                    parent_id: None,
+                },
+                None,
+            )
             .unwrap();
         // let got_comment = channel.get_comment(&comment_id).unwrap();
-        let thread = channel.get_page(&1, Some(&comment_id)).unwrap();
+        let thread = channel.get_page(&1, Some(&comment_id), None).unwrap();
         assert_eq!(thread.comments[0].content, "hello");
     }
 
@@ -275,31 +294,40 @@ mod tests {
         let mut channel = Channel::new("channel_id".to_string());
 
         channel
-            .upsert_comment(CommentInput {
-                content: "hello".to_string(),
-                id: "comment_id".to_string(),
-                user_id: "user_id".to_string(),
-                created_at: 0,
-                parent_id: None,
-            })
+            .upsert_comment(
+                CommentInput {
+                    content: "hello".to_string(),
+                    id: "comment_id".to_string(),
+                    user_id: "user_id".to_string(),
+                    created_at: 0,
+                    parent_id: None,
+                },
+                None,
+            )
             .unwrap();
         channel
-            .upsert_comment(CommentInput {
-                content: "hello".to_string(),
-                id: "comment_id_2".to_string(),
-                user_id: "user_id".to_string(),
-                created_at: 0,
-                parent_id: None,
-            })
+            .upsert_comment(
+                CommentInput {
+                    content: "hello".to_string(),
+                    id: "comment_id_2".to_string(),
+                    user_id: "user_id".to_string(),
+                    created_at: 0,
+                    parent_id: None,
+                },
+                None,
+            )
             .unwrap();
         channel
-            .upsert_comment(CommentInput {
-                content: "hello".to_string(),
-                id: "comment_id_3".to_string(),
-                user_id: "user_id".to_string(),
-                created_at: 0,
-                parent_id: None,
-            })
+            .upsert_comment(
+                CommentInput {
+                    content: "hello".to_string(),
+                    id: "comment_id_3".to_string(),
+                    user_id: "user_id".to_string(),
+                    created_at: 0,
+                    parent_id: None,
+                },
+                None,
+            )
             .unwrap();
         assert_eq!(channel.thread.len(), 3);
     }
@@ -312,31 +340,40 @@ mod tests {
         let comment_id_2 = "comment_id_2".to_string();
         let comment_id_3 = "comment_id_3".to_string();
         channel
-            .upsert_comment(CommentInput {
-                content: "hello".to_string(),
-                id: comment_id.clone(),
-                user_id: "user_id".to_string(),
-                created_at: 0,
-                parent_id: None,
-            })
+            .upsert_comment(
+                CommentInput {
+                    content: "hello".to_string(),
+                    id: comment_id.clone(),
+                    user_id: "user_id".to_string(),
+                    created_at: 0,
+                    parent_id: None,
+                },
+                None,
+            )
             .unwrap();
         channel
-            .upsert_comment(CommentInput {
-                content: "hello".to_string(),
-                id: comment_id_2.clone(),
-                user_id: "user_id".to_string(),
-                created_at: 0,
-                parent_id: None,
-            })
+            .upsert_comment(
+                CommentInput {
+                    content: "hello".to_string(),
+                    id: comment_id_2.clone(),
+                    user_id: "user_id".to_string(),
+                    created_at: 0,
+                    parent_id: None,
+                },
+                None,
+            )
             .unwrap();
         channel
-            .upsert_comment(CommentInput {
-                content: "hello".to_string(),
-                id: comment_id_3.clone(),
-                user_id: "user_id".to_string(),
-                created_at: 0,
-                parent_id: None,
-            })
+            .upsert_comment(
+                CommentInput {
+                    content: "hello".to_string(),
+                    id: comment_id_3.clone(),
+                    user_id: "user_id".to_string(),
+                    created_at: 0,
+                    parent_id: None,
+                },
+                None,
+            )
             .unwrap();
         channel.delete_comment(comment_id.clone());
         assert_eq!(channel.thread.len(), 2);
@@ -354,27 +391,37 @@ mod tests {
 
         let comment_id = "comment_id".to_string();
         channel
-            .upsert_comment(CommentInput {
-                content: "hello".to_string(),
-                created_at: 0,
-                id: comment_id.clone(),
-                user_id: "user_id".to_string(),
-                parent_id: None,
-            })
+            .upsert_comment(
+                CommentInput {
+                    content: "hello".to_string(),
+                    created_at: 0,
+                    id: comment_id.clone(),
+                    user_id: "user_id".to_string(),
+                    parent_id: None,
+                },
+                None,
+            )
             .unwrap();
 
         channel
-            .upsert_comment(CommentInput {
-                content: "hello world".to_string(),
-                created_at: 0,
-                id: comment_id.clone(),
-                user_id: "user_id".to_string(),
-                parent_id: None,
-            })
+            .upsert_comment(
+                CommentInput {
+                    content: "hello world".to_string(),
+                    created_at: 0,
+                    id: comment_id.clone(),
+                    user_id: "user_id".to_string(),
+                    parent_id: None,
+                },
+                None,
+            )
             .unwrap();
         assert_eq!(channel.thread.len(), 1);
         assert_eq!(
-            channel.get_page(&1, Some(&comment_id)).unwrap().comments[0].content,
+            channel
+                .get_page(&1, Some(&comment_id), None)
+                .unwrap()
+                .comments[0]
+                .content,
             "hello world"
         );
 
@@ -382,29 +429,35 @@ mod tests {
 
         //reply to first comment
         channel
-            .upsert_comment(CommentInput {
-                content: "reply".to_string(),
-                id: "reply_id".to_string(),
-                user_id: "user_id".to_string(),
-                created_at: 0,
-                parent_id: Some(comment_id.clone()),
-            })
+            .upsert_comment(
+                CommentInput {
+                    content: "reply".to_string(),
+                    id: "reply_id".to_string(),
+                    user_id: "user_id".to_string(),
+                    created_at: 0,
+                    parent_id: Some(comment_id.clone()),
+                },
+                None,
+            )
             .unwrap();
 
         let reply_id =
             &Channel::create_hierarchal_id(Some(comment_id.clone()), &"reply_id".to_string());
         //upsert to reply
         channel
-            .upsert_comment(CommentInput {
-                content: "updated reply".to_string(),
-                id: reply_id.to_string(),
-                user_id: "user_id".to_string(),
-                created_at: 0,
-                parent_id: Some(comment_id.clone()),
-            })
+            .upsert_comment(
+                CommentInput {
+                    content: "updated reply".to_string(),
+                    id: reply_id.to_string(),
+                    user_id: "user_id".to_string(),
+                    created_at: 0,
+                    parent_id: Some(comment_id.clone()),
+                },
+                None,
+            )
             .unwrap();
 
-        let updated_comment = channel.get_comment(reply_id).unwrap();
+        let updated_comment = channel.get_comment(reply_id, None).unwrap();
         assert_eq!(updated_comment.content, "updated reply");
         //check that another reply was not created for comment_id
         assert_eq!(channel.thread[0].replies.len(), 1);
@@ -421,18 +474,25 @@ mod tests {
             id: comment_id.clone(),
             user_id: "user_id".to_string(),
         };
-        channel.upsert_comment(comment_input.clone()).unwrap();
+        channel.upsert_comment(comment_input.clone(), None).unwrap();
         channel
-            .upsert_comment(CommentInput {
-                parent_id: None,
-                content: "hello world".to_string(),
-                ..comment_input
-            })
+            .upsert_comment(
+                CommentInput {
+                    parent_id: None,
+                    content: "hello world".to_string(),
+                    ..comment_input
+                },
+                None,
+            )
             .unwrap();
 
         assert_eq!(channel.thread.len(), 1);
         assert_eq!(
-            channel.get_page(&1, Some(&comment_id)).unwrap().comments[0].content,
+            channel
+                .get_page(&1, Some(&comment_id), None)
+                .unwrap()
+                .comments[0]
+                .content,
             "hello world"
         );
     }
@@ -451,24 +511,30 @@ mod tests {
             id: comment_id.clone(),
             user_id: "user_id".to_string(),
         };
-        channel.upsert_comment(comment_input.clone()).unwrap();
+        channel.upsert_comment(comment_input.clone(), None).unwrap();
 
         let reply = channel
-            .upsert_comment(CommentInput {
-                parent_id: Some(comment_id.clone()),
-                content: "hello world".to_string(),
-                id: reply_id.clone(),
-                ..comment_input.clone()
-            })
+            .upsert_comment(
+                CommentInput {
+                    parent_id: Some(comment_id.clone()),
+                    content: "hello world".to_string(),
+                    id: reply_id.clone(),
+                    ..comment_input.clone()
+                },
+                None,
+            )
             .unwrap();
         //testing out nested replies
         channel
-            .upsert_comment(CommentInput {
-                parent_id: Some(reply.id.clone()),
-                content: "hello world too".to_string(),
-                id: reply_id_2.clone(),
-                ..comment_input.clone()
-            })
+            .upsert_comment(
+                CommentInput {
+                    parent_id: Some(reply.id.clone()),
+                    content: "hello world too".to_string(),
+                    id: reply_id_2.clone(),
+                    ..comment_input.clone()
+                },
+                None,
+            )
             .unwrap();
 
         //ensure the reply is not added to top level thread
@@ -518,7 +584,7 @@ mod tests {
             id: comment_id.clone(),
             user_id: "user_id".to_string(),
         };
-        channel.upsert_comment(comment_input.clone()).unwrap();
+        channel.upsert_comment(comment_input.clone(), None).unwrap();
         channel.toggle_comment_metadata(
             &comment_id,
             MetadataInput {
@@ -526,8 +592,10 @@ mod tests {
                 user_id: "user_id".to_string(),
             },
         );
-        let comment = channel.get_comment(&comment_id).unwrap();
-       
+        let comment = channel
+            .get_comment(&comment_id, Some(Context::new("user_id".to_string())))
+            .unwrap();
+
         assert_eq!(comment.metadata, vec![("upvote".to_string(), 1, true)]);
     }
 }

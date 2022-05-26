@@ -1,5 +1,6 @@
 use chat_engine::{
     comment::{CommentInput, CommentOutput as Comment},
+    context::Context,
     metadata::{MetadataInput, MetadataOutput},
     page::Page,
     Channel,
@@ -22,20 +23,23 @@ thread_local! {
 #[update]
 #[ic_cdk::export::candid::candid_method(update)]
 fn upsert_comment(param: UpsertCommentParam) -> String {
-    let user_id = ic_cdk::caller().to_string();
+    let caller = ic_cdk::caller();
+    // if caller == Principal::anonymous() {
+    //     return "Unauthorized".to_string();
+    // }
     match authenticate_user_and_comment_action(
         &param.channel_id,
         &param.comment_id,
-        &user_id,
+        Some(Context::new(caller.to_string())),
         |channel| {
             let comment_input = CommentInput {
                 content: param.message.to_string(),
                 id: param.comment_id.clone(),
                 parent_id: param.parent_id.clone(),
-                user_id: user_id.clone(),
+                user_id: caller.to_string(),
                 created_at: time(),
             };
-            channel.upsert_comment(comment_input)
+            channel.upsert_comment(comment_input, None)
         },
     ) {
         Ok(result) => match result {
@@ -50,10 +54,12 @@ fn upsert_comment(param: UpsertCommentParam) -> String {
 #[ic_cdk::export::candid::candid_method(update)]
 fn delete_comment(param: DeleteCommentParam) -> String {
     let user_id = ic_cdk::caller().to_string();
+    let context = Context::new(user_id);
+    let user_id = ic_cdk::caller().to_string();
     let _result = authenticate_user_and_comment_action(
         &param.channel_id,
         &param.comment_id,
-        &user_id,
+        Some(context),
         |channel| {
             channel.delete_comment(param.comment_id.clone());
         },
@@ -65,12 +71,19 @@ fn delete_comment(param: DeleteCommentParam) -> String {
 #[query]
 #[ic_cdk::export::candid::candid_method(query)]
 fn get_thread(param: GetThreadParam) -> IPage {
+    let user_id = ic_cdk::caller().to_string();
+    let context = Context::new(user_id);
+
     CHANNELS.with(|channels| {
         let mut channels = channels.borrow_mut();
         let channel = channels
             .entry(param.channel_id.to_string())
             .or_insert_with(|| Channel::new(param.channel_id.to_string()));
-        let page = channel.get_page(&(param.limit as usize), param.cursor.as_ref());
+        let page = channel.get_page(
+            &(param.limit as usize),
+            param.cursor.as_ref(),
+            Some(context),
+        );
         page.map(|p| p.into()).unwrap_or_default()
     })
 }
@@ -110,7 +123,7 @@ fn toggle_metadata(param: ToggleMetadataParam) -> bool {
 fn authenticate_user_and_comment_action<A, T>(
     channel_id: &String,
     comment_id: &String,
-    user_id: &String,
+    context: Option<Context>,
     action: A,
 ) -> Result<T, String>
 where
@@ -122,9 +135,9 @@ where
             .entry(channel_id.to_string())
             .or_insert_with(|| Channel::new(channel_id.to_string()));
 
-        let message = match channel.get_comment(comment_id) {
+        let message = match channel.get_comment(comment_id, context.clone()) {
             Some(comment) => {
-                if &comment.user_id != user_id {
+                if &comment.user_id != &context.unwrap_or_default().current_user_id {
                     Err("UNAUTHORIZED".to_string())
                 } else {
                     Ok(action(channel))
