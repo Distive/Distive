@@ -24,9 +24,7 @@ thread_local! {
 #[ic_cdk::export::candid::candid_method(update)]
 fn upsert_comment(param: UpsertCommentParam) -> String {
     let caller = ic_cdk::caller();
-    // if caller == Principal::anonymous() {
-    //     return "Unauthorized".to_string();
-    // }
+    
     match authenticate_user_and_comment_action(
         &param.channel_id,
         &param.comment_id,
