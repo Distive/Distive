@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "dfx": "0.9.3",
+  "dfx": "0.10.0",
   "canisters": {
     "chat_canister": {
       "type": "rust",
@@ -11,6 +11,11 @@
       "type":"rust",
       "package":"treasury_canister",
       "candid":"src/treasury_canister/treasury_canister.did"
+    },
+    "ledger_canister":{
+      "type":"custom",
+      "wasm":"src/ledger_canister/ledger.wasm",
+      "candid":"src/ledger_canister/ledger.public.did"
     }
   },
   "defaults": {
