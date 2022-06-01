@@ -1,23 +1,18 @@
 use crate::{CHANNELS, shared::{functions::authenticate_user_and_comment_action, types::DeleteCommentParam}};
+
 use chat_engine::{
-    comment::{CommentInput, CommentOutput as Comment},
     context::Context,
-    metadata::{MetadataInput, MetadataOutput},
-    page::Page,
-    Channel,
+    metadata::{MetadataInput}
 };
 
-use hashbrown::HashMap;
 use ic_cdk::{
-    api::canister_balance,
-    api::time,
     export::{
-        candid::{CandidType, Deserialize, Nat},
+        candid::{CandidType, Deserialize},
         Principal,
     },
 };
-use ic_cdk_macros::{query, update};
-use std::cell::RefCell;
+use ic_cdk_macros::{update};
+
 
 #[derive(Clone, Debug, CandidType, Deserialize)]
 pub struct ToggleMetadataParam {
@@ -64,7 +59,7 @@ pub fn toggle_metadata(param: ToggleMetadataParam) -> bool {
 pub fn delete_comment(param: DeleteCommentParam) -> String {
     let user_id = ic_cdk::caller().to_string();
     let context = Context::new(user_id);
-    let user_id = ic_cdk::caller().to_string();
+  
     let _result = authenticate_user_and_comment_action(
         &param.channel_id,
         &param.comment_id,

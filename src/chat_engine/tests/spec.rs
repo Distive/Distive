@@ -184,13 +184,16 @@ fn n_nested_comments() {
         for i in 0..depth {
             let comment_id = format!("comment_id_{}", i);
             let comment = channel
-                .upsert_comment(CommentInput {
-                    content: format!("comment {}", i),
-                    created_at: 0,
-                    id: comment_id.clone(),
-                    user_id: "user_id".to_string(),
-                    parent_id: parent_id.clone(),
-                },None)
+                .upsert_comment(
+                    CommentInput {
+                        content: format!("comment {}", i),
+                        created_at: 0,
+                        id: comment_id.clone(),
+                        user_id: "user_id".to_string(),
+                        parent_id: parent_id.clone(),
+                    },
+                    None,
+                )
                 .unwrap();
             parent_id = Some(comment.id.clone());
             // println!("{:?}", parent_id);
@@ -202,7 +205,7 @@ fn n_nested_comments() {
         let mut comment_id: Option<String> = None;
         for i in 0..depth - 1 {
             let first_reply = &channel
-                .get_page(&10, comment_id.as_ref(),None)
+                .get_page(&10, comment_id.as_ref(), None)
                 .unwrap()
                 //first comment of thread
                 .comments[0]
@@ -313,7 +316,7 @@ fn comment_metadata() {
         )
         .unwrap();
 
-    let reply = channel
+    channel
         .upsert_comment(
             CommentInput {
                 content: "reply 1".to_string(),
