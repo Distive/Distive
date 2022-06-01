@@ -42,6 +42,10 @@ type toggle_metadata_param = record {
     comment_id: text;
     channel_id: text;
     label: text;
+};
+
+type status = record {
+    remaining_cycles: nat64;
 }
 
 service : {
@@ -49,4 +53,5 @@ service : {
     "delete_comment": (input: delete_comment_param)-> (text);
     "get_thread": (param: get_thread_param) -> (page) query;
     "toggle_metadata": (param: toggle_metadata_param) -> (bool);
+    "status": () -> (status) query;
 }

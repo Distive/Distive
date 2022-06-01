@@ -1,7 +1,7 @@
 #!/bin/bash
 
-dfx identity new minter
-dfx identity use minter
+echo "minter" | dfx identity new minter
+echo "minter" | dfx identity use minter
 export MINT_ACC=$(dfx ledger account-id)
 
 dfx identity use default
