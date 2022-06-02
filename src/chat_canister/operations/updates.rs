@@ -1,17 +1,20 @@
 use crate::{
     shared::{
-        constants::TREASURY_CANISTER_ID, functions::authenticate_user_and_comment_action,
-        types::DeleteCommentParam,
+        constants::TREASURY_CANISTER_ID,
+        functions::authenticate_user_and_comment_action,
+        types::{DeleteCommentParam, UpsertCommentParam},
     },
     CHANNELS,
 };
-use chat_engine::{context::Context, metadata::MetadataInput};
-use ic_cdk::export::{
-    candid::{CandidType, Deserialize},
-    Principal,
+use chat_engine::{comment::CommentInput, context::Context, metadata::MetadataInput};
+use ic_cdk::{
+    api::time,
+    export::{
+        candid::{CandidType, Deserialize},
+        Principal,
+    },
 };
 use ic_cdk_macros::{init, update};
-
 
 #[derive(Clone, Debug, CandidType, Deserialize)]
 pub struct ToggleMetadataParam {
@@ -93,6 +96,34 @@ pub async fn wallet_receive() -> () {
             taxed_cycles,
         )
         .await;
+    }
+}
+
+#[update]
+#[ic_cdk::export::candid::candid_method(update)]
+fn upsert_comment(param: UpsertCommentParam) -> String {
+    let caller = ic_cdk::caller();
+
+    match authenticate_user_and_comment_action(
+        &param.channel_id,
+        &param.comment_id,
+        Some(Context::new(caller.to_string())),
+        |channel| {
+            let comment_input = CommentInput {
+                content: param.message.to_string(),
+                id: param.comment_id.clone(),
+                parent_id: param.parent_id.clone(),
+                user_id: caller.to_string(),
+                created_at: time(),
+            };
+            channel.upsert_comment(comment_input, None)
+        },
+    ) {
+        Ok(result) => match result {
+            Ok(output) => output.id,
+            Err(message) => message,
+        },
+        Err(message) => message,
     }
 }
 

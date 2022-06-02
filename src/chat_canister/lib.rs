@@ -1,14 +1,10 @@
-
 mod operations;
 mod shared;
 
-
+use chat_engine::Channel;
 use hashbrown::HashMap;
 use operations::{queries::*, updates::*};
-use shared::types::{DeleteCommentParam, GetThreadParam, IPage};
-use chat_engine::{
-    Channel,
-};
+use shared::types::{DeleteCommentParam, GetThreadParam, IPage, UpsertCommentParam};
 
 use std::cell::RefCell;
 
