@@ -4,7 +4,6 @@ use chat_engine::{
     Channel,
 };
 
-
 pub fn authenticate_user_and_comment_action<A, T>(
     channel_id: &String,
     comment_id: &String,
@@ -33,3 +32,5 @@ where
         message
     })
 }
+
+

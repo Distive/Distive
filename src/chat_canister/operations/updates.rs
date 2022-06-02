@@ -1,17 +1,16 @@
-use crate::{CHANNELS, shared::{functions::authenticate_user_and_comment_action, types::DeleteCommentParam}};
-
-use chat_engine::{
-    context::Context,
-    metadata::{MetadataInput}
-};
-
-use ic_cdk::{
-    export::{
-        candid::{CandidType, Deserialize},
-        Principal,
+use crate::{
+    shared::{
+        constants::TREASURY_CANISTER_ID, functions::authenticate_user_and_comment_action,
+        types::DeleteCommentParam,
     },
+    CHANNELS,
 };
-use ic_cdk_macros::{update};
+use chat_engine::{context::Context, metadata::MetadataInput};
+use ic_cdk::export::{
+    candid::{CandidType, Deserialize},
+    Principal,
+};
+use ic_cdk_macros::{init, update};
 
 
 #[derive(Clone, Debug, CandidType, Deserialize)]
@@ -53,13 +52,12 @@ pub fn toggle_metadata(param: ToggleMetadataParam) -> bool {
     }
 }
 
-
 #[update]
 #[ic_cdk::export::candid::candid_method(update)]
 pub fn delete_comment(param: DeleteCommentParam) -> String {
     let user_id = ic_cdk::caller().to_string();
     let context = Context::new(user_id);
-  
+
     let _result = authenticate_user_and_comment_action(
         &param.channel_id,
         &param.comment_id,
@@ -70,4 +68,35 @@ pub fn delete_comment(param: DeleteCommentParam) -> String {
     );
 
     "".to_string()
+}
+
+#[update]
+#[ic_cdk::export::candid::candid_method(update)]
+pub async fn wallet_receive() -> () {
+    let treasury_canister = Principal::from_text(TREASURY_CANISTER_ID).unwrap();
+    let amount = ic_cdk::api::call::msg_cycles_available();
+
+    if amount > 0 {
+        let (taxed_cycles, canister_cycles): (u64, u64) = {
+            // 5% of the amount is sent to the treasury canister
+            let taxed_cycles = (amount as f64 * 0.05) as u64;
+            let canister_cycles = amount - taxed_cycles;
+            (taxed_cycles, canister_cycles)
+        };
+
+        ic_cdk::api::call::msg_cycles_accept(canister_cycles);
+
+        let _ = ic_cdk::api::call::call_with_payment::<(), ()>(
+            treasury_canister,
+            "wallet_receive",
+            (),
+            taxed_cycles,
+        )
+        .await;
+    }
+}
+
+#[init]
+pub fn init() -> () {
+    println!("TREASURY_CANISTER_ID: {}", TREASURY_CANISTER_ID);
 }

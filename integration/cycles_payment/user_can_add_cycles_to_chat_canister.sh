@@ -7,4 +7,5 @@ import treasury = "rkp4c-7iaaa-aaaaa-aaaca-cai";
 let chat_balance_icp = call ledger.account_balance_dfx(record {account = account(chat)});
 let _ = call chat.status();
 let chat_balance_cycles = _.remaining_cycles;
-chat_balance_cycles
+chat_balance_cycles;
+

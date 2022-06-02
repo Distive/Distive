@@ -10,8 +10,9 @@ path = "lib.rs"
 crate-type = ["cdylib"]
 
 [dependencies]
-ic-cdk = "0.3"
-ic-cdk-macros = "0.3"
+ic-cdk = "0.5.1"
+ic-cdk-macros = "0.5.1"
+candid = "0.7.14"
 chat_engine = { path = "../chat_engine" }
 serde = "1.0"
 hashbrown = "0.12.1"

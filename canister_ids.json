@@ -4,5 +4,8 @@
   },
   "rust_hello": {
     "ic": "rofub-iaaaa-aaaai-ab7da-cai"
+  },
+  "treasury_canister": {
+    "ic": "g3lop-baaaa-aaaag-aaklq-cai"
   }
 }
