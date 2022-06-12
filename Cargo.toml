@@ -2,5 +2,6 @@
 members = [
     "src/chat_canister",
     "src/treasury_canister",
-    "src/chat_engine"
+    "src/chat_engine",
+    "src/deployer"
 ]

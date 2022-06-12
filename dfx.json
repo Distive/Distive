@@ -16,6 +16,11 @@
       "type":"custom",
       "wasm":"src/ledger_canister/ledger.wasm",
       "candid":"src/ledger_canister/ledger.public.did"
+    },
+    "chat_canister_wasm":{
+      "type":"custom",
+      "wasm": "src/treasury_canister/chat_canister.wasm",
+      "candid": "src/chat_canister/chat_canister.did"
     }
   },
   "defaults": {
