@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.3.0.709091110863">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.3.0.709093704740">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 2.3.0">
 
     <!-- Primary Meta Tags -->
-    <title>Installation</title>
-    <meta name="title" content="Installation">
+    <title>Deployment &amp; Managment</title>
+    <meta name="title" content="Deployment & Managment">
     <meta name="description" content="Distive is still early alpha software" />
 
     <!-- Canonical -->
@@ -19,24 +19,22 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://distive.vercel.app/installation/">
-    <meta property="og:title" content="Installation">
+    <meta property="og:title" content="Deployment & Managment">
     <meta property="og:description" content="Distive is still early alpha software">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://distive.vercel.app/installation/">
-    <meta property="twitter:title" content="Installation">
+    <meta property="twitter:title" content="Deployment & Managment">
     <meta property="twitter:description" content="Distive is still early alpha software">
 
     <script>(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
-    <link href="../resources/css/retype.css?v=2.3.0.709091110863" rel="stylesheet" />
+    <link href="../resources/css/retype.css?v=2.3.0.709093704740" rel="stylesheet" />
 
-    <script type="text/javascript" src="../resources/js/config.js?v=2.3.0.709091110863" data-turbo-eval="false" defer></script>
+    <script type="text/javascript" src="../resources/js/config.js?v=2.3.0.709093704740" data-turbo-eval="false" defer></script>
     <script type="text/javascript" src="../resources/js/retype.js?v=2.3.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=2.3.0.709091110863" data-turbo-eval="false" defer></script>
-    <link href="../resources/css/katex.css?v=2.3.0" rel="stylesheet" />
-    <script id="katex-js" type="text/javascript" src="../resources/js/katex.js?v=2.3.0" defer></script>
+    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=2.3.0.709093704740" data-turbo-eval="false" defer></script>
 </head>
 <body>
     <div id="docs-app" class="relative text-base antialiased text-gray-700 bg-white font-body dark:bg-dark-850 dark:text-dark-300">
@@ -184,35 +182,32 @@
         </div>
     </div>
 </div>
-<doc-anchor-target id="installation" class="break-words">
+<doc-anchor-target id="deployment--managment" class="break-words">
     <h1>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#installation">#</doc-anchor-trigger>
-        <span>Installation</span>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#deployment--managment">#</doc-anchor-trigger>
+        <span>Deployment &amp; Managment</span>
     </h1>
 </doc-anchor-target>
-<p>Upgrade wallet canister wasm module
-dfx wallet --network ic upgrade</p>
-<doc-anchor-target id="add-current-principal-as-controller-to-ic-wallet">
-    <h1>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#add-current-principal-as-controller-to-ic-wallet">#</doc-anchor-trigger>
-        <span>Add current principal as controller to ic wallet</span>
-    </h1>
+<doc-anchor-target id="deploying-distive">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#deploying-distive">#</doc-anchor-trigger>
+        <span>Deploying Distive</span>
+    </h2>
 </doc-anchor-target>
-<p>dfx canister --network ic --wallet &quot;<span class="math">(dfx identity --network ic get-wallet)&quot; update-settings --all --add-controller &quot;</span>(dfx identity get-principal)&quot;</p>
-<doc-anchor-target id="deploy-distive-canister-code">
-    <h1>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#deploy-distive-canister-code">#</doc-anchor-trigger>
-        <span>Deploy Distive canister code</span>
-    </h1>
+<p>Deploying a Distive Server is very simple, requires no external authentication and takes less than a minute.</p>
+<p>Simply go to the <a href="https://dashboard.distive.com">Distive Dashboard</a>:
+<code v-pre>New Profile &gt; New Canister</code></p>
+<img src="https://imgur.com/xgv3c3W.png" alt="Example deployment" />
+<p>Note down the <code v-pre>Canister ID</code> for later use during integration.</p>
+<doc-anchor-target id="adding-cycles">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#adding-cycles">#</doc-anchor-trigger>
+        <span>Adding Cycles</span>
+    </h2>
 </doc-anchor-target>
-<p>dfx deploy chat_canister --network ic</p>
-<doc-anchor-target id="note-down-canister-address">
-    <h1>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#note-down-canister-address">#</doc-anchor-trigger>
-        <span>Note down canister address</span>
-    </h1>
-</doc-anchor-target>
-<p>rofub-iaaaa-aaaai-ab7da-cai</p>
+<p>Cycles are needed to run a Distive Server. When you deploy a new Distive Server, it is allocated 100_000_000_000 free cycles. You can add cycles to your canister by clicking <code v-pre>Add Cycles</code>, this would direct you to the Canister Tip Jar page.</p>
+<p>You can use a temporary account, follow the steps on the page.</p>
+<img src="https://imgur.com/HTbmFsY.png" alt="Adding Cycles Via Canister TipJar" />
 
                                 
                                 <!-- Required only on API pages -->
@@ -222,20 +217,20 @@ dfx wallet --network ic upgrade</p>
                             
                                 <nav class="flex mt-14">
                                     <div class="w-1/2">
-                                        <a class="px-5 py-4 h-full flex items-center break-normal font-medium text-blue-500 dark:text-blue-400 border border-gray-300 hover:border-gray-400 dark:border-dark-650 dark:hover:border-dark-450 rounded-l-lg transition-colors duration-150 relative hover:z-5" href="../faq/">
+                                        <a class="px-5 py-4 h-full flex items-center break-normal font-medium text-blue-500 dark:text-blue-400 border border-gray-300 hover:border-gray-400 dark:border-dark-650 dark:hover:border-dark-450 rounded-l-lg transition-colors duration-150 relative hover:z-5" href="../integrations/sdk/">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="mr-3" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" overflow="visible"><path d="M19 11H7.41l5.29-5.29a.996.996 0 10-1.41-1.41l-7 7a1 1 0 000 1.42l7 7a1.024 1.024 0 001.42-.01.996.996 0 000-1.41L7.41 13H19c.55 0 1-.45 1-1s-.45-1-1-1z" /><path fill="none" d="M0 0h24v24H0z" /></svg>
                                             <span>
                                                 <span class="block text-xs font-normal text-gray-400 dark:text-dark-400">Previous</span>
-                                                <span class="block mt-1">Faq</span>
+                                                <span class="block mt-1">@distive/sdk</span>
                                             </span>
                                         </a>
                                     </div>
                             
                                     <div class="w-1/2">
-                                        <a class="px-5 py-4 -mx-px h-full flex items-center justify-end break-normal font-medium text-blue-500 dark:text-blue-400 border border-gray-300 hover:border-gray-400 dark:border-dark-650 dark:hover:border-dark-450 rounded-r-lg transition-colors duration-150 relative hover:z-5" href="../roadmap/">
+                                        <a class="px-5 py-4 -mx-px h-full flex items-center justify-end break-normal font-medium text-blue-500 dark:text-blue-400 border border-gray-300 hover:border-gray-400 dark:border-dark-650 dark:hover:border-dark-450 rounded-r-lg transition-colors duration-150 relative hover:z-5" href="../faq/">
                                             <span>
                                                 <span class="block text-xs font-normal text-right text-gray-400 dark:text-dark-400">Next</span>
-                                                <span class="block mt-1">Roadmap</span>
+                                                <span class="block mt-1">Faq</span>
                                             </span>
                                             <svg xmlns="http://www.w3.org/2000/svg" class="ml-3" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" overflow="visible"><path d="M19.92 12.38a1 1 0 00-.22-1.09l-7-7a.996.996 0 10-1.41 1.41l5.3 5.3H5c-.55 0-1 .45-1 1s.45 1 1 1h11.59l-5.29 5.29a.996.996 0 000 1.41c.19.2.44.3.7.3s.51-.1.71-.29l7-7c.09-.09.16-.21.21-.33z" /><path fill="none" d="M0 0h24v24H0z" /></svg>
                                         </a>
@@ -279,6 +274,6 @@ dfx wallet --network ic upgrade</p>
 
     <div id="docs-overlay-target"></div>
 
-    <script>window.__DOCS__ = { "title": "Installation", level: 1, icon: "file", hasPrism: false, hasMermaid: false, hasMath: true }</script>
+    <script>window.__DOCS__ = { "title": "Deployment & Managment", level: 1, icon: "file", hasPrism: false, hasMermaid: false, hasMath: false }</script>
 </body>
 </html>

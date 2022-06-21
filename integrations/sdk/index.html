@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.3.0.709091110863">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.3.0.709093704740">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 2.3.0">
 
     <!-- Primary Meta Tags -->
-    <title>Sdk</title>
-    <meta name="title" content="Sdk">
+    <title>@distive/sdk</title>
+    <meta name="title" content="@distive/sdk">
+    <meta name="description" content="npm" />
 
     <!-- Canonical -->
     <link rel="canonical" href="https://distive.vercel.app/integrations/sdk/" />
@@ -18,20 +19,24 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://distive.vercel.app/integrations/sdk/">
-    <meta property="og:title" content="Sdk">
+    <meta property="og:title" content="@distive/sdk">
+    <meta property="og:description" content="npm">
+    <meta property="og:image" content="https://img.shields.io/npm/v/@distive/sdk">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://distive.vercel.app/integrations/sdk/">
-    <meta property="twitter:title" content="Sdk">
+    <meta property="twitter:title" content="@distive/sdk">
+    <meta property="twitter:description" content="npm">
+    <meta property="twitter:image" content="https://img.shields.io/npm/v/@distive/sdk">
 
     <script>(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
-    <link href="../../resources/css/retype.css?v=2.3.0.709091110863" rel="stylesheet" />
+    <link href="../../resources/css/retype.css?v=2.3.0.709093704740" rel="stylesheet" />
 
-    <script type="text/javascript" src="../../resources/js/config.js?v=2.3.0.709091110863" data-turbo-eval="false" defer></script>
+    <script type="text/javascript" src="../../resources/js/config.js?v=2.3.0.709093704740" data-turbo-eval="false" defer></script>
     <script type="text/javascript" src="../../resources/js/retype.js?v=2.3.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" type="text/javascript" src="../../resources/js/lunr.js?v=2.3.0.709091110863" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" type="text/javascript" src="../../resources/js/lunr.js?v=2.3.0.709093704740" data-turbo-eval="false" defer></script>
 </head>
 <body>
     <div id="docs-app" class="relative text-base antialiased text-gray-700 bg-white font-body dark:bg-dark-850 dark:text-dark-300">
@@ -163,47 +168,46 @@
                                 <div id="docs-sidebar-right-toggle"></div>
                 
                                 <!-- Page content  -->
-<doc-anchor-target id="sdk" class="break-words">
+<doc-anchor-target id="distivesdk" class="break-words">
     <h1>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#sdk">#</doc-anchor-trigger>
-        <span>Sdk</span>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#distivesdk">#</doc-anchor-trigger>
+        <span>@distive/sdk</span>
     </h1>
 </doc-anchor-target>
+<p><figure class="content-center">
+    <img src="https://img.shields.io/npm/v/@distive/sdk" alt="npm" />
+    <figcaption class="caption">npm</figcaption>
+</figure>
+</p>
 <doc-anchor-target id="when-to-use">
-    <h3>
+    <h2>
         <doc-anchor-trigger class="header-anchor-trigger" to="#when-to-use">#</doc-anchor-trigger>
         <span>When to use</span>
-    </h3>
+    </h2>
 </doc-anchor-target>
 <doc-anchor-target id="installation">
-    <h3>
+    <h2>
         <doc-anchor-trigger class="header-anchor-trigger" to="#installation">#</doc-anchor-trigger>
         <span>Installation</span>
-    </h3>
+    </h2>
 </doc-anchor-target>
 <doc-anchor-target id="usage--example">
-    <h3>
+    <h2>
         <doc-anchor-trigger class="header-anchor-trigger" to="#usage--example">#</doc-anchor-trigger>
         <span>Usage &amp; Example</span>
-    </h3>
-</doc-anchor-target>
-<doc-anchor-target id="features">
-    <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#features">#</doc-anchor-trigger>
-        <span>Features</span>
-    </h3>
+    </h2>
 </doc-anchor-target>
 <doc-anchor-target id="authentication">
-    <h4>
+    <h2>
         <doc-anchor-trigger class="header-anchor-trigger" to="#authentication">#</doc-anchor-trigger>
         <span>Authentication</span>
-    </h4>
+    </h2>
 </doc-anchor-target>
 <doc-anchor-target id="metadata">
-    <h4>
+    <h2>
         <doc-anchor-trigger class="header-anchor-trigger" to="#metadata">#</doc-anchor-trigger>
         <span>Metadata</span>
-    </h4>
+    </h2>
 </doc-anchor-target>
 
                                 
@@ -224,10 +228,10 @@
                                     </div>
                             
                                     <div class="w-1/2">
-                                        <a class="px-5 py-4 -mx-px h-full flex items-center justify-end break-normal font-medium text-blue-500 dark:text-blue-400 border border-gray-300 hover:border-gray-400 dark:border-dark-650 dark:hover:border-dark-450 rounded-r-lg transition-colors duration-150 relative hover:z-5" href="../../faq/">
+                                        <a class="px-5 py-4 -mx-px h-full flex items-center justify-end break-normal font-medium text-blue-500 dark:text-blue-400 border border-gray-300 hover:border-gray-400 dark:border-dark-650 dark:hover:border-dark-450 rounded-r-lg transition-colors duration-150 relative hover:z-5" href="../../installation/">
                                             <span>
                                                 <span class="block text-xs font-normal text-right text-gray-400 dark:text-dark-400">Next</span>
-                                                <span class="block mt-1">Faq</span>
+                                                <span class="block mt-1">Deployment & Managment</span>
                                             </span>
                                             <svg xmlns="http://www.w3.org/2000/svg" class="ml-3" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" overflow="visible"><path d="M19.92 12.38a1 1 0 00-.22-1.09l-7-7a.996.996 0 10-1.41 1.41l5.3 5.3H5c-.55 0-1 .45-1 1s.45 1 1 1h11.59l-5.29 5.29a.996.996 0 000 1.41c.19.2.44.3.7.3s.51-.1.71-.29l7-7c.09-.09.16-.21.21-.33z" /><path fill="none" d="M0 0h24v24H0z" /></svg>
                                         </a>
@@ -271,6 +275,6 @@
 
     <div id="docs-overlay-target"></div>
 
-    <script>window.__DOCS__ = { "title": "Sdk", level: 2, icon: "file", hasPrism: false, hasMermaid: false, hasMath: false }</script>
+    <script>window.__DOCS__ = { "title": "@distive/sdk", level: 2, icon: "file", hasPrism: false, hasMermaid: false, hasMath: false }</script>
 </body>
 </html>
