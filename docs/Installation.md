@@ -4,7 +4,7 @@ Distive is still early alpha software
 # Deployment & Managment
 
 ## Deploying Distive
-Deploying a Distive Server is very simple, requires no external authentication and takes less than a minute.
+Deploying a Distive Server is very simple, requires no external authentication and takes less than half a minute.
 
 Simply go to the [Distive Dashboard](https://dashboard.distive.com): 
 `New Profile > New Canister`
