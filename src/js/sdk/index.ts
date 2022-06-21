@@ -167,4 +167,4 @@ const sdkFn: SDKFn = (config: SDKConfig): Result<SDK, DistiveError> => {
             ({ kind: ErrorKind.Internal, message: 'Failed to initialize client' }))
 }
 
-export default sdkFn
+export default sdkFn 
