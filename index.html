@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.3.0.709096895329">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.3.0.709121652896">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 2.3.0">
@@ -11,7 +11,7 @@
     <!-- Primary Meta Tags -->
     <title>Index</title>
     <meta name="title" content="Index">
-    <meta name="description" content="Distive is a decentralized communication channel that can be used to build software that requires mostly text input from an Audience, e." />
+    <meta name="description" content="Distive is a decentralized communication channel that can be used to build software that requires mostly text input from an audience." />
 
     <!-- Canonical -->
     <link rel="canonical" href="https://docs.distive.com/" />
@@ -20,21 +20,21 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://docs.distive.com/">
     <meta property="og:title" content="Index">
-    <meta property="og:description" content="Distive is a decentralized communication channel that can be used to build software that requires mostly text input from an Audience, e.">
+    <meta property="og:description" content="Distive is a decentralized communication channel that can be used to build software that requires mostly text input from an audience.">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://docs.distive.com/">
     <meta property="twitter:title" content="Index">
-    <meta property="twitter:description" content="Distive is a decentralized communication channel that can be used to build software that requires mostly text input from an Audience, e.">
+    <meta property="twitter:description" content="Distive is a decentralized communication channel that can be used to build software that requires mostly text input from an audience.">
 
     <script>(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
-    <link href="resources/css/retype.css?v=2.3.0.709096895329" rel="stylesheet" />
+    <link href="resources/css/retype.css?v=2.3.0.709121652896" rel="stylesheet" />
 
-    <script type="text/javascript" src="resources/js/config.js?v=2.3.0.709096895329" data-turbo-eval="false" defer></script>
+    <script type="text/javascript" src="resources/js/config.js?v=2.3.0.709121652896" data-turbo-eval="false" defer></script>
     <script type="text/javascript" src="resources/js/retype.js?v=2.3.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" type="text/javascript" src="resources/js/lunr.js?v=2.3.0.709096895329" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" type="text/javascript" src="resources/js/lunr.js?v=2.3.0.709121652896" data-turbo-eval="false" defer></script>
 </head>
 <body>
     <div id="docs-app" class="relative text-base antialiased text-gray-700 bg-white font-body dark:bg-dark-850 dark:text-dark-300">
@@ -184,26 +184,40 @@
         <span>What is Distive ?</span>
     </h4>
 </doc-anchor-target>
-<p>Distive is a decentralized communication channel that can be used to build software that requires mostly text input from an Audience, e.g Comment section, an online poll, a forum and a chat room.</p>
+<p>Distive is a decentralized communication channel that can be used to build software that requires mostly text input from an audience. Some examples of what you can build:</p>
+<ol>
+<li>A comment section</li>
+<li>An online poll</li>
+<li>A forum</li>
+<li>A chat room.</li>
+</ol>
 <doc-anchor-target id="why-does-distive-exist-">
     <h4>
         <doc-anchor-trigger class="header-anchor-trigger" to="#why-does-distive-exist-">#</doc-anchor-trigger>
         <span>Why does Distive Exist ?</span>
     </h4>
 </doc-anchor-target>
-<p>I created Distive because current solutions like Disqus sell Audience data to provide a free service. Distive allows offers a privacy first yet free alternative.</p>
+<p>Because it&#x27;s finally possible to build free to use software, that has close to zero maintainance cost, is open-source and difficult to censor, while guaranteeing data privacy.</p>
 <doc-anchor-target id="how-does-distive-work-">
     <h4>
         <doc-anchor-trigger class="header-anchor-trigger" to="#how-does-distive-work-">#</doc-anchor-trigger>
         <span>How does Distive Work ?</span>
     </h4>
 </doc-anchor-target>
+<p>Distive is hosted on the <a href="https://internetcomputer.org">Internet Computer Blockchain</a>, which allows building efficient and unstoppable decentralized software. But apart from this, public services like Distive on the IC unlike traditional software have alot less moving parts; there are no ports, databases, external caching services, firewalls, etc. This makes Distive very simple and trivial to deploy.</p>
+<p>Distive&#x27;s pricing model works like this: services (canisters in Internet Computer terms) are given free credits (cycles) to run each month. When a service runs out of cycles, it freezes and can&#x27;t be queried. You can then add more cycles to it. A small percentage of these cycles (currently 5%) are taxed and distributed to other services to keep running for free.</p>
+<p>Every Distive service (canister) deployed is standalone and can only be controlled by its owner. It is not a single database with multiple users stored in it. This means nobody, including me, can control what happens to your deployed service (canister).</p>
+<p>Distive is written in Rust, and the source code is available on <a href="https://github.com/scroobius-pip/Distive">Github</a>.</p>
 <doc-anchor-target id="how-can-i-use-distive-">
     <h4>
         <doc-anchor-trigger class="header-anchor-trigger" to="#how-can-i-use-distive-">#</doc-anchor-trigger>
         <span>How can I use Distive ?</span>
     </h4>
 </doc-anchor-target>
+<ol>
+<li>Head over to the <a href="https://dashboard.distive.com">Dashboard</a> and create a new service(canister)</li>
+<li>Then use the Canister ID to integrate or build your own software following the <a href="https://docs.distive.com/integrations">Integration Guide</a></li>
+</ol>
 
                                 
                                 <!-- Required only on API pages -->
