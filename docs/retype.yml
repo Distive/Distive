@@ -1,6 +1,6 @@
 input: .
 output: .retype
-url: distive.vercel.app/
+url: docs.distive.com
 branding:
   title: Distive
   label: Docs
