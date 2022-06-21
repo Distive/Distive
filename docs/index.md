@@ -1,4 +1,8 @@
-## Introduction
+!!!warning
+Distive is still early alpha software
+!!!
+
+# Introduction
 
 #### What is Distive ?
 Distive is a decentralized communication channel that can be used to build software that requires mostly text input from an audience. Some examples of what you can build:
@@ -11,7 +15,7 @@ Distive is a decentralized communication channel that can be used to build softw
 Because it's finally possible to build free to use software, that has close to zero maintainance cost, is open-source and difficult to censor, while guaranteeing data privacy.
 
 #### How does Distive Work ?
-Distive is hosted on the [Internet Computer Blockchain](https://internetcomputer.org), which allows building efficient and unstoppable decentralized software. But apart from this, public services like Distive on the IC unlike traditional software have alot less moving parts; there are no ports, databases, external caching services, firewalls, etc. This makes Distive very simple and trivial to deploy.
+Distive is hosted on the [Internet Computer Blockchain](https://internetcomputer.org), which allows building efficient and unstoppable decentralized software. Public services like Distive on the IC unlike traditional software have alot less moving parts; there are no ports, databases, external caching services, firewalls, etc. This makes Distive very simple and trivial to deploy.
 
 Distive's pricing model works like this: services (canisters in Internet Computer terms) are given free credits (cycles) to run each month. When a service runs out of cycles, it freezes and can't be queried. You can then add more cycles to it. A small percentage of these cycles (currently 5%) are taxed and distributed to other services to keep running for free.
 

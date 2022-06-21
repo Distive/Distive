@@ -20,7 +20,7 @@ const Home: NextPage = () => {
     serverId: process.env.NODE_ENV == 'development' ? 'rrkah-fqaaa-aaaaa-aaaaq-cai' : 'vlxpi-eqaaa-aaaag-aajoq-cai',
     ...(process.env.NODE_ENV === 'development' ? { host: 'http://localhost:8000' } : {}),
     identity
-  })._unsafeUnwrap()
+  })._unsafeUnwrap() //readmore about neverthrow at https://www.npmjs.com/package/neverthrow for proper error handling
 
   useEffect(() => {
     initAuthClient()
@@ -86,7 +86,7 @@ const threadObjToArray = (threadObj: ThreadState): Array<ThreadState['']> => {
 }
 
 
-const Thread = ({ page, parentId, channelId, useDistive, userId }: RenderPageProps) => {
+const   Thread = ({ page, parentId, channelId, useDistive, userId }: RenderPageProps) => {
   const toast = useToast()
 
 
@@ -98,7 +98,7 @@ const Thread = ({ page, parentId, channelId, useDistive, userId }: RenderPagePro
     loading,
     loadMore,
     toggleMetadata,
-    remainingPostCount
+    remainingPostCount,
   } = useDistive({
     channelID: channelId,
     initialPage: page,
