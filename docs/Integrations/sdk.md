@@ -1,11 +1,13 @@
-### When to use
+# @distive/sdk
 
-### Installation
+![npm](https://img.shields.io/npm/v/@distive/sdk)
 
-### Usage & Example
+## When to use
 
-### Features
+## Installation
 
-#### Authentication
+## Usage & Example
 
-#### Metadata
+## Authentication
+
+## Metadata
