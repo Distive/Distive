@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.3.0.709121652896">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.3.0.709157084079">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 2.3.0">
@@ -32,12 +32,12 @@
 
     <script>(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
-    <link href="../../resources/css/retype.css?v=2.3.0.709121652896" rel="stylesheet" />
+    <link href="../../resources/css/retype.css?v=2.3.0.709157084079" rel="stylesheet" />
 
-    <script type="text/javascript" src="../../resources/js/config.js?v=2.3.0.709121652896" data-turbo-eval="false" defer></script>
+    <script type="text/javascript" src="../../resources/js/config.js?v=2.3.0.709157084079" data-turbo-eval="false" defer></script>
     <script type="text/javascript" src="../../resources/js/retype.js?v=2.3.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" type="text/javascript" src="../../resources/js/lunr.js?v=2.3.0.709121652896" data-turbo-eval="false" defer></script>
-    <script id="prism-js" type="text/javascript" src="../../resources/js/prism.js?v=2.3.0.709121652896" defer></script>
+    <script id="lunr-js" type="text/javascript" src="../../resources/js/lunr.js?v=2.3.0.709157084079" data-turbo-eval="false" defer></script>
+    <script id="prism-js" type="text/javascript" src="../../resources/js/prism.js?v=2.3.0.709157084079" defer></script>
 </head>
 <body>
     <div id="docs-app" class="relative text-base antialiased text-gray-700 bg-white font-body dark:bg-dark-850 dark:text-dark-300">
@@ -186,45 +186,137 @@
         <span>Getting set up</span>
     </h2>
 </doc-anchor-target>
-<p>To use <a href="https://www.commont.app/">Commont</a>, you need to create a new account via
-our <a href="https://www.commont.app/signup">signup page</a>. You can sign up using an
-email and password or by using GitHub or Google. Once you have an account, you
-can access the Commont dashboard. Initially, you&#x27;ll see one iju9default project that
-you can configure as you need.</p>
-<p><span class="docs-emoji">&#x1F440;</span> Read the <a href="https://www.commont.app/docs">docs</a> for more information.</p>
-<doc-anchor-target id="installing-commontreact">
+<p>To use Distive, go to the <a href="https://dashboard.distive.com">Distive Dashboard</a>, create a new service(canister), and copy your <code v-pre>Canister ID</code>.</p>
+<doc-anchor-target id="installing-distivereact">
     <h2>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#installing-commontreact">#</doc-anchor-trigger>
-        <span>Installing @commont/react</span>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#installing-distivereact">#</doc-anchor-trigger>
+        <span>Installing @distive/react</span>
     </h2>
 </doc-anchor-target>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-bash"><code v-pre class="language-bash">yarn add @commont/react commont # npm install @commont/react</code></pre>
+<pre class="language-bash"><code v-pre class="language-bash">npm install @distive/react</code></pre>
 </doc-codeblock></div>
-<p>The package exports a <code v-pre>useComments</code> hook that you can use to fetch the comments
-for your project.</p>
-<doc-anchor-target id="using-usecomments-hook">
+<p>If you&#x27;re planning to add authentication, you&#x27;ll need to install:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-bash"><code v-pre class="language-bash">npm install @dfinity/auth-client</code></pre>
+</doc-codeblock></div>
+<p>The package exports a <code v-pre>initDistiveHook</code> function that initializes the Distive Hook.</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-tsx"><code v-pre class="language-tsx">const useDistive = initDistiveHook({
+  serverId: '&lt;your-canister-id&gt;',
+})._unsafeUnwrap() //read more about neverthrow at https://www.npmjs.com/package/neverthrow for proper error handling
+</code></pre>
+</doc-codeblock></div>
+<doc-anchor-target id="using-usedistive-hook">
     <h2>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#using-usecomments-hook">#</doc-anchor-trigger>
-        <span>Using useComments hook</span>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#using-usedistive-hook">#</doc-anchor-trigger>
+        <span>Using useDistive hook</span>
     </h2>
 </doc-anchor-target>
-<p><code v-pre>useComments</code> fetches comments from the backend on mount and whenever take or
-skip change.</p>
-<doc-anchor-target id="parameters">
+<p><code v-pre>useDistive</code> returns an object with the following properties:</p>
+<doc-anchor-target id="distivehook-properties">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#parameters">#</doc-anchor-trigger>
-        <span>Parameters</span>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#distivehook-properties">#</doc-anchor-trigger>
+        <span>DistiveHook Properties</span>
     </h3>
 </doc-anchor-target>
-<p><code v-pre>useComments</code> takes an object with the following parameters:</p>
-<ul>
-<li><strong>projectId</strong> — Your project ID.</li>
-<li><strong>topic</strong> — Comments will be fetched for a particular topic, e.g.
-<em>my-post-about-cats</em>.</li>
-<li><strong>take</strong> — Number of comments to fetch.</li>
-<li><strong>skip</strong> — Number of comments to skip (offset).</li>
-</ul>
+<div class="table-wrapper scrollbar overflow-hidden">
+<table class="comfortable">
+<thead>
+<tr>
+<th>Property</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>loading</td>
+<td><code v-pre>boolean</code></td>
+<td>True when a top level page is being requested (when the loadMore function is called).</td>
+</tr>
+<tr>
+<td>loadMore</td>
+<td><code v-pre>() =&gt; void</code></td>
+<td>Call this function to load more data.</td>
+</tr>
+<tr>
+<td>addPost</td>
+<td><code v-pre>(input: AddPostInput) =&gt; void</code></td>
+<td>Add a post</td>
+</tr>
+<tr>
+<td>updatePost</td>
+<td><code v-pre>(input: UpdatePostInput) =&gt; void</code></td>
+<td>Update a post</td>
+</tr>
+<tr>
+<td>removePost</td>
+<td><code v-pre>(postID: string) =&gt; void</code></td>
+<td>Remove a post</td>
+</tr>
+<tr>
+<td>thread</td>
+<td><code v-pre>ThreadState</code></td>
+<td>Contains object of all posts keyed by their ID. <doc-anchor-trigger to="#thread-state">See the ThreadState type</doc-anchor-trigger> for more information.</td>
+</tr>
+<tr>
+<td>toggleMetadata</td>
+<td><code v-pre>(input: ToggleMetadataInput) =&gt; void</code></td>
+<td>Only works for Authenticated users. Used to implement voting, reactions and flagging. <doc-anchor-trigger to="#metadata">See Metadata</doc-anchor-trigger> for more information.</td>
+</tr>
+<tr>
+<td>remainingPostCount</td>
+<td><code v-pre>number</code></td>
+<td>The number of posts not yet loaded in the thread.</td>
+</tr>
+<tr>
+<td>error</td>
+<td><code v-pre>String</code></td>
+<td>If an error occurs, it will be stored here. Empty otherwise.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<doc-anchor-target id="distivehook-parameters">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#distivehook-parameters">#</doc-anchor-trigger>
+        <span>DistiveHook Parameters</span>
+    </h3>
+</doc-anchor-target>
+<div class="table-wrapper scrollbar overflow-hidden">
+<table class="comfortable">
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>channelID</td>
+<td><code v-pre>string</code></td>
+<td>The ID of the channel to retrieve threads from, a new channel with this ID will be created if it doesn&#x27;t exist.</td>
+</tr>
+<tr>
+<td>initialPage?</td>
+<td><code v-pre>Page</code></td>
+<td>(Optional) The initial page to load.</td>
+</tr>
+<tr>
+<td>limit?</td>
+<td><code v-pre>number</code></td>
+<td>Defaults to 10.</td>
+</tr>
+<tr>
+<td>onPostStatusChange?</td>
+<td><code v-pre>(payload: PostStatusCallback)=&gt;void</code></td>
+<td>(Optional) Callback when the status of a post changes. <doc-anchor-trigger to="#post-status-callback">See PostStatusCallback</doc-anchor-trigger> for more information.</td>
+</tr>
+</tbody>
+</table>
+</div>
 <doc-anchor-target id="example-usage-in-a-react-component">
     <h3>
         <doc-anchor-trigger class="header-anchor-trigger" to="#example-usage-in-a-react-component">#</doc-anchor-trigger>
@@ -232,35 +324,29 @@ skip change.</p>
     </h3>
 </doc-anchor-target>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-tsx"><code v-pre class="language-tsx">import { useComments, CommentStatus } from '@commont/react';
+<pre class="language-tsx"><code v-pre class="language-tsx">import { useComments, CommentStatus } from '@distive/react';
 
-const Post = ({ projectId }) =&gt; {
-  const { comments, count, loading, refetch, error } = useComments({
-    projectId,
-    topic: 'post-id'
-    take: 10, skip: 0
-  });
 
-  return (
-    &lt;section&gt;
-      &lt;h3&gt;{count} comments&lt;/h3&gt;
-      {loading ? (
-        &lt;p&gt;Loading...&lt;/p&gt;
-      ) : (
-        &lt;div&gt;
-          {comments.map(({ author, content, createdAt, status }) =&gt; (
-            &lt;article key={createdAt} className=&quot;bg-gray-100 rounded my-6 p-4&quot;&gt;
-              &lt;div className=&quot;font-bold mb-2&quot;&gt;
-                {author} ・ {new Date(createdAt).toLocaleDateString()}
-              &lt;/div&gt;
-              &lt;p className=&quot;text-gray-700&quot;&gt;{content}&lt;/p&gt;
-            &lt;/article&gt;
-          ))}
-        &lt;/div&gt;
-      )}
-    &lt;/section&gt;
-  )
-}</code></pre>
+  const {
+    thread,
+    removePost,
+    addPost,
+    updatePost,
+    loading,
+    loadMore,
+    toggleMetadata,
+    remainingPostCount,
+  } = useDistive({
+    channelID: channelId,
+    initialPage: page,
+    limit: 8,
+    onPostStatusChange: function ({ id, status, type, message }): void {
+      console.log(`Post ${id} changed status to ${status}`);
+      }
+    })
+  
+
+</code></pre>
 </doc-codeblock></div>
 <doc-anchor-target id="examples">
     <h2>
@@ -269,12 +355,7 @@ const Post = ({ projectId }) =&gt; {
     </h2>
 </doc-anchor-target>
 <ul>
-<li><a href="https://codesandbox.io/s/commont-react-theme-ui-demo-osx9o">Demo with
-Theme UI</a></li>
-<li><a href="https://codesandbox.io/s/commont-react-demo-tailwind-pvhgw">Demo with
-Tailwind</a></li>
-<li><a href="https://codesandbox.io/s/commont-react-theme-ui-pagination-o4tg8">Demo
-with Theme UI — an example with pagination</a></li>
+<li><a href="https://codesandbox.io/s/distive-flat-example-chakra-ui-t2lv45?file=/src/index.tsx">ReactJS + Chakra UI Demo Flat (none-nested threads)</a></li>
 </ul>
 <doc-anchor-target id="api-reference">
     <h2>
@@ -282,77 +363,6 @@ with Theme UI — an example with pagination</a></li>
         <span>API Reference</span>
     </h2>
 </doc-anchor-target>
-<doc-anchor-target id="usecommentscomment">
-    <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#usecommentscomment">#</doc-anchor-trigger>
-        <span>UseCommentsComment</span>
-    </h3>
-</doc-anchor-target>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-typescript"><code v-pre class="language-typescript">interface UseCommentsComment {
-  topic: string;
-  author: string;
-  content: string;
-  createdAt: string;
-  status?: UseCommentsStatus;
-  details?: Record&lt;string, any&gt;;
-}</code></pre>
-</doc-codeblock></div>
-<doc-anchor-target id="usecommentsstatus">
-    <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#usecommentsstatus">#</doc-anchor-trigger>
-        <span>UseCommentsStatus</span>
-    </h3>
-</doc-anchor-target>
-<p>When a user adds a new comment, it will be in one of four states:</p>
-<ul>
-<li><strong>sending</strong> — add comment request is still pending.</li>
-<li><strong>added</strong> — the comment was successfully added and is visible for other
-people.</li>
-<li><strong>delivered-awaiting-approval</strong> — the comment was successfully added, but it&#x27;s
-not yet visible for other people.</li>
-<li><strong>failed</strong> — adding a comment was unsuccessful.</li>
-</ul>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-typescript"><code v-pre class="language-typescript">type UseCommentsStatus =
-  | 'sending'
-  | 'added'
-  | 'delivered-awaiting-approval'
-  | 'failed';</code></pre>
-</doc-codeblock></div>
-<doc-anchor-target id="usecommentsparameters">
-    <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#usecommentsparameters">#</doc-anchor-trigger>
-        <span>UseCommentsParameters</span>
-    </h3>
-</doc-anchor-target>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-typescript"><code v-pre class="language-typescript">interface UseCommentsParameters {
-  projectId: string;
-  topic: string;
-  take?: number;
-  skip?: number;
-}</code></pre>
-</doc-codeblock></div>
-<doc-anchor-target id="usecommentsresult">
-    <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#usecommentsresult">#</doc-anchor-trigger>
-        <span>UseCommentsResult</span>
-    </h3>
-</doc-anchor-target>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-typescript"><code v-pre class="language-typescript">interface UseComentsResult {
-  comments: UseCommentsComment[];
-  addComment: ({
-    content,
-    author,
-  }: Pick&lt;UseCommentsComment, 'content' | 'author' | 'details'&gt;) =&gt; void;
-  refetch: () =&gt; void;
-  count: number;
-  loading: boolean;
-  error: string | null;
-}</code></pre>
-</doc-codeblock></div>
 
                                 
                                 <!-- Required only on API pages -->
