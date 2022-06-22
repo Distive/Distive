@@ -59,9 +59,10 @@ const Home: NextPage = () => {
   }
 
   return (
-    <Container maxW='container.sm' p='2' bg='gray.50' boxShadow='inner' >
-      <HStack>
+    <Container   maxW='container.sm' p='2' bg='gray.50' boxShadow='inner' >
+      <HStack marginBottom={5} justifyContent={'flex-end'} >
         {!identity ? <Button
+          colorScheme='teal'
           onClick={_ => login()}
         >Authenticate</Button> :
           <Text>Logged In: {identity.getPrincipal().toString()} </Text>
