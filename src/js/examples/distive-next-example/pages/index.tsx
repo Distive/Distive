@@ -2,8 +2,8 @@ import type { NextPage } from 'next'
 import React, { useEffect, useState } from 'react'
 import { Page, } from '@distive/sdk'
 import initDistiveHook, { ThreadState, PostStatus, DistiveHook, DistiveHookParam } from '@distive/react'
-import { Button, Textarea, VStack, Text, Container, Stack, ButtonGroup, IconButton, HStack, Divider, useToast, Collapse, useEditableControls, Editable, EditablePreview, Input, EditableTextarea, Avatar } from '@chakra-ui/react'
-import { ChatIcon, EditIcon, DeleteIcon, CloseIcon, CheckIcon, ArrowDownIcon, ArrowUpIcon, TriangleUpIcon, TriangleDownIcon } from '@chakra-ui/icons'
+import { Button, Textarea,Link, VStack, Text, Container, Stack, ButtonGroup, IconButton, HStack, Divider, useToast, Collapse, useEditableControls, Editable, EditablePreview, Input, EditableTextarea, Avatar } from '@chakra-ui/react'
+import { ChatIcon, EditIcon, DeleteIcon, CloseIcon, CheckIcon, ArrowDownIcon, ArrowUpIcon, TriangleUpIcon, TriangleDownIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { useRouter } from 'next/router'
 import { AuthClient } from "@dfinity/auth-client";
 
@@ -59,7 +59,12 @@ const Home: NextPage = () => {
   }
 
   return (
-    <Container   maxW='container.sm' p='2' bg='gray.50' boxShadow='inner' >
+    <Container maxW='container.sm' p='2' bg='gray.50' boxShadow='inner' >
+      <div>
+        <Link isExternal href='https://github.com/scroobius-pip/Distive/tree/master/src/js/examples/distive-next-example'>
+          Source Code <ExternalLinkIcon mx='2px' />
+        </Link>
+      </div>
       <HStack marginBottom={5} justifyContent={'flex-end'} >
         {!identity ? <Button
           colorScheme='teal'
@@ -87,7 +92,7 @@ const threadObjToArray = (threadObj: ThreadState): Array<ThreadState['']> => {
 }
 
 
-const   Thread = ({ page, parentId, channelId, useDistive, userId }: RenderPageProps) => {
+const Thread = ({ page, parentId, channelId, useDistive, userId }: RenderPageProps) => {
   const toast = useToast()
 
 
