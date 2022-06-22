@@ -2,11 +2,6 @@
 Distive is a comment system hosted on the internet computer blockchain.
 More documentation incoming.
 
-## Installation
-- Install dfx
-- Download wasm file
-- Run
-
 ## Development
 - Install ic-repl: https://github.com/chenyan2002/ic-repl
 - Install Rust
