@@ -9,13 +9,13 @@
     },
     "treasury_canister":{
       "type":"rust",
-      "package":"treasury_canister",
-      "candid":"src/treasury_canister/treasury_canister.did"
+      "package":"treasury",
+      "candid":"src/treasury/treasury_canister.did"
     },
     "ledger_canister":{
       "type":"custom",
-      "wasm":"src/ledger_canister/ledger.wasm",
-      "candid":"src/ledger_canister/ledger.public.did"
+      "wasm":"src/ledger/ledger.wasm",
+      "candid":"src/ledger/ledger.public.did"
     },
     "chat_canister_wasm":{
       "type":"custom",

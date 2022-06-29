@@ -1,0 +1,18 @@
+[package]
+name = "treasury_canister"
+version = "0.1.0"
+edition = "2018"
+
+[lib]
+crate-type = ["cdylib"]
+path = "lib.rs"
+
+[dependencies]
+candid = "0.7.14"
+ic-cdk = "0.5.1"
+ic-cdk-macros = "0.5.1"
+serde = "1.0"
+ic-kit = "0.4.4"
+
+[target.'cfg(not(target_family = "wasm"))'.dependencies]
+async-std = { version="1.10.0", features = ["attributes"] }
