@@ -24,23 +24,6 @@ pub struct CommentOutput {
     pub metadata: MetadataOutput,
 }
 
-// impl From<Comment> for CommentOutput {
-//     fn from(comment: Comment) -> Self {
-//         let user_id = comment.user_id.clone();
-//         CommentOutput {
-//             metadata: comment.metadata.map_or(vec![], |m| m.to_output(&user_id)),
-//             id: comment.id,
-//             content: comment.content,
-//             user_id,
-//             created_at: comment.created_at,
-//             replies: Channel::get_thread_as_page(&comment.replies, &10, None).unwrap_or(Page {
-//                 comments: vec![],
-//                 remaining_count: 0,
-//             }),
-//         }
-//     }
-// }
-
 #[derive(Clone)]
 pub struct CommentInput {
     pub content: String,
@@ -63,24 +46,23 @@ impl Comment {
     }
 
     pub fn to_output(&self, context: Option<Context>) -> CommentOutput {
-        let current_user_id = context
-            .unwrap_or_default()
-            .current_user_id;
+        let current_user_id = context.unwrap_or_default().current_user_id;
 
         CommentOutput {
-            metadata: self.metadata.as_ref().map_or(vec![], |m| m.to_output(&current_user_id)),
+            metadata: self
+                .metadata
+                .as_ref()
+                .map_or(vec![], |m| m.to_output(&current_user_id)),
             id: self.id.clone(),
             content: self.content.clone(),
             user_id: self.user_id.clone(),
             created_at: self.created_at,
-            replies: Channel::get_thread_as_page(&self.replies, &10, None, None).unwrap_or(Page {
-                comments: vec![],
-                remaining_count: 0,
-            }),
+            replies: Channel::get_thread_as_page(&self.replies, &10, None, None)
+                .unwrap_or_default(),
         }
     }
 
-    // pub fn upsertMetadata(&self, value: Metadata)
+
 }
 
 impl fmt::Display for Comment {
