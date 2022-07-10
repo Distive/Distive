@@ -51,7 +51,10 @@ impl Metadata {
         }
     }
 
-    fn get_toggled_users_bool(metadata_users: &HashSet<String>, user_ids: &Vec<String>) -> Vec<bool> {
+    fn get_toggled_users_bool(
+        metadata_users: &HashSet<String>,
+        user_ids: &Vec<String>,
+    ) -> Vec<bool> {
         user_ids
             .iter()
             .map(|user_id| metadata_users.contains(user_id))
@@ -61,7 +64,13 @@ impl Metadata {
     pub fn to_output(&self, user_ids: &Vec<String>) -> MetadataOutput {
         self.value
             .iter()
-            .map(|(label, users)| (label.to_string(), users.len(), Self::get_toggled_users_bool(users, user_ids)))
+            .map(|(label, users)| {
+                (
+                    label.to_string(),
+                    users.len(),
+                    Self::get_toggled_users_bool(users, user_ids),
+                )
+            })
             .collect()
     }
 }
@@ -175,7 +184,7 @@ mod tests {
     #[test]
     fn get_toggled_users_bool_is_correct() {
         let metadata_users = HashSet::from_iter(vec!["user_id".to_string()]);
-        let user_ids = vec!["user_id".to_string()];
+        let mut user_ids = vec!["user_id".to_string()];
         let toggled_users_bool = Metadata::get_toggled_users_bool(&metadata_users, &user_ids);
         assert_eq!(toggled_users_bool, vec![true]);
 
@@ -185,9 +194,14 @@ mod tests {
         let user_count = rng.gen_range(0, 10);
         let mut metadata_users = HashSet::new();
         for _ in 0..user_count {
-            metadata_users.insert(rng.gen_range(0, 10).to_string());
+            // metadata_users.insert(rng.gen_range(0, 10).to_string());
+            let user_id = rng.gen_range(0, 10).to_string();
+            metadata_users.insert(user_id.clone());
+            user_ids.push(user_id);
+
         }
         let toggled_users_bool = Metadata::get_toggled_users_bool(&metadata_users, &user_ids);
         assert_eq!(toggled_users_bool.len(), user_ids.len());
+        assert_eq!(false, toggled_users_bool[0]); //for the first user_id, it is not toggled
     }
 }
