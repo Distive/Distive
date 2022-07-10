@@ -13,8 +13,8 @@ pub struct MetadataInput {
     pub user_id: String,
 }
 
-/// (label, number of users, toggled by current_user)
-pub type MetadataOutput = Vec<(String, usize, bool)>;
+/// (label, number of users, toggled by user_ids)
+pub type MetadataOutput = Vec<(String, usize, Vec<bool>)>;
 
 impl Metadata {
     pub fn new() -> Self {
@@ -51,10 +51,17 @@ impl Metadata {
         }
     }
 
-    pub fn to_output(&self, user_id: &String) -> MetadataOutput {
+    fn get_toggled_users_bool(metadata_users: &HashSet<String>, user_ids: &Vec<String>) -> Vec<bool> {
+        user_ids
+            .iter()
+            .map(|user_id| metadata_users.contains(user_id))
+            .collect()
+    }
+
+    pub fn to_output(&self, user_ids: &Vec<String>) -> MetadataOutput {
         self.value
             .iter()
-            .map(|(label, users)| (label.to_string(), users.len(), users.contains(user_id)))
+            .map(|(label, users)| (label.to_string(), users.len(), Self::get_toggled_users_bool(users, user_ids)))
             .collect()
     }
 }
@@ -75,6 +82,7 @@ impl DerefMut for Metadata {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use rand::Rng;
 
     #[test]
     fn add_metadata_takes_a_label_and_user_id() {
@@ -144,23 +152,42 @@ mod tests {
     fn metadata_output_is_correct() {
         let mut metadata = Metadata::default();
         metadata.toggle_value(&"user_id".to_string(), &"label".to_string());
-        let metadata_output = metadata.to_output(&"user_id".to_string());
+        let metadata_output = metadata.to_output(&vec!["user_id".to_string()]);
 
         let (label, user_count, is_toggled) = metadata_output[0].clone();
 
         assert_eq!(
             (label, user_count, is_toggled),
-            ("label".to_string(), 1, true)
+            ("label".to_string(), 1, vec![true])
         );
 
         metadata.toggle_value(&"user_id".to_string(), &"label".to_string());
-        let metadata_output = metadata.to_output(&"user_id".to_string());
+        let metadata_output = metadata.to_output(&vec!["user_id".to_string()]);
 
         let (label, user_count, is_toggled) = metadata_output[0].clone();
 
         assert_eq!(
             (label, user_count, is_toggled),
-            ("label".to_string(), 0, false)
+            ("label".to_string(), 0, vec![false])
         );
+    }
+
+    #[test]
+    fn get_toggled_users_bool_is_correct() {
+        let metadata_users = HashSet::from_iter(vec!["user_id".to_string()]);
+        let user_ids = vec!["user_id".to_string()];
+        let toggled_users_bool = Metadata::get_toggled_users_bool(&metadata_users, &user_ids);
+        assert_eq!(toggled_users_bool, vec![true]);
+
+        // returns same length as user_ids
+        // generate a random number of users and check that the length is the same as user_ids
+        let mut rng = rand::thread_rng();
+        let user_count = rng.gen_range(0, 10);
+        let mut metadata_users = HashSet::new();
+        for _ in 0..user_count {
+            metadata_users.insert(rng.gen_range(0, 10).to_string());
+        }
+        let toggled_users_bool = Metadata::get_toggled_users_bool(&metadata_users, &user_ids);
+        assert_eq!(toggled_users_bool.len(), user_ids.len());
     }
 }

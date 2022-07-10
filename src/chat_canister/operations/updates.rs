@@ -6,7 +6,7 @@ use crate::{
     },
     CHANNELS,
 };
-use chat_engine::{comment::CommentInput, context::Context, metadata::MetadataInput};
+use chat_engine::{comment::CommentInput, metadata::MetadataInput};
 use ic_cdk::{
     api::time,
     export::{
@@ -58,13 +58,11 @@ pub fn toggle_metadata(param: ToggleMetadataParam) -> bool {
 #[update]
 #[ic_cdk::export::candid::candid_method(update)]
 pub fn delete_comment(param: DeleteCommentParam) -> String {
-    let user_id = ic_cdk::caller().to_string();
-    let context = Context::new(user_id);
-
+   
     let _result = authenticate_user_and_comment_action(
         &param.channel_id,
         &param.comment_id,
-        Some(context),
+        None,
         |channel| {
             channel.delete_comment(param.comment_id.clone());
         },
@@ -107,7 +105,7 @@ fn upsert_comment(param: UpsertCommentParam) -> String {
     match authenticate_user_and_comment_action(
         &param.channel_id,
         &param.comment_id,
-        Some(Context::new(caller.to_string())),
+        None,
         |channel| {
             let comment_input = CommentInput {
                 content: param.message.to_string(),

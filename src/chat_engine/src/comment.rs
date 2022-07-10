@@ -46,13 +46,13 @@ impl Comment {
     }
 
     pub fn to_output(&self, context: Option<Context>) -> CommentOutput {
-        let current_user_id = context.unwrap_or_default().current_user_id;
+        let user_ids = context.unwrap_or_default().user_ids;
 
         CommentOutput {
             metadata: self
                 .metadata
                 .as_ref()
-                .map_or(vec![], |m| m.to_output(&current_user_id)),
+                .map_or(vec![], |m| m.to_output(&user_ids)),
             id: self.id.clone(),
             content: self.content.clone(),
             user_id: self.user_id.clone(),
@@ -61,8 +61,6 @@ impl Comment {
                 .unwrap_or_default(),
         }
     }
-
-
 }
 
 impl fmt::Display for Comment {

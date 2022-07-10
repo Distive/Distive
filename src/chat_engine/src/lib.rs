@@ -593,9 +593,12 @@ mod tests {
             },
         );
         let comment = channel
-            .get_comment(&comment_id, Some(Context::new("user_id".to_string())))
+            .get_comment(&comment_id, Some(Context::new(vec!["user_id".to_string()])))
             .unwrap();
 
-        assert_eq!(comment.metadata, vec![("upvote".to_string(), 1, true)]);
+        assert_eq!(
+            comment.metadata,
+            vec![("upvote".to_string(), 1, vec![true])]
+        );
     }
 }

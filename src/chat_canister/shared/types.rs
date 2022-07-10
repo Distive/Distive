@@ -1,36 +1,28 @@
-use chat_engine::{
-    comment::{CommentOutput as Comment},
-    metadata::MetadataOutput,
-    page::Page,
- 
-};
+use chat_engine::{comment::CommentOutput as Comment, metadata::MetadataOutput, page::Page};
 
-use ic_cdk::{
-    export::{
-        candid::{CandidType, Deserialize, Nat},
-    },
-};
-
+use ic_cdk::export::candid::{CandidType, Deserialize, Nat};
 
 #[derive(Clone, Debug, Default, CandidType, Deserialize)]
 pub struct UpsertCommentParam {
-   pub channel_id: String,
-   pub message: String,
-   pub comment_id: String,
-   pub  parent_id: Option<String>,
+    pub channel_id: String,
+    pub message: String,
+    pub comment_id: String,
+    pub parent_id: Option<String>,
 }
 
 #[derive(Clone, Debug, Default, CandidType, Deserialize)]
 pub struct DeleteCommentParam {
-  pub  channel_id: String,
-   pub comment_id: String,
+    pub channel_id: String,
+    pub comment_id: String,
 }
 
 #[derive(Clone, Debug, Default, CandidType, Deserialize)]
 pub struct GetThreadParam {
-   pub limit: u8,
+    pub limit: u8,
     pub channel_id: String,
-   pub cursor: Option<String>,
+    pub cursor: Option<String>,
+    /// The user ids to be checked for metadata.
+    pub metadata_user_ids: Vec<String>,
 }
 
 #[derive(Clone, Debug, Default, CandidType, Deserialize)]

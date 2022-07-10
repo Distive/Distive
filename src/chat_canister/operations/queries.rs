@@ -5,7 +5,10 @@ use ic_cdk::{
 };
 use ic_cdk_macros::query;
 
-use crate::{shared::types::{GetThreadParam, IPage}, CHANNELS};
+use crate::{
+    shared::types::{GetThreadParam, IPage},
+    CHANNELS,
+};
 
 #[derive(Clone, Debug, CandidType, Deserialize)]
 pub struct Status {
@@ -23,8 +26,7 @@ pub fn status() -> Status {
 #[query]
 #[ic_cdk::export::candid::candid_method(query)]
 fn get_thread(param: GetThreadParam) -> IPage {
-    let user_id = ic_cdk::caller().to_string();
-    let context = Context::new(user_id);
+    let context = Context::new(param.metadata_user_ids.clone());
 
     CHANNELS.with(|channels| {
         let mut channels = channels.borrow_mut();
