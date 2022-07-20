@@ -9,8 +9,8 @@
     },
     "treasury_canister":{
       "type":"rust",
-      "package":"treasury",
-      "candid":"src/treasury/treasury_canister.did"
+      "package":"treasury_canister",
+      "candid":"src/treasury_canister/treasury_canister.did"
     },
     "ledger_canister":{
       "type":"custom",

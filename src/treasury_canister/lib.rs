@@ -39,12 +39,6 @@ pub struct Storage {
     canister_count: u64,
 }
 
-// impl ArgumentEncoder for Storage {
-//     fn encode(self, ser: &mut candid::ser::IDLBuilder) -> candid::Result<()> {
-
-//     }
-// }
-
 #[query]
 #[ic_cdk::export::candid::candid_method(query)]
 fn status() -> Status {

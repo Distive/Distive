@@ -337,7 +337,7 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "chat_canister"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "candid",
  "chat_engine",
@@ -349,7 +349,7 @@ dependencies = [
 
 [[package]]
 name = "chat_engine"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "hashbrown 0.12.1",
  "indexmap",

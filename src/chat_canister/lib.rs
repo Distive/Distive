@@ -3,6 +3,7 @@ mod shared;
 
 use chat_engine::Channel;
 use hashbrown::HashMap;
+use ic_cdk::api::time;
 use operations::{queries::*, updates::*};
 use shared::types::{DeleteCommentParam, GetThreadParam, IPage, UpsertCommentParam};
 
@@ -10,6 +11,7 @@ use std::cell::RefCell;
 
 thread_local! {
   pub static CHANNELS: RefCell<HashMap<String, Channel>> = RefCell::new(HashMap::new());
+  pub static TIME_CREATED: u64 = time();
 }
 
 ic_cdk::export::candid::export_service!();

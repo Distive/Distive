@@ -8,11 +8,14 @@ use ic_cdk_macros::query;
 use crate::{
     shared::types::{GetThreadParam, IPage},
     CHANNELS,
+    TIME_CREATED
 };
 
 #[derive(Clone, Debug, CandidType, Deserialize)]
 pub struct Status {
     remaining_cycles: u64,
+    time_created: u64,
+    is_empty: bool,
 }
 
 #[query]
@@ -20,6 +23,7 @@ pub struct Status {
 pub fn status() -> Status {
     Status {
         remaining_cycles: canister_balance(),
+        time_created: TIME_CREATED
     }
 }
 
