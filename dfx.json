@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "dfx": "0.10.0",
+  "dfx": "0.11.0",
   "canisters": {
     "chat_canister": {
       "type": "rust",
@@ -11,16 +11,6 @@
       "type":"rust",
       "package":"treasury_canister",
       "candid":"src/treasury_canister/treasury_canister.did"
-    },
-    "ledger_canister":{
-      "type":"custom",
-      "wasm":"src/ledger/ledger.wasm",
-      "candid":"src/ledger/ledger.public.did"
-    },
-    "chat_canister_wasm":{
-      "type":"custom",
-      "wasm": "src/treasury_canister/chat_canister.wasm",
-      "candid": "src/chat_canister/chat_canister.did"
     }
   },
   "defaults": {

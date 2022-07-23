@@ -1,0 +1,17 @@
+
+type status = record {
+    remaining_cycles: nat64;
+    canister_count: nat64;
+};
+
+type create_chat_canister_result = record {
+    success: bool;
+    canister_id: text;
+    message: text;
+};
+
+service : {
+    "status": () -> (status) query;
+    "create_chat_canister": () -> (create_chat_canister_result);
+}
+

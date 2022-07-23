@@ -5,3 +5,4 @@
 - Build chat_canister and copy wasm file to treasury_canister directory
 - Build treasury_canister and test
 - Deploy treasury_canister
+- Upload chat_canister wasm and treasury_canister wasm to Github

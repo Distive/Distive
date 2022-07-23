@@ -1,15 +1,13 @@
+use crate::{
+    shared::types::{GetThreadParam, IPage},
+    CHANNELS, TIME_CREATED,
+};
 use chat_engine::{context::Context, Channel};
 use ic_cdk::{
     api::canister_balance,
     export::candid::{CandidType, Deserialize},
 };
 use ic_cdk_macros::query;
-
-use crate::{
-    shared::types::{GetThreadParam, IPage},
-    CHANNELS,
-    TIME_CREATED
-};
 
 #[derive(Clone, Debug, CandidType, Deserialize)]
 pub struct Status {
@@ -23,7 +21,8 @@ pub struct Status {
 pub fn status() -> Status {
     Status {
         remaining_cycles: canister_balance(),
-        time_created: TIME_CREATED
+        time_created: TIME_CREATED.with(|time_created| time_created.clone()),
+        is_empty: CHANNELS.with(|channels| channels.borrow().is_empty()),
     }
 }
 
