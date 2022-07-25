@@ -1,0 +1,13 @@
+[
+    {
+        "date": "2022-07-25T11:01:00.483Z",
+        "notes": "",
+        "versions": {
+            "chat_canister": "0.3.0",
+            "treasury_canister": "0.3.0",
+            "chat_engine": "0.3.0",
+            "sdk": "0.2.0",
+            "react": "0.2.4"
+        }
+    }
+]
