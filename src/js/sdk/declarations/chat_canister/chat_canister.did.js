@@ -7,9 +7,10 @@ export const idlFactory = ({ IDL }) => {
   const get_thread_param = IDL.Record({
     'channel_id' : IDL.Text,
     'cursor' : IDL.Opt(IDL.Text),
+    'metadata_user_ids' : IDL.Vec(IDL.Text),
     'limit' : IDL.Nat8,
   });
-  const metadata_output = IDL.Tuple(IDL.Text, IDL.Nat64, IDL.Bool);
+  const metadata_output = IDL.Tuple(IDL.Text, IDL.Nat64, IDL.Vec(IDL.Bool));
   const comment_output = IDL.Record({
     'id' : IDL.Text,
     'content' : IDL.Text,
@@ -24,6 +25,11 @@ export const idlFactory = ({ IDL }) => {
       'comments' : IDL.Vec(comment_output),
     })
   );
+  const status = IDL.Record({
+    'time_created' : IDL.Nat64,
+    'is_empty' : IDL.Bool,
+    'remaining_cycles' : IDL.Nat64,
+  });
   const toggle_metadata_param = IDL.Record({
     'channel_id' : IDL.Text,
     'label' : IDL.Text,
@@ -39,6 +45,7 @@ export const idlFactory = ({ IDL }) => {
   return IDL.Service({
     'delete_comment' : IDL.Func([delete_comment_param], [IDL.Text], []),
     'get_thread' : IDL.Func([get_thread_param], [page], ['query']),
+    'status' : IDL.Func([], [status], ['query']),
     'toggle_metadata' : IDL.Func([toggle_metadata_param], [IDL.Bool], []),
     'upsert_comment' : IDL.Func([upsert_comment_param], [IDL.Text], []),
   });

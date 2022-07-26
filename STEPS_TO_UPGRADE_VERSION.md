@@ -18,3 +18,22 @@ Files to copy
 After building chat canister, copy the following files to the sdk/declaration/ directory:
 <!-- Files ending with .did, .ts, and .js -->
 `cp .dfx/local/canisters/chat_canister/*.{did,ts,js} ./src/js/sdk/declarations/chat_canister/`
+
+Update ./src/js/sdk/declarations/chat_canister/index.js to include the following:
+
+```
+export const init_actor = (canisterId, host = "https://boundary.ic0.app/", identity) => {
+  const chat_actor = createActor(
+    canisterId,
+    {
+      agentOptions: {
+        host,
+        identity,
+      }
+    }
+  )
+
+  return chat_actor
+}
+
+```

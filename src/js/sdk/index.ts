@@ -1,8 +1,8 @@
-import { init_actor } from './declarations/canisters/chat_canister'
+import { init_actor } from './declarations/chat_canister'
 import { nanoid } from 'nanoid'
 import 'isomorphic-fetch'
 import { errAsync, okAsync, Result, ResultAsync } from 'neverthrow'
-import { page, metadata_output } from './declarations/canisters/chat_canister/chat_canister.did'
+import { page, metadata_output } from './declarations/chat_canister/chat_canister.did'
 
 export enum ErrorKind {
     NotFound,
@@ -36,7 +36,7 @@ export interface Post {
 export interface Metadata {
     label: string,
     count: number,
-    is_toggled: boolean,
+    is_toggled: boolean[],
 }
 
 export type Thread = Array<Post>
@@ -55,6 +55,8 @@ export interface GetThreadInput {
     channelId: string,
     cursor?: string,
     limit?: number
+    // UserIds to check if toggled
+    metadataUserIds?: string[]
 }
 
 export interface UpsertPostInput {
@@ -129,7 +131,8 @@ const sdkFn: SDKFn = (config: SDKConfig): Result<SDK, DistiveError> => {
                 const getThreadInput = {
                     channel_id: input.channelId,
                     cursor: (input.cursor ? [input.cursor] : []) as [string],
-                    limit: input.limit ?? 10
+                    limit: input.limit ?? 10,
+                    metadata_user_ids: input.metadataUserIds ?? []
                 }
 
                 return ResultAsync
