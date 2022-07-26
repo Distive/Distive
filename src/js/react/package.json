@@ -1,6 +1,6 @@
 {
   "name": "@distive/react",
-  "version": "0.2.4",
+  "version": "0.3.0",
   "license": "MIT",
   "description": "A React component and hook library for distive",
   "private": false,
@@ -68,6 +68,6 @@
     ]
   },
   "dependencies": {
-    "@distive/sdk": "^0.2.0"
+    "@distive/sdk": "^0.3.0"
   }
 }

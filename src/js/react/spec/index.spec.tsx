@@ -68,7 +68,7 @@ const successSdk: SDK = {
                         ...mockStorage[postId],
                         metadata: mockStorage[postId].metadata.map(({ label: l }) => l).includes(label) ?
                             mockStorage[postId].metadata.filter(({ label: l }) => l !== label) :
-                            [...mockStorage[postId].metadata, { label, count: 1, is_toggled: true }],
+                            [...mockStorage[postId].metadata, { label, count: 1, is_toggled: [true] }],
                     }
                 }
 
@@ -97,7 +97,7 @@ const failureSdk: SDK = {
                 return errAsync({ kind: ErrorKind.Internal, message: 'internal error' })
             }) as ResultAsync<string, DistiveError>
     },
-    toggleMetadata({ channelId, label, postId }) {
+    toggleMetadata({ }) {
         return fromSafePromise(stall(5))
             .andThen(() => {
                 return errAsync({ kind: ErrorKind.Internal, message: 'internal error' })
