@@ -8,3 +8,6 @@ More documentation incoming.
 - Install DFX
 - Run local service `./start_dev.sh`
 - Deploy to production `./deploy.sh`
+
+## Wallet Address - wxgn4-kqaaa-aaaag-aaflq-cai
+## Treasury Canister Address - g3lop-baaaa-aaaag-aaklq-cai
