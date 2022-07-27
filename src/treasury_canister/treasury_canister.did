@@ -2,6 +2,7 @@
 type status = record {
     remaining_cycles: nat64;
     canister_count: nat64;
+    version: text;
 };
 
 type create_chat_canister_result = record {

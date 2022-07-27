@@ -25,6 +25,7 @@ thread_local! {
 pub struct Status {
     remaining_cycles: u64,
     canister_count: u64,
+    version: String,
 }
 
 #[derive(Clone, Debug, CandidType, Deserialize)]
@@ -45,18 +46,10 @@ fn status() -> Status {
     Status {
         remaining_cycles: canister_balance(),
         canister_count: CANISTER_COUNT.with(|c| c.borrow().clone()),
+        version: env!("CARGO_PKG_VERSION").to_string(),
     }
 }
 
-// #[pre_upgrade]
-// fn pre_upgrade() {
-//     let storage = Storage {
-//         canister_count: CANISTER_COUNT.with(|c| c.borrow().clone()),
-//     };
-
-//     // storage::stable_save(storage).unwrap();
-//     stable_store(storage).unwrap();
-// }
 
 #[update]
 #[ic_cdk::export::candid::candid_method(update)]
