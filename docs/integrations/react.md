@@ -76,7 +76,7 @@ import { useComments, CommentStatus } from '@distive/react';
     onPostStatusChange: function ({ id, status, type, message }): void {
       console.log(`Post ${id} changed status to ${status}`);
       }
-    })
+ })
   
 
 
@@ -87,3 +87,4 @@ import { useComments, CommentStatus } from '@distive/react';
 - <a href="https://codesandbox.io/s/distive-flat-example-chakra-ui-t2lv45?file=/src/index.tsx">ReactJS + Chakra UI Demo Flat (none-nested threads)</a>
 
 ## API Reference
+

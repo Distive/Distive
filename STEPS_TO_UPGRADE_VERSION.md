@@ -1,5 +1,5 @@
 ## Upgrade steps for future automation
-
+<!-- TODO: install typicode/husky -->
 - Make changes
 - Build and deploy local treasury canister
 - Test that treasury canister deploys chat canister
