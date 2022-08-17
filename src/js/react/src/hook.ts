@@ -46,6 +46,12 @@ export interface ThreadState {
 interface PostThreadState extends Post {
     status: PostStatus,
     toggledMetadataLabels: string[],
+    // replies: PostThreadState[]\
+    // replies is an object that extends Post
+    // replies: {
+    //     remainingCount: number,
+    //     thread: ThreadState
+    // },
 }
 
 function marshallThread(thread: Thread): ThreadState {

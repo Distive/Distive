@@ -78,6 +78,15 @@ import { useComments, CommentStatus } from '@distive/react';
       }
  })
   
+  // First page must be loaded using loadMore on initial render
+  useEffect(() => {
+    loadMore();
+  }, []);
+
+
+  return <div>
+     {Object.values(thread).map(post=> <Post  {...post}/>)}
+  </div>
 
 
 ```
@@ -88,3 +97,17 @@ import { useComments, CommentStatus } from '@distive/react';
 
 ## API Reference
 
+## ThreadState
+An object containing all posts in a thread, keyed by their ID. You probably want render the posts using `Object.values(thread).map(...)`
+!!!danger Notice
+ThreadState is initialized with an empty object. Use loadMore to load the first page.
+!!!
+
+
+Property | Type | Description
+--- | --- | ---
+status | `PostStatus` | Signifies the operation being performed on a post and if it was successfull, inprogress or has failed [see PostStatus](#post-status) for more information.
+
+
+
+## PostStatus

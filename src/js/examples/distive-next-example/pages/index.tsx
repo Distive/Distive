@@ -2,7 +2,7 @@ import type { NextPage } from 'next'
 import React, { useEffect, useState } from 'react'
 import { Page, } from '@distive/sdk'
 import initDistiveHook, { ThreadState, PostStatus, DistiveHook, DistiveHookParam } from '@distive/react'
-import { Button, Textarea,Link, VStack, Text, Container, Stack, ButtonGroup, IconButton, HStack, Divider, useToast, Collapse, useEditableControls, Editable, EditablePreview, Input, EditableTextarea, Avatar } from '@chakra-ui/react'
+import { Button, Textarea, Link, VStack, Text, Container, Stack, ButtonGroup, IconButton, HStack, Divider, useToast, Collapse, useEditableControls, Editable, EditablePreview, Input, EditableTextarea, Avatar } from '@chakra-ui/react'
 import { ChatIcon, EditIcon, DeleteIcon, CloseIcon, CheckIcon, ArrowDownIcon, ArrowUpIcon, TriangleUpIcon, TriangleDownIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { useRouter } from 'next/router'
 import { AuthClient } from "@dfinity/auth-client";
@@ -312,7 +312,7 @@ const Comment = ({ comment, removePost, updatePost, addPost, votePost, parentId,
         <HStack width={'100%'} justifyContent='space-between' >
           <Stack>
             <CommentVote
-              votes={(() => {
+              votes={((): any => {
                 const labels = comment.toggledMetadataLabels;
                 const current = (() => {
                   if (labels.includes('up') && labels.includes('down')) return 'none'
