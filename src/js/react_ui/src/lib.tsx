@@ -58,7 +58,6 @@ export default ({ config: { reactions, resolveProfileImageUrl, newPageForNestedT
 
     const PostInput = () => <div className='input-container'>
         <Slate
-
             editor={editor}
             value={[]}
         >
@@ -76,6 +75,62 @@ export default ({ config: { reactions, resolveProfileImageUrl, newPageForNestedT
                 setReplying({ postId })
             },
             currentUserID: '',
+            UserInfoComponent: ({ userId }) => {
+                return <div
+                    className='c_user-info'
+                >
+                    <div className='c_user-info-details'>
+                        <img className='c_user-info-image' src='https://www.redditstatic.com/avatars/defaults/v2/avatar_default_6.png' />
+                        <div>
+                            <h1 className='c_user-info-name'>
+                                Origyn
+                            </h1>
+                            <h2 className='c_user-info-id'>
+                                {userId}
+                            </h2>
+                        </div>
+                    </div>
+                    <div className='c_item-count' >
+                        <span className='c_item-count-no'>4</span>
+                        <span className='c_item-text'>Items</span>
+                    </div>
+
+                    <div>
+                        {/* <h2>Items</h2> */}
+                        <div className='c_user-items'>
+                            <div className='c_user-item'>
+                                <img className='c_user-item-preview' src='https://nitter.nl/pic/orig/media%2FFaWgfiLWYAI9C6v.jpg' />
+                                <div className='c_user-item-details'>
+                                    <span className='c_user-item-name'>Pineapple Punk #1</span>
+                                    <div className='c_offer-button'>Make Offer</div>
+                                </div>
+                            </div>
+                            <div className='c_user-item'>
+                                <img className='c_user-item-preview' src='https://nitter.nl/pic/orig/media%2FFaWgfiLWYAI9C6v.jpg' />
+                                <div className='c_user-item-details'>
+                                    <span className='c_user-item-name'>Pineapple Punk #2</span>
+                                    <div className='c_offer-button'>Make Offer</div>
+                                </div>
+                            </div>
+                            <div className='c_user-item'>
+                                <img className='c_user-item-preview' src='https://nitter.nl/pic/orig/media%2FFaWgfiLWYAI9C6v.jpg' />
+                                <div className='c_user-item-details'>
+                                    <span className='c_user-item-name'>Pineapple Punk #3</span>
+                                    <div className='c_offer-button'>Make Offer</div>
+                                </div>
+                            </div>
+                            <div className='c_user-item'>
+                                <img className='c_user-item-preview' src='https://nitter.nl/pic/orig/media%2FFaWgfiLWYAI9C6v.jpg' />
+                                <div className='c_user-item-details'>
+                                    <span className='c_user-item-name'>Pineapple Punk #4</span>
+                                    <div className='c_offer-button'>Make Offer</div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            },
         }}
     >
         <div className='distive-root'>
@@ -102,7 +157,8 @@ export default ({ config: { reactions, resolveProfileImageUrl, newPageForNestedT
                             Object.values(thread[replying.postId].replies.thread).map(post => <Post
                                 status='INITIAL'
                                 toggledMetadataLabels={[]}
-                                {...post} />)
+                                {...post} />
+                            )
                         }
                     </div>
                 </div>}
