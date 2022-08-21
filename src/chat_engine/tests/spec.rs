@@ -1,6 +1,7 @@
 //tests
 use chat_engine::{
     comment::{CommentInput, CommentOutput},
+    context::Context,
     metadata::MetadataInput,
     Channel,
 };
@@ -316,7 +317,26 @@ fn comment_metadata() {
         )
         .unwrap();
 
-    channel
+    channel.toggle_comment_metadata(
+        &comment.id,
+        MetadataInput {
+            label: "up".to_string(),
+            user_id: "user_id".to_string(),
+        },
+    );
+
+    let latest_comment = channel
+        .get_comment(
+            &comment.id,
+            Some(Context {
+                user_ids: vec!["user_id".to_string()],
+            }),
+        )
+        .unwrap();
+
+    assert_eq!(latest_comment.metadata[0], ("up".to_string(), 1, vec![true]));
+
+    let reply = channel
         .upsert_comment(
             CommentInput {
                 content: "reply 1".to_string(),
@@ -329,7 +349,7 @@ fn comment_metadata() {
         )
         .unwrap();
 
-    //user can add metadata to own comment
+
     channel.toggle_comment_metadata(
         &comment_id,
         MetadataInput {
@@ -343,4 +363,25 @@ fn comment_metadata() {
         .unwrap()
         .metadata
         .len();
+
+    // nested comments should be toggleable too
+
+    channel.toggle_comment_metadata(
+        &reply.id,
+        MetadataInput {
+            label: "up".to_string(),
+            user_id: "user_id".to_string(),
+        },
+    );
+
+    let latest_reply = channel
+        .get_comment(
+            &reply.id,
+            Some(Context {
+                user_ids: vec!["user_id".to_string()],
+            }),
+        )
+        .unwrap();
+
+    assert_eq!(latest_reply.metadata[0], ("up".to_string(), 1, vec![true]))
 }

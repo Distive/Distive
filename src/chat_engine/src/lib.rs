@@ -146,6 +146,7 @@ impl Channel {
         hierarchal_id.split(DELIMITER).collect::<Vec<&str>>()
     }
 
+    /// Transverses down the thread hierarchy based on the full comment id
     fn get_thread(&mut self, comment_id: &String) -> Option<&mut Thread> {
         let comment_ids = Channel::split_comment_id(comment_id);
 
@@ -217,28 +218,37 @@ impl Channel {
         };
     }
 
-    pub fn update_comment(&mut self, comment_id: &str, content: &str) {
-        if let Some(comment) = self.thread.get_mut(comment_id) {
-            comment.content = content.to_string();
-        }
-    }
 
-    pub fn toggle_comment_metadata(&mut self, comment_id: &str, metadata: MetadataInput) {
+
+    pub fn toggle_comment_metadata(&mut self, comment_id: &String, metadata: MetadataInput) {
         let MetadataInput { label, user_id } = metadata;
+        let mut hierarchal_ids = Channel::split_comment_id(comment_id);
 
-        match self.thread.get_mut(comment_id) {
-            Some(Comment {
-                metadata: Some(metadata),
-                ..
-            }) => {
-                metadata.toggle_value(&user_id, &label);
+        if let (Some(comment_id), Some(thread)) = match &hierarchal_ids.len() {
+            0 => (None, None),
+            _ => {
+                let comment_id = hierarchal_ids.pop();
+                if hierarchal_ids.len() == 0 {
+                    (comment_id, Some(&mut self.thread))
+                } else {
+                    (comment_id, self.get_thread(&hierarchal_ids.join(DELIMITER)))
+                }
             }
-            Some(comment) => {
-                let mut metadata = Metadata::new();
-                metadata.toggle_value(&user_id, &label);
-                comment.metadata = Some(metadata);
+        } {
+            match thread.get_mut(comment_id) {
+                Some(Comment {
+                    metadata: Some(metadata),
+                    ..
+                }) => {
+                    metadata.toggle_value(&user_id, &label);
+                }
+                Some(comment) => {
+                    let mut metadata = Metadata::new();
+                    metadata.toggle_value(&user_id, &label);
+                    comment.metadata = Some(metadata);
+                }
+                _ => (),
             }
-            _ => (),
         }
     }
 }
@@ -369,7 +379,7 @@ mod tests {
                     content: "hello".to_string(),
                     id: comment_id_3.clone(),
                     user_id: "user_id".to_string(),
-                     created_at: 0,
+                    created_at: 0,
                     parent_id: None,
                 },
                 None,
