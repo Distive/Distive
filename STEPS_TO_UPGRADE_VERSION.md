@@ -12,7 +12,7 @@
 
 Dependency Hierarchy
 Chat Engine -> Chat Canister -> Treasury Canister -> SDK -> ReactJS Library
-Updates to any in the chain probably requires updates to the subsequent dependents, so we need to also increment the version numbers of those dependents. 
+Major or Minor (not patch) Updates to any in the chain probably requires updates to the subsequent dependents, so we need to also increment the version numbers of those dependents. 
 
 Files to copy
 After building chat canister, copy the following files to the sdk/declaration/ directory:
