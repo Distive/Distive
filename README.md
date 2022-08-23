@@ -5,7 +5,9 @@ More documentation incoming.
 ## Development
 - Install ic-repl: https://github.com/chenyan2002/ic-repl
 - Install Rust
-- Install DFX
+- Install DFX 
+- Add wasm build target:
+`rustup target add wasm32-unknown-unknown`
 - Run local service `./start_dev.sh`
 - Deploy to production `./deploy.sh`
 
