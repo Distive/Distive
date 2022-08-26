@@ -8,7 +8,6 @@
 }
 
 * {
-
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     color: var(--textColor);
 }
@@ -105,11 +104,6 @@
     align-items: flex-start;
     padding: 20px;
     width: 100%;
-    /* border-bottom: 1px solid; */
-    /* border-color: rgba(var(--textColor), 0.8); */
-    /* border-bottom-width: 1px; */
-    /* border-bottom-style: solid; */
-    /* border-bottom-color: rgb(47, 51, 54); */
     background-color: #191528;
     border-radius: 10px;
     box-shadow: var(--shadow);
@@ -118,6 +112,7 @@
 
 .post-menu {
     width: 100%;
+    flex: 1;
     display: flex;
     justify-content: end;
     position: relative;
