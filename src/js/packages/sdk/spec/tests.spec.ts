@@ -18,6 +18,16 @@ test('createThread', async () => {
     expect(result._unsafeUnwrap()).toBe("comment_1")
 })
 
+test('testThread', async () => {
+    const result =( await client.getThread({
+        channelId: "channel_1",
+    }))._unsafeUnwrap()
+
+    expect(Object.keys(result).length > 0).toBeTruthy()
+
+
+})
+
 test('toggleMetadata', async () => {
     const result = await client.toggleMetadata({
         channelId: "channel_1",

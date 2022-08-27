@@ -5,6 +5,6 @@ export TREASURY_CANISTER_ID="_"
 echo "yes" | dfx deploy chat_canister --mode reinstall
 echo "yes" | dfx deploy treasury_canister --mode reinstall
 # ./generate_mock_data.sh
-npm run --prefix src/js/examples/distive-next-example dev
-sleep infinity
+# npm run --prefix src/js/examples/distive-next-example dev
+while :; do sleep 2073600; done
 kill $dfx_pid

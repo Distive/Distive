@@ -1,5 +1,5 @@
 import { Result, ok } from 'neverthrow'
-import _SDK, { SDK } from '@distive/sdk'
+import _SDK, { SDK } from '../../sdk/dist'
 import { DistiveHookParam, useDistive, DistiveHook } from './hook'
 
 export type { ThreadState, DistiveHook, DistiveHookParam, PostStatus } from './hook'

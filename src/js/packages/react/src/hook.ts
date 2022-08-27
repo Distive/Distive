@@ -9,7 +9,6 @@ export interface DistiveHook {
     loading: boolean
     thread: ThreadState
     error: string
-
     addPost: (input: AddPostInput) => void
     updatePost: (input: UpdatePostInput) => void
     removePost: (postId: string) => void
@@ -46,12 +45,6 @@ export interface ThreadState {
 interface PostThreadState extends Post {
     status: PostStatus,
     toggledMetadataLabels: string[],
-    // replies: PostThreadState[]\
-    // replies is an object that extends Post
-    // replies: {
-    //     remainingCount: number,
-    //     thread: ThreadState
-    // },
 }
 
 function marshallThread(thread: Thread): ThreadState {
@@ -91,7 +84,7 @@ export const useDistive = (SDK: SDK, params: DistiveHookParam): DistiveHook => {
             ...thread,
             ...marshallThread(params.initialPage?.thread ?? [])
         })
-    }, [params.initialPage])
+    }, [])
 
 
 
@@ -102,6 +95,7 @@ export const useDistive = (SDK: SDK, params: DistiveHookParam): DistiveHook => {
             channelId: params.channelID,
             limit: params?.limit,
             cursor,
+            metadataUserIds:[""]
         })
             .map((page) => {
                 setThread({

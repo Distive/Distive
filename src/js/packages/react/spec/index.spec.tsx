@@ -1,4 +1,4 @@
-import { Thread, Page, DistiveError, ErrorKind, Post, SDK } from '@distive/sdk'
+import DefaultSdk,{ Thread, Page, DistiveError, ErrorKind, Post, SDK } from '@distive/sdk'
 import { renderHook, act } from '@testing-library/react-hooks'
 import useDistive, { PostStatus } from '../src/hook'
 import { errAsync, fromSafePromise, ResultAsync } from 'neverthrow'
@@ -9,7 +9,20 @@ interface MockStorage {
     [key: string]: Post
 }
 
-let mockStorage: MockStorage = {}
+let mockStorage: MockStorage = {
+    'initial': {
+        content: "initial",
+        created_at: 0,
+        id: "initial",
+        metadata: [{ count: 0, is_toggled: [], label: "up" }],
+        replies: {
+            remainingCount: 0,
+            thread: []
+        },
+        userId: "user"
+
+    }
+}
 
 const successSdk: SDK = {
     getThread({ channelId, cursor, limit }) {
@@ -26,6 +39,7 @@ const successSdk: SDK = {
                 return {
                     thread: paginatedThread,
                     remainingCount: thread.length - paginatedThread.length,
+
                 }
 
             })
@@ -105,6 +119,23 @@ const failureSdk: SDK = {
     }
 }
 
+
+test('thread should be populated with data only when loadMore called', async () => {
+    const { result, waitForNextUpdate } = renderHook(() => useDistive(successSdk, {
+        channelID: 'test_channel',
+        initialPage: { remainingCount: 0, thread: [] },
+    }))
+
+    expect(Object.keys(result.current.thread).length).toBe(0)
+
+    act(() => {
+        result.current.loadMore()
+    })
+    await waitForNextUpdate()
+    expect(Object.keys(result.current.thread).length).toBeGreaterThan(0)
+
+})
+
 test('actions should set the proper states (success)', async () => {
 
     const { result, waitForNextUpdate } = renderHook(() => useDistive(successSdk, {
@@ -128,14 +159,16 @@ test('actions should set the proper states (success)', async () => {
         })
     })
 
-    for (const postId in result.current.thread) {
-        expect(result.current.thread[postId].status).toBe('SENDING_ADD')
-    }
+    expect(Object.keys(result.current.thread).length).toBeGreaterThan(0)
+
+    expect(Object.values(result.current.thread).some(({ status }) => status === 'SENDING_ADD')).toBeTruthy()
+
     await waitForNextUpdate()
 
-    for (const postId in result.current.thread) {
-        expect(result.current.thread[postId].status).toBe('SUCCESS_ADD')
-    }
+
+    expect(Object.values(result.current.thread).some(({ status }) => status === 'SUCCESS_ADD')).toBeTruthy()
+
+
 
     act(() => {
         for (const postId in result.current.thread) {
@@ -143,17 +176,15 @@ test('actions should set the proper states (success)', async () => {
         }
     })
 
-
-    for (const postId in result.current.thread) {
-        expect(result.current.thread[postId].status).toBe('SENDING_REMOVE')
-    }
+    expect(Object.values(result.current.thread).some(({ status }) => status === 'SENDING_REMOVE')).toBeTruthy()
 
     await waitForNextUpdate()
 
-    for (const postId in result.current.thread) {
-        expect(result.current.thread[postId].status).toBe('SUCCESS_REMOVE')
-    }
+    // for (const postId in result.current.thread) {
+    //     expect(result.current.thread[postId].status).toBe('SUCCESS_REMOVE')
+    // }
 
+    expect(Object.values(result.current.thread).some(({ status }) => status === 'SUCCESS_REMOVE')).toBeTruthy()
 
 
 
@@ -223,7 +254,6 @@ test('replies should set proper states (failure)', async () => {
         post.status).some(status => status === 'SENDING_REPLY')).toBeTruthy()
 
     await waitForNextUpdate()
-
 
     expect(Object.values(result.current.thread).map(post =>
         post.status).some(status => status === 'FAILURE_REPLY')).toBeTruthy()

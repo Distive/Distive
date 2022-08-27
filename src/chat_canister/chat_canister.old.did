@@ -47,6 +47,8 @@ type toggle_metadata_param = record {
 
 type status = record {
     remaining_cycles: nat64;
+    time_created: nat64;
+    is_empty: bool;
 }
 
 service : {
