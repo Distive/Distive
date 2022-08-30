@@ -7,7 +7,7 @@ export const idlFactory = ({ IDL }) => {
   const get_thread_param = IDL.Record({
     'channel_id' : IDL.Text,
     'cursor' : IDL.Opt(IDL.Text),
-    'metadata_user_ids' : IDL.Vec(IDL.Text),
+    'metadata_user_ids' : IDL.Opt(IDL.Vec(IDL.Text)),
     'limit' : IDL.Nat8,
   });
   const metadata_output = IDL.Tuple(IDL.Text, IDL.Nat64, IDL.Vec(IDL.Bool));

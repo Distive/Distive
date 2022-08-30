@@ -16,8 +16,11 @@ Major or Minor (not patch) Updates to any in the chain probably requires updates
 
 Files to copy
 After building chat canister, copy the following files to the sdk/declaration/ directory:
-<!-- Files ending with .did, .ts, and .js -->
-`cp .dfx/local/canisters/chat_canister/*.{did,ts,js} ./src/js/sdk/declarations/chat_canister/`
+<!-- Files ending with  .ts, and .js -->
+```cp .dfx/local/canisters/chat_canister/chat_canister.did.d.ts ./src/js/packages/sdk/declarations/chat_canister/ &&
+cp .dfx/local/canisters/chat_canister/chat_canister.did.js ./src/js/packages/sdk/declarations/chat_canister/ &&
+cp .dfx/local/canisters/chat_canister/index.js ./src/js/packages/sdk/declarations/chat_canister/ 
+```
 
 Update ./src/js/sdk/declarations/chat_canister/index.js to include the following:
 
@@ -37,3 +40,4 @@ export const init_actor = (canisterId, host = "https://boundary.ic0.app/", ident
 }
 
 ```
+

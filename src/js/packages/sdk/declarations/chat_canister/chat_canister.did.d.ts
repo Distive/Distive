@@ -22,7 +22,7 @@ export interface delete_comment_param {
 export interface get_thread_param {
   'channel_id' : string,
   'cursor' : [] | [string],
-  'metadata_user_ids' : Array<string>,
+  'metadata_user_ids' : [] | [Array<string>],
   'limit' : number,
 }
 export type metadata_output = [string, bigint, Array<boolean>];
