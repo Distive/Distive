@@ -1,6 +1,6 @@
 {
   "name": "distive-next-example",
-  "version": "1.1.1",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -17,7 +17,7 @@
     "@connect2ic/react": "^0.0.6",
     "@dfinity/agent": "^0.11.3",
     "@dfinity/auth-client": "^0.11.2",
-    "@distive/react": "*",
+    "@distive/react": "^0.0.1",
     "@emotion/react": "^11.8.2",
     "@emotion/styled": "^11.8.1",
     "framer-motion": "^6.2.8",

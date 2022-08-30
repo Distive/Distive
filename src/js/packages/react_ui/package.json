@@ -1,6 +1,6 @@
 {
   "name": "@distive/react-ui",
-  "version": "0.3.0",
+  "version": "0.0.1",
   "license": "MIT",
   "description": "A React component and hook library for distive",
   "private": false,
@@ -81,7 +81,7 @@
   },
   "dependencies": {
     "@dfinity/auth-client": "0.12.2",
-    "@distive/react": "*",
+    "@distive/react": "^0.0.1",
     "reactjs-popup": "^2.0.5",
     "slate": "^0.82.0",
     "slate-react": "^0.82.0"
