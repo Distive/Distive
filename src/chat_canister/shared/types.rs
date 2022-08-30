@@ -4,7 +4,7 @@ use ic_cdk::export::candid::{CandidType, Deserialize, Nat};
 
 #[derive(Clone, Debug, Default, CandidType, Deserialize)]
 pub struct UpsertCommentParam {
-    pub channel_id: String,
+    pub channel_id: String, 
     pub message: String,
     pub comment_id: String,
     pub parent_id: Option<String>,
@@ -22,7 +22,7 @@ pub struct GetThreadParam {
     pub channel_id: String,
     pub cursor: Option<String>,
     /// The user ids to be checked for metadata.
-    pub metadata_user_ids: Vec<String>,
+    pub metadata_user_ids: Option<Vec<String>>,
 }
 
 #[derive(Clone, Debug, Default, CandidType, Deserialize)]

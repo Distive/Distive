@@ -132,7 +132,7 @@ const sdkFn: SDKFn = (config: SDKConfig): Result<SDK, DistiveError> => {
                     channel_id: input.channelId,
                     cursor: (input.cursor ? [input.cursor] : []) as [string],
                     limit: input.limit ?? 10,
-                    metadata_user_ids: input.metadataUserIds ?? []
+                    metadata_user_ids: input.metadataUserIds ?? [""]
                 }
 
                 return ResultAsync

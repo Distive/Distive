@@ -29,7 +29,7 @@ pub fn status() -> Status {
 #[query]
 #[ic_cdk::export::candid::candid_method(query)]
 fn get_thread(param: GetThreadParam) -> IPage {
-    let context = Context::new(param.metadata_user_ids.clone());
+    let context = Context::new(param.metadata_user_ids.clone().unwrap_or_default());
 
     CHANNELS.with(|channels| {
         let mut channels = channels.borrow_mut();

@@ -29,7 +29,7 @@ type get_thread_param = record {
     limit: nat8;
     channel_id: text;
     cursor: opt text;
-    metadata_user_ids: vec text;
+    metadata_user_ids: opt vec text;
 };
 
 type upsert_comment_param = comment_input;

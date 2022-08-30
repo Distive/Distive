@@ -87,15 +87,14 @@ export const useDistive = (SDK: SDK, params: DistiveHookParam): DistiveHook => {
     }, [])
 
 
-
-    const loadMore = () => {
+    const loadMore = (metadataUserIds?: string[]) => {
         setLoading(true)
         setError('')
         SDK.getThread({
             channelId: params.channelID,
             limit: params?.limit,
             cursor,
-            metadataUserIds:[""]
+            metadataUserIds
         })
             .map((page) => {
                 setThread({

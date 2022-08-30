@@ -16,9 +16,6 @@
   "files": [
     "dist"
   ],
-  "peerDependencies": {
-    "react": "*"
-  },
   "devDependencies": {
     "@babel/core": "^7.17.12",
     "@babel/plugin-syntax-flow": "^7.14.5",
