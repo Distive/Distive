@@ -1,0 +1,1 @@
+cargo install --git https://github.com/chenyan2002/ic-repl
