@@ -1,0 +1,9 @@
+47 error Error: Command failed with exit code 1: git commit -m v0.3.1
+47 error On branch master
+47 error Your branch is up to date with 'origin/master'.
+47 error
+47 error nothing to commit, working tree clean
+47 error     at makeError (/Users/simdi/Documents/Distive/src/js/node_modules/execa/lib/error.js:60:11)
+47 error     at handlePromise (/Users/simdi/Documents/Distive/src/js/node_modules/execa/index.js:118:26)
+47 error     at processTicksAndRejections (node:internal/process/task_queues:96:5)
+47 error     at async Promise.all (index 0)
