@@ -2,7 +2,7 @@ import { init_actor } from './declarations/chat_canister'
 import { nanoid } from 'nanoid'
 import 'isomorphic-fetch'
 import { errAsync, okAsync, Result, ResultAsync } from 'neverthrow'
-import { page, metadata_output } from './declarations/chat_canister/chat_canister.did'
+import { page, metadata_output, get_thread_param } from './declarations/chat_canister/chat_canister.did'
 
 export enum ErrorKind {
     NotFound,
@@ -128,11 +128,11 @@ const sdkFn: SDKFn = (config: SDKConfig): Result<SDK, DistiveError> => {
                         }))
             },
             getThread: (input: GetThreadInput) => {
-                const getThreadInput = {
+                const getThreadInput: get_thread_param = {
                     channel_id: input.channelId,
                     cursor: (input.cursor ? [input.cursor] : []) as [string],
                     limit: input.limit ?? 10,
-                    metadata_user_ids: input.metadataUserIds ?? [""]
+                    metadata_user_ids: [input.metadataUserIds] ?? []
                 }
 
                 return ResultAsync

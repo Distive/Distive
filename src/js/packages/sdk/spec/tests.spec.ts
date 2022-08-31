@@ -1,6 +1,4 @@
-import * as fc from 'fast-check'
-import { ok } from 'neverthrow'
-import SDK, { GetThreadInput, SDKConfig, UpsertPostInput } from '..'
+import SDK from '..'
 
 
 const client = SDK({ serverId: 'rrkah-fqaaa-aaaaa-aaaaq-cai', host: 'http://127.0.0.1:8000' })
