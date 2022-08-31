@@ -17,7 +17,8 @@ Major or Minor (not patch) Updates to any in the chain probably requires updates
 Files to copy
 After building chat canister, copy the following files to the sdk/declaration/ directory:
 <!-- Files ending with  .ts, and .js -->
-```cp .dfx/local/canisters/chat_canister/chat_canister.did.d.ts ./src/js/packages/sdk/declarations/chat_canister/ &&
+```
+cp .dfx/local/canisters/chat_canister/chat_canister.did.d.ts ./src/js/packages/sdk/declarations/chat_canister/ &&
 cp .dfx/local/canisters/chat_canister/chat_canister.did.js ./src/js/packages/sdk/declarations/chat_canister/ &&
 cp .dfx/local/canisters/chat_canister/index.js ./src/js/packages/sdk/declarations/chat_canister/ 
 ```
