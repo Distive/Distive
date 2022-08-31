@@ -3,7 +3,7 @@
   "version": "0.3.1",
   "license": "MIT",
   "description": "A React component and hook library for distive",
-  "private": false,
+  "private": true,
   "author": {
     "email": "me@simdijinkins.com",
     "name": "Simdi Jinkins",
