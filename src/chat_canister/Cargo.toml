@@ -16,3 +16,5 @@ candid = "0.7.14"
 chat_engine = { path = "../chat_engine" }
 serde = "1.0"
 hashbrown = "0.12.1"
+sha2 = "0.10.5"
+indexmap = "1.7.0"

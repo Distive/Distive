@@ -3,7 +3,7 @@ pub mod context;
 pub mod metadata;
 pub mod page;
 mod thread;
-use comment::{Comment, CommentInput, CommentOutput};
+use comment::{Comment, CommentExport, CommentInput, CommentOutput};
 use context::Context;
 use metadata::{Metadata, MetadataInput};
 use page::Page;
@@ -13,6 +13,14 @@ const DELIMITER: &str = ".";
 
 pub struct Channel {
     thread: Thread,
+}
+#[derive(PartialEq, Debug)]
+pub struct ChannelExport {
+    comment_id: String,
+    comment_content: String,
+    user_id: String,
+    created_at: u64,
+    parent_id: Option<String>,
 }
 
 impl Channel {
@@ -106,6 +114,20 @@ impl Channel {
             .unwrap_or(comment_id.clone())
     }
 
+    fn split_comment_id(hierarchal_id: &String) -> Vec<&str> {
+        hierarchal_id.split(DELIMITER).collect::<Vec<&str>>()
+    }
+
+    fn parent_id_from_comment_id(hierarchal_id: &String) -> Option<String> {
+        let mut hierarchal_ids = Channel::split_comment_id(hierarchal_id);
+        hierarchal_ids.pop();
+
+        match hierarchal_ids.len() {
+            0 => None,
+            _ => Some(hierarchal_ids.join(DELIMITER)),
+        }
+    }
+
     pub fn upsert_comment(
         &mut self,
         comment_input: CommentInput,
@@ -140,10 +162,6 @@ impl Channel {
             }
             None => Err(String::from("PARENT_NOT_FOUND")),
         }
-    }
-
-    fn split_comment_id(hierarchal_id: &String) -> Vec<&str> {
-        hierarchal_id.split(DELIMITER).collect::<Vec<&str>>()
     }
 
     /// Transverses down the thread hierarchy based on the full comment id
@@ -218,8 +236,6 @@ impl Channel {
         };
     }
 
-
-
     pub fn toggle_comment_metadata(&mut self, comment_id: &String, metadata: MetadataInput) {
         let MetadataInput { label, user_id } = metadata;
         let mut hierarchal_ids = Channel::split_comment_id(comment_id);
@@ -250,6 +266,11 @@ impl Channel {
                 _ => (),
             }
         }
+    }
+
+    pub fn export(&mut self) -> Box<dyn Iterator<Item = CommentExport> + '_> {
+        let result = self.thread.iter().flat_map(|(_, comment)| comment.export());
+        Box::new(result)
     }
 }
 
@@ -610,5 +631,250 @@ mod tests {
             comment.metadata,
             vec![("upvote".to_string(), 1, vec![true])]
         );
+    }
+
+    #[test]
+    fn export_returns_iterator_single_comment() {
+        let mut channel = Channel::new("channel_id".to_string());
+        channel
+            .upsert_comment(
+                CommentInput {
+                    content: "hello".to_string(),
+                    parent_id: None,
+                    created_at: 0,
+                    id: "comment_id".to_string(),
+                    user_id: "user_id".to_string(),
+                },
+                None,
+            )
+            .unwrap();
+
+        let mut exported_data = channel.export();
+
+        assert_eq!(
+            exported_data.next(),
+            Some(CommentExport {
+                content: "hello".to_string(),
+                parent_id: None,
+                created_at: 0,
+                id: "comment_id".to_string(),
+                user_id: "user_id".to_string(),
+            })
+        );
+    }
+
+    #[test]
+    fn export_returns_iterator_multiple_comment() {
+        let mut channel = Channel::new("channel_id".to_string());
+        for x in 0..100 {
+            channel
+                .upsert_comment(
+                    CommentInput {
+                        content: "hello".to_string(),
+                        parent_id: None,
+                        created_at: 0,
+                        id: format!("comment_id_{}", x),
+                        user_id: "user_id".to_string(),
+                    },
+                    None,
+                )
+                .unwrap();
+        }
+
+        let mut exported_data = channel.export();
+
+        for x in 0..100 {
+            assert_eq!(
+                exported_data.next(),
+                Some(CommentExport {
+                    content: "hello".to_string(),
+                    parent_id: None,
+                    created_at: 0,
+                    id: format!("comment_id_{}", x),
+                    user_id: "user_id".to_string(),
+                })
+            );
+        }
+    }
+
+    #[test]
+    fn export_returns_iterator_nested_comment() {
+        let mut channel = Channel::new("channel_id".to_string());
+        let comment_id = "comment_id".to_string();
+        let reply_id = "reply_id".to_string();
+        let reply_id_2 = "reply_id_2".to_string();
+
+        let comment_input = CommentInput {
+            content: "hello".to_string(),
+            parent_id: None,
+            created_at: 0,
+            id: comment_id.clone(),
+            user_id: "user_id".to_string(),
+        };
+        channel.upsert_comment(comment_input.clone(), None).unwrap();
+
+        let reply = channel
+            .upsert_comment(
+                CommentInput {
+                    parent_id: Some(comment_id.clone()),
+                    content: "hello world".to_string(),
+                    id: reply_id.clone(),
+                    ..comment_input.clone()
+                },
+                None,
+            )
+            .unwrap();
+        //testing out nested replies
+        let reply2 = channel
+            .upsert_comment(
+                CommentInput {
+                    parent_id: Some(reply.id.clone()),
+                    content: "hello world too".to_string(),
+                    id: reply_id_2.clone(),
+                    ..comment_input.clone()
+                },
+                None,
+            )
+            .unwrap();
+
+        let mut exported_data = channel.export();
+
+        assert_eq!(
+            exported_data.next(),
+            Some(CommentExport {
+                content: "hello".to_string(),
+                parent_id: None,
+                created_at: 0,
+                id: "comment_id".to_string(),
+                user_id: "user_id".to_string(),
+            })
+        );
+
+        assert_eq!(
+            exported_data.next(),
+            Some(CommentExport {
+                content: "hello world".to_string(),
+                parent_id: Some(comment_id.clone()),
+                created_at: 0,
+                id: reply.id.clone(),
+                user_id: "user_id".to_string(),
+            })
+        );
+
+        assert_eq!(
+            exported_data.next(),
+            Some(CommentExport {
+                content: "hello world too".to_string(),
+                parent_id: Some(reply.id.clone()),
+                created_at: 0,
+                id: reply2.id,
+                user_id: "user_id".to_string(),
+            })
+        );
+    }
+
+    fn create_mock_channel(comment_count: usize) -> Channel {
+        let mut channel = Channel::new("channel_id".to_string());
+        for x in 0..comment_count {
+            channel
+                .upsert_comment(
+                    CommentInput {
+                        content: format!("hello {}", x),
+                        parent_id: None,
+                        created_at: 0,
+                        id: format!("comment_id_{}", x),
+                        user_id: "user_id".to_string(),
+                    },
+                    None,
+                )
+                .unwrap();
+        }
+        channel
+    }
+
+    fn add_mock_replies(channel: &mut Channel, comment_count: usize, reply_count: usize) {
+        for x in 0..comment_count {
+            for y in 0..reply_count {
+                channel
+                    .upsert_comment(
+                        CommentInput {
+                            content: format!("hello {}", y),
+                            parent_id: Some(format!("comment_id_{}", x)),
+                            created_at: 0,
+                            id: format!("reply_id_{}_{}", x, y),
+                            user_id: "user_id".to_string(),
+                        },
+                        None,
+                    )
+                    .unwrap();
+            }
+        }
+    }
+
+    #[test]
+    fn export_can_skip_comments() {
+        let mut channel = create_mock_channel(10);
+        add_mock_replies(&mut channel, 10, 1);
+
+        let mut exported_data = channel.export();
+
+        for x in 0..20 {
+            assert_eq!(
+                exported_data.next(),
+                Some(CommentExport {
+                    content: format!("hello {}", x),
+                    parent_id: None,
+                    created_at: 0,
+                    id: format!("comment_id_{}", x),
+                    user_id: "user_id".to_string(),
+                })
+            );
+        }
+
+        let mut exported_data = exported_data.skip(20);
+
+        for x in 40..60 {
+            assert_eq!(
+                exported_data.next(),
+                Some(CommentExport {
+                    content: format!("hello {}", x),
+                    parent_id: None,
+                    created_at: 0,
+                    id: format!("comment_id_{}", x),
+                    user_id: "user_id".to_string(),
+                })
+            );
+        }
+    }
+
+    #[test]
+    fn export_can_skip_replies() {
+        let mut channel = create_mock_channel(2);
+        add_mock_replies(&mut channel, 2, 1);
+        // comment0->reply0_0->comment1->reply1_0
+        let exported_data = channel.export();
+        let mut exported_data = exported_data.skip(2);
+
+        assert_eq!(
+            exported_data.next(),
+            Some(CommentExport {
+                content: "hello 1".to_string(),
+                parent_id: None,
+                created_at: 0,
+                id: "comment_id_1".to_string(),
+                user_id: "user_id".to_string(),
+            })
+        );
+
+        assert_eq!(
+            exported_data.next(),
+            Some(CommentExport {
+                content: "hello 0".to_string(),
+                parent_id: Some("comment_id_1".to_string()),
+                created_at: 0,
+                id: Channel::create_hierarchal_id(Some("comment_id_1".to_string()), &"reply_id_1_0".to_string()),
+                user_id: "user_id".to_string(),
+            })
+        )
     }
 }

@@ -36,9 +36,11 @@ export const init_actor = (canisterId, host = "https://boundary.ic0.app/", ident
       }
     }
   )
-
   return chat_actor
 }
 
 ```
 
+Create new identity + wallet
+Add cycles to wallet
+Create treasury canister

@@ -2,15 +2,14 @@ mod operations;
 mod shared;
 
 use chat_engine::Channel;
-use hashbrown::HashMap;
 use ic_cdk::api::time;
 use operations::{queries::*, updates::*};
-use shared::types::{DeleteCommentParam, GetThreadParam, IPage, UpsertCommentParam};
-
+use shared::types::{DeleteCommentParam, ExportParam, GetThreadParam, IPage, UpsertCommentParam};
+use indexmap::IndexMap;
 use std::cell::RefCell;
 
 thread_local! {
-  pub static CHANNELS: RefCell<HashMap<String, Channel>> = RefCell::new(HashMap::new());
+  pub static CHANNELS: RefCell<IndexMap<String, Channel>> = RefCell::new(IndexMap::new());
   pub static TIME_CREATED: u64 = time();
 }
 

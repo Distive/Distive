@@ -51,10 +51,24 @@ type status = record {
     is_empty: bool;
 }
 
+type export_chunk = record { 
+    data: blob;  
+    // sha256
+    hash: text;
+    // if empty means the end of the export
+    next_cursor: opt text;
+}
+
+type export_param = record {
+    // if empty means the beginning of the export
+    cursor: opt nat16;
+}
+
 service : {
     "upsert_comment": (input: upsert_comment_param) -> (text);
     "delete_comment": (input: delete_comment_param)-> (text);
     "get_thread": (param: get_thread_param) -> (page) query;
     "toggle_metadata": (param: toggle_metadata_param) -> (bool);
+    "export_comments": (param: export_param) -> (export_chunk) query;
     "status": () -> (status) query;
 }

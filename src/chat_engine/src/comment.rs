@@ -4,6 +4,7 @@ use crate::Channel;
 use crate::Page;
 use crate::Thread;
 use core::fmt;
+use std::iter::once;
 
 #[derive(Clone)]
 pub struct Comment {
@@ -22,6 +23,18 @@ pub struct CommentOutput {
     pub created_at: u64,
     pub replies: Page,
     pub metadata: MetadataOutput,
+}
+
+// pub struct CommentExport {
+//   value: CommentExportInner
+// }
+#[derive(Debug,PartialEq)]
+pub struct CommentExport {
+    pub id: String,
+    pub content: String,
+    pub user_id: String,
+    pub created_at: u64,
+    pub parent_id: Option<String>,
 }
 
 #[derive(Clone)]
@@ -59,6 +72,26 @@ impl Comment {
             created_at: self.created_at,
             replies: Channel::get_thread_as_page(&self.replies, &10, None, None)
                 .unwrap_or_default(),
+        }
+    }
+
+    pub fn export(&self) -> Box<dyn Iterator<Item = CommentExport> + '_> {
+        let result = once(self)
+            .map(|c| c.into())
+            .chain(self.replies.iter().flat_map(|c| c.1.export()));
+        Box::new(result)
+        //     .collect()
+    }
+}
+
+impl From<&Comment> for CommentExport {
+    fn from(comment: &Comment) -> Self {
+        CommentExport {
+            id: comment.id.clone(),
+            content: comment.content.clone(),
+            user_id: comment.user_id.clone(),
+            created_at: comment.created_at,
+            parent_id: Channel::parent_id_from_comment_id(&comment.id)
         }
     }
 }

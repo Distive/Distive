@@ -26,6 +26,11 @@ pub struct GetThreadParam {
 }
 
 #[derive(Clone, Debug, Default, CandidType, Deserialize)]
+pub struct ExportParam {
+    pub cursor: Option<u16>
+}
+
+#[derive(Clone, Debug, Default, CandidType, Deserialize)]
 pub struct ICommentOutput {
     id: String,
     content: String,

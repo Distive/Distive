@@ -1,5 +1,5 @@
 use crate::{
-    shared::types::{GetThreadParam, IPage},
+    shared::types::{ExportParam, GetThreadParam, IPage},
     CHANNELS, TIME_CREATED,
 };
 use chat_engine::{context::Context, Channel};
@@ -8,6 +8,7 @@ use ic_cdk::{
     export::candid::{CandidType, Deserialize},
 };
 use ic_cdk_macros::query;
+use sha2::{Digest, Sha256};
 
 #[derive(Clone, Debug, CandidType, Deserialize)]
 pub struct Status {
@@ -43,4 +44,19 @@ fn get_thread(param: GetThreadParam) -> IPage {
         );
         page.map(|p| p.into()).unwrap_or_default()
     })
+}
+
+ 
+// #[query]
+// #[ic_cdk::export::candid::candid_method(query)]
+fn export_comments(params: ExportParam) {
+    let mut current_cursor: Option<String> = None;
+    let mut hasher = Sha256::new();
+    let ExportParam { cursor } = params;
+
+    let channels = CHANNELS.with(|channels| channels);
+    let exported_data = channels.borrow().iter();
+
+    // exported_data skip till cursor -> write to 
+
 }
