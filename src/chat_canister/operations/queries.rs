@@ -1,14 +1,18 @@
+use std::ops::Add;
+
 use crate::{
-    shared::types::{ExportParam, GetThreadParam, IPage},
+    shared::types::{ExportChunk, ExportParam, GetThreadParam, IPage},
     CHANNELS, TIME_CREATED,
 };
 use chat_engine::{context::Context, Channel};
+use csv::Writer;
 use ic_cdk::{
     api::canister_balance,
     export::candid::{CandidType, Deserialize},
 };
 use ic_cdk_macros::query;
-use sha2::{Digest, Sha256};
+use itertools::FoldWhile::{Continue, Done};
+use itertools::Itertools;
 
 #[derive(Clone, Debug, CandidType, Deserialize)]
 pub struct Status {
@@ -46,17 +50,51 @@ fn get_thread(param: GetThreadParam) -> IPage {
     })
 }
 
- 
-// #[query]
-// #[ic_cdk::export::candid::candid_method(query)]
-fn export_comments(params: ExportParam) {
-    let mut current_cursor: Option<String> = None;
-    let mut hasher = Sha256::new();
-    let ExportParam { cursor } = params;
+#[query]
+#[ic_cdk::export::candid::candid_method(query)]
+fn export_comments(params: ExportParam) -> ExportChunk {
+    const MAX_CAPACITY: usize = 1_800_000;
 
-    let channels = CHANNELS.with(|channels| channels);
-    let exported_data = channels.borrow().iter();
+    CHANNELS.with(|channels| {
+        let mut channels = channels.borrow_mut();
+        let channels_iterator = channels.iter();
+        let flattened_channels_comments_iterator =
+            channels_iterator.flat_map(|(_, channel)| channel.export());
+        let (data, last_cursor) = flattened_channels_comments_iterator
+            .skip(params.cursor.into())
+            .fold_while(
+                (Vec::with_capacity(MAX_CAPACITY), params.cursor),
+                |(acc, cursor), comment| {
+                    if acc.len() > MAX_CAPACITY {
+                        Done((acc, cursor))
+                    } else {
+                        let mut csv_writer = Writer::from_writer(acc);
+                        csv_writer.serialize(comment);
+                        let new_acc = csv_writer.into_inner().expect("Failed to write CSV");
+                        Continue((new_acc, cursor.add(1)))
+                    }
+                },
+            )
+            .into_inner();
 
-    // exported_data skip till cursor -> write to 
+        // let mut last_cursor: u16 = params.cursor.into();
+        // let mut data = Vec::with_capacity(MAX_CAPACITY);
+        // let mut csv_writer = Writer::from_writer(vec![]);
 
+        // while data.len() < MAX_CAPACITY {
+        //     if let Some(next_comment) = flattened_channels_comments_iterator.next() {
+        //         last_cursor = last_cursor.add(1);
+        //         csv_writer.serialize(next_comment);
+        //         let csv_writer_data = csv_writer.into_inner().expect("Failed to get csv writer data");
+        //         data.extend(csv_writer_data);
+        //     } else {
+        //         break;
+        //     }
+        // }
+
+        ExportChunk {
+            data,
+            next_cursor: (last_cursor != params.cursor).then(|| last_cursor),
+        }
+    })
 }

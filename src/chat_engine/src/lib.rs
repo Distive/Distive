@@ -268,7 +268,7 @@ impl Channel {
         }
     }
 
-    pub fn export(&mut self) -> Box<dyn Iterator<Item = CommentExport> + '_> {
+    pub fn export(&self) -> Box<dyn Iterator<Item = CommentExport> + '_> {
         let result = self.thread.iter().flat_map(|(_, comment)| comment.export());
         Box::new(result)
     }
@@ -293,6 +293,7 @@ mod tests {
             user_id: "user_id".to_string(),
             created_at: 0,
             parent_id: None,
+            ..Default::default()
         };
         let new_comment = Comment::new(comment);
         assert_eq!(new_comment.content, "hello");
@@ -311,6 +312,7 @@ mod tests {
                     user_id: "user_id".to_string(),
                     created_at: 0,
                     parent_id: None,
+                    ..Default::default()
                 },
                 None,
             )
@@ -332,6 +334,7 @@ mod tests {
                     user_id: "user_id".to_string(),
                     created_at: 0,
                     parent_id: None,
+                    ..Default::default()
                 },
                 None,
             )
@@ -344,6 +347,7 @@ mod tests {
                     user_id: "user_id".to_string(),
                     created_at: 0,
                     parent_id: None,
+                    ..Default::default()
                 },
                 None,
             )
@@ -356,6 +360,7 @@ mod tests {
                     user_id: "user_id".to_string(),
                     created_at: 0,
                     parent_id: None,
+                    ..Default::default()
                 },
                 None,
             )
@@ -378,6 +383,7 @@ mod tests {
                     user_id: "user_id".to_string(),
                     created_at: 0,
                     parent_id: None,
+                    ..Default::default()
                 },
                 None,
             )
@@ -390,6 +396,7 @@ mod tests {
                     user_id: "user_id".to_string(),
                     created_at: 0,
                     parent_id: None,
+                    ..Default::default()
                 },
                 None,
             )
@@ -402,6 +409,7 @@ mod tests {
                     user_id: "user_id".to_string(),
                     created_at: 0,
                     parent_id: None,
+                    ..Default::default()
                 },
                 None,
             )
@@ -429,6 +437,7 @@ mod tests {
                     id: comment_id.clone(),
                     user_id: "user_id".to_string(),
                     parent_id: None,
+                    ..Default::default()
                 },
                 None,
             )
@@ -442,6 +451,7 @@ mod tests {
                     id: comment_id.clone(),
                     user_id: "user_id".to_string(),
                     parent_id: None,
+                    ..Default::default()
                 },
                 None,
             )
@@ -467,6 +477,7 @@ mod tests {
                     user_id: "user_id".to_string(),
                     created_at: 0,
                     parent_id: Some(comment_id.clone()),
+                    ..Default::default()
                 },
                 None,
             )
@@ -483,6 +494,7 @@ mod tests {
                     user_id: "user_id".to_string(),
                     created_at: 0,
                     parent_id: Some(comment_id.clone()),
+                    ..Default::default()
                 },
                 None,
             )
@@ -504,6 +516,7 @@ mod tests {
             created_at: 0,
             id: comment_id.clone(),
             user_id: "user_id".to_string(),
+            ..Default::default()
         };
         channel.upsert_comment(comment_input.clone(), None).unwrap();
         channel
@@ -541,6 +554,7 @@ mod tests {
             created_at: 0,
             id: comment_id.clone(),
             user_id: "user_id".to_string(),
+            ..Default::default()
         };
         channel.upsert_comment(comment_input.clone(), None).unwrap();
 
@@ -614,6 +628,7 @@ mod tests {
             created_at: 0,
             id: comment_id.clone(),
             user_id: "user_id".to_string(),
+            ..Default::default()
         };
         channel.upsert_comment(comment_input.clone(), None).unwrap();
         channel.toggle_comment_metadata(
@@ -644,6 +659,7 @@ mod tests {
                     created_at: 0,
                     id: "comment_id".to_string(),
                     user_id: "user_id".to_string(),
+                    ..Default::default()
                 },
                 None,
             )
@@ -659,6 +675,7 @@ mod tests {
                 created_at: 0,
                 id: "comment_id".to_string(),
                 user_id: "user_id".to_string(),
+                ..Default::default()
             })
         );
     }
@@ -675,6 +692,7 @@ mod tests {
                         created_at: 0,
                         id: format!("comment_id_{}", x),
                         user_id: "user_id".to_string(),
+                        ..Default::default()
                     },
                     None,
                 )
@@ -692,6 +710,7 @@ mod tests {
                     created_at: 0,
                     id: format!("comment_id_{}", x),
                     user_id: "user_id".to_string(),
+                    ..Default::default()
                 })
             );
         }
@@ -710,6 +729,7 @@ mod tests {
             created_at: 0,
             id: comment_id.clone(),
             user_id: "user_id".to_string(),
+            ..Default::default()
         };
         channel.upsert_comment(comment_input.clone(), None).unwrap();
 
@@ -747,6 +767,7 @@ mod tests {
                 created_at: 0,
                 id: "comment_id".to_string(),
                 user_id: "user_id".to_string(),
+                ..Default::default()
             })
         );
 
@@ -758,6 +779,7 @@ mod tests {
                 created_at: 0,
                 id: reply.id.clone(),
                 user_id: "user_id".to_string(),
+                ..Default::default()
             })
         );
 
@@ -769,6 +791,7 @@ mod tests {
                 created_at: 0,
                 id: reply2.id,
                 user_id: "user_id".to_string(),
+                ..Default::default()
             })
         );
     }
@@ -784,6 +807,7 @@ mod tests {
                         created_at: 0,
                         id: format!("comment_id_{}", x),
                         user_id: "user_id".to_string(),
+                        ..Default::default()
                     },
                     None,
                 )
@@ -803,6 +827,7 @@ mod tests {
                             created_at: 0,
                             id: format!("reply_id_{}_{}", x, y),
                             user_id: "user_id".to_string(),
+                            ..Default::default()
                         },
                         None,
                     )
@@ -813,9 +838,7 @@ mod tests {
 
     #[test]
     fn export_can_skip_comments() {
-        let mut channel = create_mock_channel(10);
-        add_mock_replies(&mut channel, 10, 1);
-
+        let channel = create_mock_channel(100);
         let mut exported_data = channel.export();
 
         for x in 0..20 {
@@ -827,6 +850,7 @@ mod tests {
                     created_at: 0,
                     id: format!("comment_id_{}", x),
                     user_id: "user_id".to_string(),
+                    ..Default::default()
                 })
             );
         }
@@ -842,6 +866,7 @@ mod tests {
                     created_at: 0,
                     id: format!("comment_id_{}", x),
                     user_id: "user_id".to_string(),
+                    ..Default::default()
                 })
             );
         }
@@ -863,6 +888,7 @@ mod tests {
                 created_at: 0,
                 id: "comment_id_1".to_string(),
                 user_id: "user_id".to_string(),
+                ..Default::default()
             })
         );
 
@@ -872,8 +898,12 @@ mod tests {
                 content: "hello 0".to_string(),
                 parent_id: Some("comment_id_1".to_string()),
                 created_at: 0,
-                id: Channel::create_hierarchal_id(Some("comment_id_1".to_string()), &"reply_id_1_0".to_string()),
+                id: Channel::create_hierarchal_id(
+                    Some("comment_id_1".to_string()),
+                    &"reply_id_1_0".to_string()
+                ),
                 user_id: "user_id".to_string(),
+                ..Default::default()
             })
         )
     }

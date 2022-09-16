@@ -3,7 +3,7 @@ use hashbrown::HashSet;
 use std::ops::Deref;
 use std::ops::DerefMut;
 
-#[derive(Default, Clone)]
+#[derive(Default, Clone, Debug)]
 pub struct Metadata {
     pub value: HashMap<String, HashSet<String>>,
 }
@@ -60,8 +60,6 @@ impl Metadata {
             .map(|user_id| metadata_users.contains(user_id))
             .collect()
     }
-
-     
 
     pub fn to_output(&self, user_ids: &Vec<String>) -> MetadataOutput {
         self.value
@@ -200,7 +198,6 @@ mod tests {
             let user_id = rng.gen_range(0, 10).to_string();
             metadata_users.insert(user_id.clone());
             user_ids.push(user_id);
-
         }
         let toggled_users_bool = Metadata::get_toggled_users_bool(&metadata_users, &user_ids);
         assert_eq!(toggled_users_bool.len(), user_ids.len());

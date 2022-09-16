@@ -113,6 +113,8 @@ fn upsert_comment(param: UpsertCommentParam) -> String {
                 parent_id: param.parent_id.clone(),
                 user_id: caller.to_string(),
                 created_at: time(),
+                channel_id: param.channel_id.clone(),
+                
             };
             channel.upsert_comment(comment_input, None)
         },

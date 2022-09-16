@@ -1,3 +1,5 @@
+use serde::Serialize;
+
 use crate::context::Context;
 use crate::metadata::{Metadata, MetadataOutput};
 use crate::Channel;
@@ -6,7 +8,7 @@ use crate::Thread;
 use core::fmt;
 use std::iter::once;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Comment {
     pub id: String,
     pub content: String,
@@ -14,8 +16,10 @@ pub struct Comment {
     pub created_at: u64,
     pub replies: Thread,
     pub metadata: Option<Metadata>,
+    pub channel_id: String,
 }
 
+#[derive(Debug)]
 pub struct CommentOutput {
     pub id: String,
     pub content: String,
@@ -23,27 +27,30 @@ pub struct CommentOutput {
     pub created_at: u64,
     pub replies: Page,
     pub metadata: MetadataOutput,
+    pub channel_id: String,
 }
 
 // pub struct CommentExport {
 //   value: CommentExportInner
 // }
-#[derive(Debug,PartialEq)]
+#[derive(Debug, PartialEq, Default, Serialize)]
 pub struct CommentExport {
     pub id: String,
     pub content: String,
     pub user_id: String,
     pub created_at: u64,
     pub parent_id: Option<String>,
+    pub channel_id: String,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct CommentInput {
     pub content: String,
     pub id: String,
     pub user_id: String,
     pub created_at: u64,
     pub parent_id: Option<String>,
+    pub channel_id: String,
 }
 
 impl Comment {
@@ -55,6 +62,7 @@ impl Comment {
             created_at: comment_input.created_at,
             replies: Thread::new(),
             metadata: None,
+            channel_id: comment_input.channel_id,
         }
     }
 
@@ -72,6 +80,7 @@ impl Comment {
             created_at: self.created_at,
             replies: Channel::get_thread_as_page(&self.replies, &10, None, None)
                 .unwrap_or_default(),
+            channel_id: self.channel_id.clone(),
         }
     }
 
@@ -91,7 +100,8 @@ impl From<&Comment> for CommentExport {
             content: comment.content.clone(),
             user_id: comment.user_id.clone(),
             created_at: comment.created_at,
-            parent_id: Channel::parent_id_from_comment_id(&comment.id)
+            parent_id: Channel::parent_id_from_comment_id(&comment.id),
+            channel_id: comment.channel_id.clone(),
         }
     }
 }

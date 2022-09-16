@@ -27,7 +27,13 @@ pub struct GetThreadParam {
 
 #[derive(Clone, Debug, Default, CandidType, Deserialize)]
 pub struct ExportParam {
-    pub cursor: Option<u16>
+    pub cursor: u16
+}
+
+#[derive(CandidType, Deserialize)]
+pub struct ExportChunk {
+   pub data: Vec<u8>,
+   pub next_cursor: Option<u16>
 }
 
 #[derive(Clone, Debug, Default, CandidType, Deserialize)]

@@ -29,6 +29,7 @@ fn comment_channel_get_comments() {
                 id: comment_id.clone(),
                 user_id: "user_id".to_string(),
                 parent_id: None,
+                ..Default::default()
             },
             None,
         )
@@ -41,6 +42,7 @@ fn comment_channel_get_comments() {
                 id: comment_id_2.clone(),
                 user_id: "user_id".to_string(),
                 parent_id: None,
+                ..Default::default()
             },
             None,
         )
@@ -53,6 +55,7 @@ fn comment_channel_get_comments() {
                 id: comment_id_3.clone(),
                 user_id: "user_id".to_string(),
                 parent_id: None,
+                ..Default::default()
             },
             None,
         )
@@ -121,6 +124,7 @@ fn comment_reply() {
                 id: comment_id.clone(),
                 user_id: "user_id".to_string(),
                 parent_id: None,
+                ..Default::default()
             },
             None,
         )
@@ -137,6 +141,7 @@ fn comment_reply() {
                 id: reply_id.clone(),
                 user_id: "user_id".to_string(),
                 parent_id: Some(comment.id.clone()),
+                ..Default::default()
             },
             None,
         )
@@ -163,6 +168,7 @@ fn comment_reply() {
                 id: reply_id_2.clone(),
                 user_id: "user_id".to_string(),
                 parent_id: Some(comment.id.clone()),
+                ..Default::default()
             },
             None,
         )
@@ -192,6 +198,7 @@ fn n_nested_comments() {
                         id: comment_id.clone(),
                         user_id: "user_id".to_string(),
                         parent_id: parent_id.clone(),
+                        ..Default::default()
                     },
                     None,
                 )
@@ -262,6 +269,7 @@ fn get_comment_test() {
                 id: comment_id.clone(),
                 user_id: "user_id".to_string(),
                 parent_id: None,
+                ..Default::default()
             },
             None,
         )
@@ -276,6 +284,7 @@ fn get_comment_test() {
                 id: reply_id.clone(),
                 user_id: "user_id".to_string(),
                 parent_id: Some(comment.id.clone()),
+                ..Default::default()
             },
             None,
         )
@@ -312,6 +321,7 @@ fn comment_metadata() {
                 id: comment_id.clone(),
                 user_id: "user_id".to_string(),
                 parent_id: None,
+                ..Default::default()
             },
             None,
         )
@@ -344,6 +354,7 @@ fn comment_metadata() {
                 id: reply_id.clone(),
                 user_id: "user_id".to_string(),
                 parent_id: Some(comment.id.clone()),
+                ..Default::default()
             },
             None,
         )

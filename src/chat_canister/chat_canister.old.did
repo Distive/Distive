@@ -52,7 +52,7 @@ type status = record {
 };
 
 type export_chunk = record { 
-    data: blob;  
+    data: text;  
     next_cursor: opt nat16;
 };
 
