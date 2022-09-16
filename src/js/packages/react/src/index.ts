@@ -2,7 +2,7 @@ import { Result, ok } from 'neverthrow'
 import _SDK, { SDK } from '../../sdk/dist'
 import { DistiveHookParam, useDistive, DistiveHook } from './hook'
 
-export type { ThreadState, DistiveHook, DistiveHookParam, PostStatus } from './hook'
+export type { ThreadState, DistiveHook, DistiveHookParam, PostStatus, PostThreadState } from './hook'
 
 interface Config {
     serverId: string

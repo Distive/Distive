@@ -42,7 +42,7 @@ export interface ThreadState {
     [postId: string]: PostThreadState,
 }
 
-interface PostThreadState extends Post {
+export interface PostThreadState extends Post {
     status: PostStatus,
     toggledMetadataLabels: string[],
 }
