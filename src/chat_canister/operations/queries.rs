@@ -77,21 +77,6 @@ fn export_comments(params: ExportParam) -> ExportChunk {
             )
             .into_inner();
 
-        // let mut last_cursor: u16 = params.cursor.into();
-        // let mut data = Vec::with_capacity(MAX_CAPACITY);
-        // let mut csv_writer = Writer::from_writer(vec![]);
-
-        // while data.len() < MAX_CAPACITY {
-        //     if let Some(next_comment) = flattened_channels_comments_iterator.next() {
-        //         last_cursor = last_cursor.add(1);
-        //         csv_writer.serialize(next_comment);
-        //         let csv_writer_data = csv_writer.into_inner().expect("Failed to get csv writer data");
-        //         data.extend(csv_writer_data);
-        //     } else {
-        //         break;
-        //     }
-        // }
-
         ExportChunk {
             data,
             next_cursor: (last_cursor != params.cursor).then(|| last_cursor),
