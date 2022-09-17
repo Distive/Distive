@@ -89,7 +89,6 @@ impl Comment {
             .map(|c| c.into())
             .chain(self.replies.iter().flat_map(|c| c.1.export()));
         Box::new(result)
-        //     .collect()
     }
 }
 
