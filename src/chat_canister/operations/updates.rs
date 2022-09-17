@@ -6,7 +6,12 @@ use crate::{
     },
     CHANNELS,
 };
-use chat_engine::{comment::CommentInput, metadata::MetadataInput};
+use chat_engine::{
+    comment::{CommentExport, CommentInput},
+    metadata::MetadataInput,
+    Channel,
+};
+use csv::Reader;
 use ic_cdk::{
     api::time,
     export::{
@@ -58,7 +63,6 @@ pub fn toggle_metadata(param: ToggleMetadataParam) -> bool {
 #[update]
 #[ic_cdk::export::candid::candid_method(update)]
 pub fn delete_comment(param: DeleteCommentParam) -> String {
-   
     let _result = authenticate_user_and_comment_action(
         &param.channel_id,
         &param.comment_id,
@@ -114,7 +118,6 @@ fn upsert_comment(param: UpsertCommentParam) -> String {
                 user_id: caller.to_string(),
                 created_at: time(),
                 channel_id: param.channel_id.clone(),
-                
             };
             channel.upsert_comment(comment_input, None)
         },
@@ -125,6 +128,36 @@ fn upsert_comment(param: UpsertCommentParam) -> String {
         },
         Err(message) => message,
     }
+}
+
+#[update]
+#[ic_cdk::export::candid::candid_method(update)]
+fn import_comments(blob: &[u8]) -> bool {
+    CHANNELS.with(|channels| {
+        let mut channels = channels.borrow_mut();
+        let mut reader = Reader::from_reader(blob);
+        reader
+            .deserialize::<CommentExport>()
+            .flatten()
+            .map(|comment_export| comment_export.into())
+            .for_each(|comment_input: CommentInput| {
+                let channel = channels
+                    .entry(comment_input.channel_id.to_string())
+                    .or_insert_with(|| Channel::new(comment_input.channel_id.to_string()));
+
+                if let Some(parent_id) = comment_input.parent_id {
+                    channel.upsert_comment(
+                        CommentInput {
+                            id: comment_input.id.clone(),
+                            ..Default::default()
+                        },
+                        None,
+                    );
+                }
+                channel.upsert_comment(comment_input, None);
+            });
+        true
+    })
 }
 
 #[init]

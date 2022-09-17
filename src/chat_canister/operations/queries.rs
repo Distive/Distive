@@ -56,7 +56,7 @@ fn export_comments(params: ExportParam) -> ExportChunk {
     const MAX_CAPACITY: usize = 1_800_000;
 
     CHANNELS.with(|channels| {
-        let mut channels = channels.borrow_mut();
+        let channels = channels.borrow();
         let channels_iterator = channels.iter();
         let flattened_channels_comments_iterator =
             channels_iterator.flat_map(|(_, channel)| channel.export());

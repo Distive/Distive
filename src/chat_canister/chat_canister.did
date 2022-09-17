@@ -66,5 +66,6 @@ service : {
     "get_thread": (param: get_thread_param) -> (page) query;
     "toggle_metadata": (param: toggle_metadata_param) -> (bool);
     "export_comments": (param: export_param) -> (export_chunk) query;
+    "import_comments": (data: blob) -> (bool);
     "status": () -> (status) query;
 }

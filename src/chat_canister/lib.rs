@@ -4,7 +4,7 @@ mod shared;
 use chat_engine::Channel;
 use ic_cdk::api::time;
 use operations::{queries::*, updates::*};
-use shared::types::{DeleteCommentParam, GetThreadParam, IPage, UpsertCommentParam,ExportChunk,ExportParam};
+use shared::types::{DeleteCommentParam, GetThreadParam, IPage, UpsertCommentParam};
 use indexmap::IndexMap;
 use std::cell::RefCell;
 

@@ -1,11 +1,11 @@
 use core::fmt;
 use std::ops::{Deref, DerefMut};
 
-use indexmap::IndexMap;
 use crate::Comment;
+use indexmap::IndexMap;
 // pub type Thread = IndexMap<String, Comment>;
-#[derive(Clone)]
-pub struct Thread(IndexMap<String,Comment>);
+#[derive(Clone, Default)]
+pub struct Thread(IndexMap<String, Comment>);
 
 impl Thread {
     pub fn new() -> Self {
@@ -31,8 +31,6 @@ impl DerefMut for Thread {
 //Implement debug
 impl fmt::Debug for Thread {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("Thread")
-            .field("0", &self.0)
-            .finish()
+        f.debug_struct("Thread").field("0", &self.0).finish()
     }
 }

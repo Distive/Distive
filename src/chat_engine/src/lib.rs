@@ -11,6 +11,7 @@ use thread::Thread;
 
 const DELIMITER: &str = ".";
 
+#[derive(Default)]
 pub struct Channel {
     thread: Thread,
 }
@@ -128,6 +129,7 @@ impl Channel {
         }
     }
 
+    // returns Err if parent not found
     pub fn upsert_comment(
         &mut self,
         comment_input: CommentInput,

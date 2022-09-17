@@ -1,4 +1,4 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use crate::context::Context;
 use crate::metadata::{Metadata, MetadataOutput};
@@ -33,7 +33,7 @@ pub struct CommentOutput {
 // pub struct CommentExport {
 //   value: CommentExportInner
 // }
-#[derive(Debug, PartialEq, Default, Serialize)]
+#[derive(Debug, PartialEq, Default, Serialize, Deserialize)]
 pub struct CommentExport {
     pub id: String,
     pub content: String,
@@ -101,6 +101,32 @@ impl From<&Comment> for CommentExport {
             created_at: comment.created_at,
             parent_id: Channel::parent_id_from_comment_id(&comment.id),
             channel_id: comment.channel_id.clone(),
+        }
+    }
+}
+
+impl From<&CommentExport> for CommentInput {
+    fn from(comment: &CommentExport) -> Self {
+        CommentInput {
+            id: comment.id.clone(),
+            content: comment.content.clone(),
+            user_id: comment.user_id.clone(),
+            created_at: comment.created_at,
+            parent_id: comment.parent_id.clone(),
+            channel_id: comment.channel_id.clone(),
+        }
+    }
+}
+
+impl From<CommentExport> for CommentInput {
+    fn from(comment: CommentExport) -> Self {
+        CommentInput {
+            id: comment.id,
+            content: comment.content,
+            user_id: comment.user_id,
+            created_at: comment.created_at,
+            parent_id: comment.parent_id,
+            channel_id: comment.channel_id,
         }
     }
 }
