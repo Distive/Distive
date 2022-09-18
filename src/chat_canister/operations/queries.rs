@@ -69,7 +69,8 @@ fn export_comments(params: ExportParam) -> ExportChunk {
                         Done((acc, cursor))
                     } else {
                         let mut csv_writer = Writer::from_writer(acc);
-                        csv_writer.serialize(comment);
+                        
+                        let _ = csv_writer.serialize(comment);
                         let new_acc = csv_writer.into_inner().expect("Failed to write CSV");
                         Continue((new_acc, cursor.add(1)))
                     }

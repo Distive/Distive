@@ -1,0 +1,71 @@
+type comment_input = record {
+    channel_id: text;
+    message: text;
+    comment_id:  text;
+    parent_id: opt text;
+};
+
+type page = record {
+    comments: vec comment_output;
+    remaining_count: nat;
+};
+
+type comment_output = record {
+    id: text;
+    content: text;
+    user_id: text;
+    created_at: nat;
+    replies: page;
+    metadata: vec metadata_output;
+};
+
+type metadata_output = record {
+    text;
+    nat64;
+    vec bool;
+};
+
+type get_thread_param = record {
+    limit: nat8;
+    channel_id: text;
+    cursor: opt text;
+    metadata_user_ids: opt vec text;
+};
+
+type upsert_comment_param = comment_input;
+
+type delete_comment_param = record {
+    comment_id: text;
+    channel_id: text;
+};
+
+type toggle_metadata_param = record {
+    comment_id: text;
+    channel_id: text;
+    label: text;
+};
+
+type status = record {
+    remaining_cycles: nat64;
+    time_created: nat64;
+    is_empty: bool;
+};
+
+type export_chunk = record { 
+    data: blob;  
+    next_cursor: opt nat16;
+};
+
+type export_param = record {
+    cursor: nat16;
+};
+
+service : {
+    "upsert_comment": (input: upsert_comment_param) -> (text);
+    "delete_comment": (input: delete_comment_param)-> (text);
+    "get_thread": (param: get_thread_param) -> (page) query;
+    "toggle_metadata": (param: toggle_metadata_param) -> (bool);
+    "export_comments": (param: export_param) -> (export_chunk) query;
+    "import_comments": (data: blob) -> (bool);
+    "status": () -> (status) query;
+}

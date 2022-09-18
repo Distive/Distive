@@ -34,14 +34,17 @@ pub struct CommentOutput {
 //   value: CommentExportInner
 // }
 #[derive(Debug, PartialEq, Default, Serialize, Deserialize)]
-pub struct CommentExport {
-    pub id: String,
-    pub content: String,
-    pub user_id: String,
-    pub created_at: u64,
-    pub parent_id: Option<String>,
-    pub channel_id: String,
-}
+pub struct CommentExport(pub String, pub String, pub String, pub u64, pub Option<String>, pub String);
+// pub struct CommentExport {
+//     pub id: String,
+//     pub content: String,
+//     pub user_id: String,
+//     pub created_at: u64,
+//     pub parent_id: Option<String>,
+//     pub channel_id: String,
+// }
+
+/// id, content, user_id, created_at, parent_id, channel_id
 
 #[derive(Clone, Default)]
 pub struct CommentInput {
@@ -94,39 +97,63 @@ impl Comment {
 
 impl From<&Comment> for CommentExport {
     fn from(comment: &Comment) -> Self {
-        CommentExport {
-            id: comment.id.clone(),
-            content: comment.content.clone(),
-            user_id: comment.user_id.clone(),
-            created_at: comment.created_at,
-            parent_id: Channel::parent_id_from_comment_id(&comment.id),
-            channel_id: comment.channel_id.clone(),
-        }
+        // CommentExport {
+        //     id: comment.id.clone(),
+        //     content: comment.content.clone(),
+        //     user_id: comment.user_id.clone(),
+        //     created_at: comment.created_at,
+        //     parent_id: Channel::parent_id_from_comment_id(&comment.id),
+        //     channel_id: comment.channel_id.clone(),
+        // }
+        CommentExport(
+            comment.id.clone(),
+            comment.content.clone(),
+            comment.user_id.clone(),
+            comment.created_at,
+            Channel::parent_id_from_comment_id(&comment.id),
+            comment.channel_id.clone(),
+        )
     }
 }
 
 impl From<&CommentExport> for CommentInput {
     fn from(comment: &CommentExport) -> Self {
+        // CommentInput {
+        //     id: comment.id.clone(),
+        //     content: comment.content.clone(),
+        //     user_id: comment.user_id.clone(),
+        //     created_at: comment.created_at,
+        //     parent_id: comment.parent_id.clone(),
+        //     channel_id: comment.channel_id.clone(),
+        // }
         CommentInput {
-            id: comment.id.clone(),
-            content: comment.content.clone(),
-            user_id: comment.user_id.clone(),
-            created_at: comment.created_at,
-            parent_id: comment.parent_id.clone(),
-            channel_id: comment.channel_id.clone(),
+            id: comment.0.clone(),
+            content: comment.1.clone(),
+            user_id: comment.2.clone(),
+            created_at: comment.3,
+            parent_id: comment.4.clone(),
+            channel_id: comment.5.clone(),
         }
     }
 }
 
 impl From<CommentExport> for CommentInput {
     fn from(comment: CommentExport) -> Self {
+        // CommentInput {
+        //     id: comment.id,
+        //     content: comment.content,
+        //     user_id: comment.user_id,
+        //     created_at: comment.created_at,
+        //     parent_id: comment.parent_id,
+        //     channel_id: comment.channel_id,
+        // }
         CommentInput {
-            id: comment.id,
-            content: comment.content,
-            user_id: comment.user_id,
-            created_at: comment.created_at,
-            parent_id: comment.parent_id,
-            channel_id: comment.channel_id,
+            id: comment.0,
+            content: comment.1,
+            user_id: comment.2,
+            created_at: comment.3,
+            parent_id: comment.4,
+            channel_id: comment.5,
         }
     }
 }

@@ -11,7 +11,7 @@ use chat_engine::{
     metadata::MetadataInput,
     Channel,
 };
-use csv::Reader;
+use csv::{Reader, ReaderBuilder};
 use ic_cdk::{
     api::time,
     export::{
@@ -132,29 +132,31 @@ fn upsert_comment(param: UpsertCommentParam) -> String {
 
 #[update]
 #[ic_cdk::export::candid::candid_method(update)]
-fn import_comments(blob: &[u8]) -> bool {
+fn import_comments(blob: Vec<u8>) -> bool {
     CHANNELS.with(|channels| {
         let mut channels = channels.borrow_mut();
-        let mut reader = Reader::from_reader(blob);
+        let mut reader = ReaderBuilder::new()
+            .has_headers(false)
+            .from_reader(blob.as_slice());
+
         reader
             .deserialize::<CommentExport>()
-            .flatten()
+            .flatten() // filters out error values
             .map(|comment_export| comment_export.into())
             .for_each(|comment_input: CommentInput| {
                 let channel = channels
-                    .entry(comment_input.channel_id.to_string())
-                    .or_insert_with(|| Channel::new(comment_input.channel_id.to_string()));
-
-                if let Some(parent_id) = comment_input.parent_id {
-                    channel.upsert_comment(
+                    .entry(comment_input.channel_id.clone().to_string())
+                    .or_insert_with(|| Channel::new(comment_input.channel_id.clone().to_string()));
+                if let Some(parent_id) = comment_input.clone().parent_id {
+                    let _ = channel.upsert_comment(
                         CommentInput {
-                            id: comment_input.id.clone(),
+                            id: parent_id,
                             ..Default::default()
                         },
                         None,
                     );
                 }
-                channel.upsert_comment(comment_input, None);
+                let _ = channel.upsert_comment(comment_input, None);
             });
         true
     })
