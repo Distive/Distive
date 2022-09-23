@@ -28,24 +28,26 @@ Default.args = {
     },
     Components: {
         RootContainer: ({ children }) => {
-            return <div className='absolute top-0 bottom-0 left-0 right-0'>
+            return <div style={{ height: '100%' }} className='absolute top-0 bottom-0 left-0 right-0 h-full w-full'>
                 <div
-                className=' relative overflow-hidden'
+                    style={{height:'100%'}}
+                    className=' relative w-full h-full z-50 overflow-hidden'
                 >
-                    <div className='bg-white grid grid-flow-col p-6'>
-                {children}
-
+                    <div style={{height:'100%'}} className='bg-white flex w-full h-full overflow-hidden'>
+                        {children}
                     </div>
-            </div>
+                </div>
             </div>
         },
         ChannelContainer: ({ children }) => {
-            return <div className='bg-[#f6f1f1] rounded-md relative'>
-                {children}
+            return <div style={{ flexGrow: 1, height: '100%' }} className='bg-[#f6f1f1] rounded-md relative h-full overflow-hidden'>
+                <div style={{height: '100%'}} className='flex flex-col h-full'>
+                    {children}
+                </div>
             </div>
         },
         NavBar: ({ children, activeChannelTab }) => {
-            return <div className='bg-white w-full'>
+            return <div style={{ flexBasis: '30%' }} className='bg-white w-full relative flex-grow-0 flex-shrink-0 basis-1/4 overflow-visible'>
                 {children}
             </div>
         },
@@ -56,9 +58,10 @@ Default.args = {
             </div>
         },
         InputContainer: ({ children }) => {
-            return <div className='sticky border-[#E3E3E3]  border-[1px]   bg-white shadow-lg w-full p-4 rounded-md flex flex-col  items-start justify-between gap-4'>
+            // return <div/>
+            return <footer style={{ order: 3,  minHeight: 62, position:'relative', zIndex: 100 }} className=' border-[#E3E3E3] border-[1px]   bg-white shadow-lg w-full p-4 rounded-md flex flex-col gap-2'>
                 <div className='flex items-center gap-2'>
-                   
+
                     <img
                         src='https://lh3.googleusercontent.com/ogw/AOh-ky0X9R3cke61nRpzmJ8DDam82ZyRIlwjvAf_lQOPvQ=s32-c-mo'
                         className='w-8 h-8 rounded-full aspect-square'
@@ -66,9 +69,13 @@ Default.args = {
                     <span>Replying to <b>@rosymaplewitch</b></span>
                 </div>
                 {children}
-            </div>
+            </footer>
         },
-        ChannelTopBar: DefaultComponent,
+        ChannelTopBar: () => {
+            return <header className='relative z-[1000] w-full h-[59px]'>
+                Channel Name
+            </header>
+        },
         ImageUploadButton: DefaultComponent,
         InputButtonsContainer: () => {
             return <>
@@ -81,8 +88,20 @@ Default.args = {
         },
         Post,
         PostsContainer: ({ children, isReply }) => {
-            return <div className={`flex flex-col gap-8 ml-12 pt-12 ${!isReply && 'max-h-[100%] overflow-y-scroll '}`}>
+            return <div style={{
+                gap: 48,
+                height: '100%',
+                marginTop: 48,
+                marginBottom: 48
+            }} className={`ml-12 w-full overflow-x-hidden absolute   flex flex-col ${!isReply ? 'max-h-[100%]  overflow-y-scroll ': ' '}`}>
                 {children}
+            </div>
+        },
+        ChannelPosts: ({ children }) => {
+            return <div style={{ position: 'relative', zIndex: 1, flex: '1 1 0', order: 2, height:'100%' }}>
+                {/* <div style={{}}> */}
+                {children}
+               {/* </div> */}
             </div>
         },
         PostsLoader: () => {

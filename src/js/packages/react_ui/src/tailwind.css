@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-#root {
+/* #root {
     position: absolute;
     top: 0;
     bottom: 0;
@@ -10,4 +10,4 @@
     right: 0;
     overflow: hidden;
     height: 100%;
-}
+} */

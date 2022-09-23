@@ -8,8 +8,9 @@ const VisibilityIcon = () => <svg className='w-4 h-4' fill="none" xmlns="http://
 const ReplyIcon = () => <svg className='w-4 h-4' fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 14 15"><g clip-path="url(#a)"><path d="M6.25 7.5a.75.75 0 1 0 1.5 0 .75.75 0 0 0-1.5 0Zm3.125 0a.75.75 0 1 0 1.5 0 .75.75 0 0 0-1.5 0Zm-6.25 0a.75.75 0 1 0 1.5 0 .75.75 0 0 0-1.5 0Zm10.331-2.713A7.002 7.002 0 0 0 7 .5h-.03A6.984 6.984 0 0 0 0 7.533a7.022 7.022 0 0 0 .75 3.123v2.375a.719.719 0 0 0 .719.719h2.376c.97.488 2.039.745 3.124.75h.033c.936 0 1.843-.181 2.698-.536a6.946 6.946 0 0 0 2.231-1.487A6.985 6.985 0 0 0 14 7.532a6.973 6.973 0 0 0-.544-2.745Zm-2.36 6.844A5.782 5.782 0 0 1 7 13.312h-.026a5.834 5.834 0 0 1-2.705-.68l-.131-.07h-2.2v-2.2l-.07-.13a5.833 5.833 0 0 1-.68-2.705 5.777 5.777 0 0 1 1.68-4.122 5.769 5.769 0 0 1 4.107-1.717h.027a5.784 5.784 0 0 1 4.112 1.701 5.784 5.784 0 0 1 1.702 4.138 5.79 5.79 0 0 1-1.72 4.104Z" fill="#000"/></g><defs><clipPath id="a"><path fill="#fff" transform="translate(0 .5)" d="M0 0h14v14H0z"/></clipPath></defs></svg>
 
 const postButtonStyles = 'border-[#E3E3E3] border-[1.5px] rounded-full bg-[#FAFAFA] p-1 px-2'
+
 const Post: Components['Post'] = ({ children, state }) => {
-    return <div>
+    return <div className=''>
         <div className='mb-2'>
             <span className='mr-2 text-sm'>{state.userId}</span>
             <span className='text-xs'>{state.created_at}</span>
