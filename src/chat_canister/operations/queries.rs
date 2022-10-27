@@ -50,8 +50,8 @@ fn get_thread(param: GetThreadParam) -> IPage {
     })
 }
 
-#[query]
-#[ic_cdk::export::candid::candid_method(query)]
+// #[query]
+// #[ic_cdk::export::candid::candid_method(query)]
 fn export_comments(params: ExportParam) -> ExportChunk {
     const MAX_CAPACITY: usize = 1_800_000;
 

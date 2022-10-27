@@ -34,6 +34,7 @@ pub struct CommentOutput {
 //   value: CommentExportInner
 // }
 #[derive(Debug, PartialEq, Default, Serialize, Deserialize)]
+/// id, content, user_id, created_at, parent_id, channel_id
 pub struct CommentExport(pub String, pub String, pub String, pub u64, pub Option<String>, pub String);
 // pub struct CommentExport {
 //     pub id: String,
@@ -44,7 +45,6 @@ pub struct CommentExport(pub String, pub String, pub String, pub u64, pub Option
 //     pub channel_id: String,
 // }
 
-/// id, content, user_id, created_at, parent_id, channel_id
 
 #[derive(Clone, Default)]
 pub struct CommentInput {
@@ -94,6 +94,8 @@ impl Comment {
         Box::new(result)
     }
 }
+
+
 
 impl From<&Comment> for CommentExport {
     fn from(comment: &Comment) -> Self {
