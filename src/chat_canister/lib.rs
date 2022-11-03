@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate dotenv_codegen;
+
 pub mod operations;
 pub mod shared;
 

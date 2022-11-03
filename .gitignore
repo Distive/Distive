@@ -18,5 +18,3 @@ node_modules/
 dist/
 .retype/
 */**/lerna-debug.log
-
-.env
