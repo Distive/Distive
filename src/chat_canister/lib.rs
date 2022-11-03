@@ -1,5 +1,5 @@
-mod operations;
-mod shared;
+pub mod operations;
+pub mod shared;
 
 use chat_engine::Channel;
 use ic_cdk::api::time;
