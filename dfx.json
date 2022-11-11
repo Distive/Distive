@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "dfx": "0.11.1",
+  "dfx": "0.12.0",
   "canisters": {
     "chat_canister": {
       "type": "rust",
@@ -17,12 +17,6 @@
     "build": {
       "packtool": "",
       "args": ""
-    }
-  },
-  "networks": {
-    "local": {
-      "bind": "127.0.0.1:8000",
-      "type": "ephemeral"
     }
   }
 }

@@ -13,4 +13,11 @@ tokio-test = "0.4.2"
 candid = "0.7.14"
 serde = "1.0"
 chat_canister = { path = "../chat_canister" }
+garcon = "0.2.3"
+fake = { version = "2.5", features=['uuid','derive']}
+rand = "0.8"
+uuid = "1.2.1"
+tokio = { version = "1.0", features = ["macros"] }
+ring = "0.16.20"
+[dependencies]
 
