@@ -1,4 +1,4 @@
-# rm -r .dfx
+rm -r .dfx
 # start environment for running tests
 dfx start --background
 dfx_pid=$!
