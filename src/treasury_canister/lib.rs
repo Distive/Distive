@@ -53,7 +53,7 @@ fn status() -> Status {
 
 #[update]
 #[ic_cdk::export::candid::candid_method(update)]
-async fn wallet_receive() -> () {
+async fn wallet_receive() {
     let amount = ic_cdk::api::call::msg_cycles_available();
     if amount > 0 {
         ic_cdk::api::call::msg_cycles_accept(amount);
@@ -116,7 +116,7 @@ async fn create_chat_canister() -> CreateChatCanisterResult {
     let update_settings_result = match install_code_result {
         Ok(canister_id) => {
             let update_args = management::UpdateSettingsArgument {
-                canister_id: canister_id.clone(),
+                canister_id,
                 settings: CanisterSettings {
                     compute_allocation: None,
                     controllers: Some(vec![

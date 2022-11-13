@@ -3,6 +3,7 @@ use fake::{Fake, Faker};
 use futures::{stream, Stream, StreamExt};
 use garcon::Delay;
 use ic_agent::{agent, export::Principal, identity::BasicIdentity, Agent};
+use rand::distributions::Uniform;
 pub const TREASURY_CANISTER_ID: &str = env!("TREASURY_CANISTER_ID_DEV");
 
 #[derive(Clone, Debug, Default, CandidType, Deserialize)]
@@ -70,9 +71,13 @@ pub async fn seed_canister(
                 )
                 .await
             {
-                Ok(_) => println!("Coment seeded: {:?}", param),
+                Ok(result) => {
+                    let message: String = Decode!(&result, String).expect("Decode Error");
+                    println!("Result: {:?}", message);
+                }
                 Err(e) => {
                     // throw
+                    println!("Result: {:?}",e);
                     panic!("Error seeding comment")
                 }
             }
@@ -80,12 +85,12 @@ pub async fn seed_canister(
         .await;
 }
 
-pub fn generate_fake_comment(channel_id: String, parent_id: Option<String>) -> UpsertCommentParam {
+fn generate_fake_comment(channel_id: String, parent_id: Option<String>) -> UpsertCommentParam {
     UpsertCommentParam {
-        parent_id,
+        parent_id: None,
         channel_id,
         comment_id: fake::uuid::UUIDv5.fake(),
-        message: fake::faker::lorem::en::Sentence(10..500).fake(),
+        message: lipsum::lipsum(rand::Rng::gen_range(&mut rand::thread_rng(), 10..100) as usize),
     }
 }
 
