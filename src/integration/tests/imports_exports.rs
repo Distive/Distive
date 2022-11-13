@@ -69,6 +69,13 @@ async fn test_canister_csv_exports() {
         cursor = result.next_cursor;
     }
 
-    let mut file = std::fs::File::create("export.csv").expect("File creation failed");
+    let mut file = std::fs::File::create("export_test.csv").expect("File creation failed");
     file.write_all(&data).expect("File write failed");
+    // count the number of lines in the file
+    let count = std::str::from_utf8(&data)
+        .expect("Invalid UTF-8")
+        .lines()
+        .count();
+        
+    assert_eq!(count, comments.len());
 }

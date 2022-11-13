@@ -73,7 +73,7 @@ pub async fn seed_canister(
             {
                 Ok(result) => {
                     let message: String = Decode!(&result, String).expect("Decode Error");
-                    println!("Result: {:?}", message);
+                    // println!("Result: {:?}", message);
                 }
                 Err(e) => {
                     // throw
