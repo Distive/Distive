@@ -1,6 +1,8 @@
 rm -r .dfx
 # start environment for running tests
 dfx start --background
+dfx identity new test --disable-encryption
+dfx identity use test
 dfx_pid=$!
 # build canisters
 ./build.sh
@@ -11,3 +13,4 @@ echo "Treasury canister id: $TREASURY_CANISTER_ID_DEV"
 cd ./src/integration && cargo test -- --nocapture
 while :; do sleep 2073600; done
 kill $dfx_pid
+dfx identity use default

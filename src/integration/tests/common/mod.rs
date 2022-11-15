@@ -77,7 +77,7 @@ pub async fn seed_canister(
                 }
                 Err(e) => {
                     // throw
-                    println!("Result: {:?}",e);
+                    println!("Result: {:?}", e);
                     panic!("Error seeding comment")
                 }
             }
@@ -154,4 +154,36 @@ pub async fn create_agent() -> Agent {
         .await
         .expect("Could not fetch root key");
     agent
+}
+
+pub async fn export_canister_data(agent: &Agent, canister_id: &Principal) -> Vec<u8> {
+    #[derive(Deserialize, CandidType)]
+    struct ExportChunk {
+        data: Vec<u8>,
+        next_cursor: Option<u16>,
+    }
+
+    #[derive(Deserialize, CandidType)]
+    struct ExportParam {
+        cursor: u16,
+    }
+
+    let mut query_builder = agent.query(&canister_id, "export_comments");
+
+    let mut cursor: Option<u16> = Some(0);
+    let mut data: Vec<u8> = Vec::new();
+
+    while let Some(c) = cursor {
+        let param = ExportParam { cursor: c };
+        let result = query_builder
+            .with_arg(&Encode!(&param).expect("Encode Failure"))
+            .call()
+            .await
+            .expect("Call Failure");
+        let result: ExportChunk = Decode!(&result, ExportChunk).expect("Decode Failure");
+        data.extend(result.data);
+        cursor = result.next_cursor;
+    }
+
+    data
 }
