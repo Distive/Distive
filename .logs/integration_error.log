@@ -1,0 +1,109 @@
+Running dfx start for version 0.12.0
+Using the default definition for the 'local' shared network because /Users/simdi/.config/dfx/networks.json does not exist.
+Dashboard: http://localhost:55523/_/dashboard
+Fabricating 10000000000000 cycles onto nvqrq-fqaaa-aaaaa-aacaq-cai
+Fabricated 10000000000000 cycles, updated balance: 18_382_209_298_476 cycles
+Creating canister treasury_canister...
+treasury_canister canister created with canister id: asjca-iyaaa-aaaaa-aadla-cai
+Fabricating 10000000000000 cycles onto treasury_canister
+Fabricated 10000000000000 cycles, updated balance: 12_999_998_684_000 cycles
+[31mError: (B[mFailed to create new identity 'test'.
+[33mCaused by: (B[mFailed to create new identity 'test'.
+  Identity already exists.
+Using identity: "test".
+Creating canister chat_canister...
+chat_canister canister created with canister id: avieu-faaaa-aaaaa-aadlq-cai
+Building canisters...
+WARN: Cannot check for vulnerabilities in rust canisters because cargo-audit is not installed. Please run 'cargo install cargo-audit' so that vulnerabilities can be detected.
+Executing: cargo build --target wasm32-unknown-unknown --release -p chat_canister --locked
+warning: unused import: `Reader`
+  --> src/chat_canister/operations/updates.rs:14:11
+   |
+14 | use csv::{Reader, ReaderBuilder};
+   |           ^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` on by default
+
+warning: `chat_canister` (lib) generated 1 warning
+    Finished release [optimized] target(s) in 0.09s
+Shrink WASM module size.
+Building canisters...
+WARN: Cannot check for vulnerabilities in rust canisters because cargo-audit is not installed. Please run 'cargo install cargo-audit' so that vulnerabilities can be detected.
+Executing: cargo build --target wasm32-unknown-unknown --release -p treasury_canister --locked
+   Compiling treasury_canister v0.3.1 (/Users/simdi/Documents/Distive/src/treasury_canister)
+    Finished release [optimized] target(s) in 0.96s
+Shrink WASM module size.
+Deploying: treasury_canister
+All canisters have already been created.
+Building canisters...
+WARN: Cannot check for vulnerabilities in rust canisters because cargo-audit is not installed. Please run 'cargo install cargo-audit' so that vulnerabilities can be detected.
+Executing: cargo build --target wasm32-unknown-unknown --release -p treasury_canister --locked
+    Finished release [optimized] target(s) in 0.09s
+Shrink WASM module size.
+Installing canisters...
+Creating UI canister on the local network.
+The UI canister on the "local" network is "byga2-kiaaa-aaaaa-aadma-cai"
+WARNING!
+You are about to reinstall the treasury_canister canister
+This will OVERWRITE all the data and code in the canister.
+
+YOU WILL LOSE ALL DATA IN THE CANISTER.");
+
+
+Do you want to proceed? yes/No
+Reinstalling code for canister treasury_canister, with canister ID asjca-iyaaa-aaaaa-aadla-cai
+Deployed canisters.
+URLs:
+  Backend canister via Candid interface:
+    chat_canister: [32mhttp://127.0.0.1:4943/?canisterId=byga2-kiaaa-aaaaa-aadma-cai&id=avieu-faaaa-aaaaa-aadlq-cai[0m
+    treasury_canister: [32mhttp://127.0.0.1:4943/?canisterId=byga2-kiaaa-aaaaa-aadma-cai&id=asjca-iyaaa-aaaaa-aadla-cai[0m
+   Compiling chat_canister v0.3.1 (/Users/simdi/Documents/Distive/src/chat_canister)
+warning: unused import: `Reader`
+  --> src/chat_canister/operations/updates.rs:14:11
+   |
+14 | use csv::{Reader, ReaderBuilder};
+   |           ^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` on by default
+
+warning: `chat_canister` (lib) generated 1 warning
+   Compiling integration v0.1.0 (/Users/simdi/Documents/Distive/src/integration)
+warning: unused imports: `Arc`, `Mutex`
+ --> src/integration/tests/imports_exports.rs:3:12
+  |
+3 |     sync::{Arc, Mutex},
+  |            ^^^  ^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused imports: `Decode`, `Encode`
+ --> src/integration/tests/imports_exports.rs:6:26
+  |
+6 | use candid::{CandidType, Decode, Encode};
+  |                          ^^^^^^  ^^^^^^
+
+warning: unused import: `futures::StreamExt`
+ --> src/integration/tests/imports_exports.rs:9:5
+  |
+9 | use futures::StreamExt;
+  |     ^^^^^^^^^^^^^^^^^^
+
+warning: function `clear_canister` is never used
+   --> src/integration/tests/common/mod.rs:130:10
+    |
+130 | async fn clear_canister() {
+    |          ^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` on by default
+
+warning: comparison is useless due to type limits
+   --> src/integration/tests/common/mod.rs:120:12
+    |
+120 |         if self._counter % 10 >= 0 && self._counter % 10 < 6 {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(unused_comparisons)]` on by default
+
+warning: `integration` (test "imports_exports") generated 5 warnings
+    Finished test [unoptimized + debuginfo] target(s) in 2.02s
+     Running tests/imports_exports.rs (/Users/simdi/Documents/Distive/target/debug/deps/imports_exports-f8d4e2fe265f1430)

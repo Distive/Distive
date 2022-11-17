@@ -141,22 +141,23 @@ fn import_comments(blob: Vec<u8>) -> bool {
 
         reader
             .deserialize::<CommentExport>()
-            .flatten() // filters out error values
-            .map(|comment_export| comment_export.into())
-            .for_each(|comment_input: CommentInput| {
-                let channel = channels
-                    .entry(comment_input.channel_id.clone().to_string())
-                    .or_insert_with(|| Channel::new(comment_input.channel_id.clone().to_string()));
-                if let Some(parent_id) = comment_input.clone().parent_id {
-                    let _ = channel.upsert_comment(
-                        CommentInput {
-                            id: parent_id,
-                            ..Default::default()
-                        },
-                        None,
-                    );
+            .for_each(|comment_export_result| {
+                if let Ok(comment_export) = comment_export_result {
+                    let comment_input: CommentInput = comment_export.into();
+                    let channel = channels
+                        .entry(comment_input.channel_id.to_string())
+                        .or_insert_with(|| Channel::new(comment_input.channel_id.to_string()));
+                    if let Some(parent_id) = comment_input.clone().parent_id {
+                        let _ = channel.upsert_comment(
+                            CommentInput {
+                                id: parent_id,
+                                ..Default::default()
+                            },
+                            None,
+                        );
+                    }
+                    let _ = channel.upsert_comment(comment_input, None);
                 }
-                let _ = channel.upsert_comment(comment_input, None);
             });
         true
     })

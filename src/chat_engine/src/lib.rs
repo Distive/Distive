@@ -110,9 +110,9 @@ impl Channel {
 
     fn create_hierarchal_id(parent_id: Option<String>, comment_id: &String) -> String {
         parent_id
-            .clone()
+            // .clone()
             .map(|parent_id| [parent_id, comment_id.clone()].join(DELIMITER))
-            .unwrap_or(comment_id.clone())
+            .unwrap_or_else(|| comment_id.to_string())
     }
 
     fn split_comment_id(hierarchal_id: &String) -> Vec<&str> {
@@ -230,12 +230,9 @@ impl Channel {
             }
         };
 
-        match (thread, cursor) {
-            (Some(thread), Some(cursor)) => {
-                thread.remove(cursor);
-            }
-            _ => (),
-        };
+        if let (Some(thread), Some(cursor)) = (thread, cursor) {
+            thread.remove(cursor);
+        }
     }
 
     pub fn toggle_comment_metadata(&mut self, comment_id: &String, metadata: MetadataInput) {
@@ -246,7 +243,7 @@ impl Channel {
             0 => (None, None),
             _ => {
                 let comment_id = hierarchal_ids.pop();
-                if hierarchal_ids.len() == 0 {
+                if hierarchal_ids.is_empty() {
                     (comment_id, Some(&mut self.thread))
                 } else {
                     (comment_id, self.get_thread(&hierarchal_ids.join(DELIMITER)))
@@ -788,7 +785,7 @@ mod tests {
         assert_eq!(
             exported_data.next(),
             Some(CommentExport(
-               reply2.id,
+                reply2.id,
                 "hello world too".to_string(),
                 "user_id".to_string(),
                 0,

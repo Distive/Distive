@@ -1,9 +1,9 @@
 use candid::{CandidType, Decode, Deserialize, Encode};
 use fake::{Fake, Faker};
-use futures::{stream, Stream, StreamExt};
-use garcon::Delay;
-use ic_agent::{agent, export::Principal, identity::BasicIdentity, Agent};
-use rand::distributions::Uniform;
+use futures::{stream, StreamExt};
+
+use ic_agent::{export::Principal, identity::BasicIdentity, Agent};
+
 pub const TREASURY_CANISTER_ID: &str = env!("TREASURY_CANISTER_ID_DEV");
 
 #[derive(Clone, Debug, Default, CandidType, Deserialize)]
@@ -72,7 +72,7 @@ pub async fn seed_canister(
                 .await
             {
                 Ok(result) => {
-                    let message: String = Decode!(&result, String).expect("Decode Error");
+                    let _message: String = Decode!(&result, String).expect("Decode Error");
                     // println!("Result: {:?}", message);
                 }
                 Err(e) => {
@@ -85,7 +85,7 @@ pub async fn seed_canister(
         .await;
 }
 
-fn generate_fake_comment(channel_id: String, parent_id: Option<String>) -> UpsertCommentParam {
+fn generate_fake_comment(channel_id: String, _parent_id: Option<String>) -> UpsertCommentParam {
     UpsertCommentParam {
         parent_id: None,
         channel_id,
@@ -156,7 +156,7 @@ pub async fn create_agent() -> Agent {
     agent
 }
 
-pub async fn export_canister_data(agent: &Agent, canister_id: &Principal) -> Vec<u8> {
+pub async fn export_canister_data(agent: &Agent, canister_id: &Principal) -> Vec<Vec<u8>> {
     #[derive(Deserialize, CandidType)]
     struct ExportChunk {
         data: Vec<u8>,
@@ -171,17 +171,17 @@ pub async fn export_canister_data(agent: &Agent, canister_id: &Principal) -> Vec
     let mut query_builder = agent.query(&canister_id, "export_comments");
 
     let mut cursor: Option<u16> = Some(0);
-    let mut data: Vec<u8> = Vec::new();
+    let mut data: Vec<Vec<u8>> = Default::default();
 
     while let Some(c) = cursor {
-        let param = ExportParam { cursor: c };
+        let param = ExportParam { cursor: c }; 
         let result = query_builder
             .with_arg(&Encode!(&param).expect("Encode Failure"))
             .call()
             .await
             .expect("Call Failure");
         let result: ExportChunk = Decode!(&result, ExportChunk).expect("Decode Failure");
-        data.extend(result.data);
+        data.push(result.data);
         cursor = result.next_cursor;
     }
 
